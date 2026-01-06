@@ -17,7 +17,8 @@ $success_msg = '';
 // Doctor creates a session
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_session'])) {
     $appt_id = $_POST['appointment_id'];
-    $link = "https://meet.jit.si/" . uniqid('hospital_telemed_');
+    $room_name = 'ADMS_' . uniqid(); // Just the room name, not full URL
+    $link = $room_name; // Storing room name in DB column 'meeting_link' for simplicity (schema abuse, but works)
     
     try {
         db_insert('telemedicine_sessions', [
@@ -111,7 +112,7 @@ if ($role === 'doctor') {
                         </td>
                         <td>
                             <?php if ($appt['meeting_link']): ?>
-                                <a href="<?php echo $appt['meeting_link']; ?>" target="_blank" class="btn-primary">
+                                <a href="video_chat.php?room=<?php echo $appt['meeting_link']; ?>" class="btn-primary">
                                     <i class="fas fa-video"></i> Join Call
                                 </a>
                             <?php elseif ($role === 'doctor' || $role === 'admin'): ?>

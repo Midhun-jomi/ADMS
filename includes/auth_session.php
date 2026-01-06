@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function check_auth() {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: /index.php");
+        header("Location: " . BASE_URL . "/index.php");
         exit();
     }
 }
@@ -15,7 +15,7 @@ function check_role($allowed_roles) {
     check_auth();
     if (!in_array($_SESSION['role'], $allowed_roles)) {
         // Redirect to unauthorized page or dashboard
-        header("Location: /index.php?error=unauthorized");
+        header("Location: " . BASE_URL . "/index.php?error=unauthorized");
         exit();
     }
 }

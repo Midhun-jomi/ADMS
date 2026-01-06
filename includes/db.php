@@ -1,6 +1,7 @@
 <?php
 // includes/db.php
 date_default_timezone_set('Asia/Kolkata'); // Ensure consistent timezone
+require_once __DIR__ . '/config.php';
 
 
 $host     = 'aws-1-ap-southeast-2.pooler.supabase.com';

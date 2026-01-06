@@ -11,10 +11,10 @@ $user_role = $_SESSION['role'] ?? 'Guest';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMS Hospital - Hospital Management</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="/assets/js/main.js" defer></script>
+    <script src="<?php echo BASE_URL; ?>/assets/js/main.js" defer></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -23,7 +23,7 @@ $user_role = $_SESSION['role'] ?? 'Guest';
         <div class="content-wrapper">
             <header class="top-header">
                 <div class="search-bar">
-                    <form action="/search_results.php" method="GET" style="display: flex; align-items: center; width: 100%;">
+                    <form action="<?php echo BASE_URL; ?>/search_results.php" method="GET" style="display: flex; align-items: center; width: 100%;">
                         <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; margin-right: 10px;" aria-label="Search">
                             <i class="fas fa-search" style="color: #888;"></i>
                         </button>
@@ -33,7 +33,7 @@ $user_role = $_SESSION['role'] ?? 'Guest';
                 
                 <div class="header-actions">
                     <?php if ($user_role === 'patient'): ?>
-                        <a href="/modules/ehr/book_appointment.php" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.9em; text-decoration: none;">
+                        <a href="<?php echo BASE_URL; ?>/modules/ehr/book_appointment.php" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.9em; text-decoration: none;">
                             <i class="far fa-calendar-plus"></i> Book Appointment
                         </a>
                     <?php else: ?>
@@ -91,7 +91,7 @@ $user_role = $_SESSION['role'] ?? 'Guest';
                         </div>
                     </div>
 
-                    <a href="/settings.php" class="icon-btn" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">
+                    <a href="<?php echo BASE_URL; ?>/settings.php" class="icon-btn" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-cog"></i>
                     </a>
                     
@@ -111,7 +111,7 @@ $user_role = $_SESSION['role'] ?? 'Guest';
                             <span class="user-name"><?php echo htmlspecialchars(explode('@', $user_email)[0]); ?></span>
                             <span class="user-role"><?php echo ucfirst($user_role); ?></span>
                         </div>
-                        <a href="/auth/logout.php" style="color: #dc3545; margin-left: 10px;"><i class="fas fa-sign-out-alt"></i></a>
+                        <a href="<?php echo BASE_URL; ?>/auth/logout.php" style="color: #dc3545; margin-left: 10px;"><i class="fas fa-sign-out-alt"></i></a>
                     </div>
                 </div>
 
