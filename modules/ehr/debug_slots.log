@@ -1,0 +1,108 @@
+2025-12-04 07:01:59 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2025-12-03
+)
+
+2025-12-04 07:04:38 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2025-12-03
+)
+
+2025-12-04 07:04:42 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2025-12-04
+)
+
+2025-12-04 07:06:44 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2025-12-04
+)
+
+2025-12-04 07:07:00 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2025-12-05
+)
+
+2025-12-10 04:04:56 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2025-12-09
+)
+
+2025-12-17 06:20:15 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-16
+)
+
+2025-12-17 06:20:30 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-16
+)
+
+2025-12-17 06:20:32 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-16
+)
+
+2025-12-17 06:20:34 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-16
+)
+
+2025-12-17 06:22:22 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-16
+)
+
+2025-12-17 06:22:29 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-17
+)
+
+2025-12-17 11:57:58 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-16
+)
+
+2025-12-17 12:04:24 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-17
+)
+
+2025-12-17 12:08:37 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2025-12-17
+)
+
+2026-01-01 10:35:06 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2026-01-02
+)
+
+2026-01-01 10:35:08 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2026-01-01
+)
+
+2026-01-01 10:35:37 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2026-01-01
+)
+
