@@ -7,6 +7,10 @@ require_once '../../includes/header.php';
 $room_name = $_GET['room'] ?? '';
 $error = '';
 
+// Clean the room name if it's a full URL (backward compatibility)
+$room_name = str_replace('https://meet.jit.si/', '', $room_name);
+$room_name = trim($room_name, '/'); // Remove trailing slashes
+
 if (empty($room_name)) {
     $error = "Invalid meeting room.";
 }
