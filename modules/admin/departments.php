@@ -120,7 +120,7 @@ $departments = db_select("SELECT * FROM departments ORDER BY name ASC");
                                 <tr style="border-bottom: 1px solid #eee;">
                                     <td style="padding: 15px;">
                                         <strong><?php echo htmlspecialchars($d['name']); ?></strong><br>
-                                        <small class="text-muted"><?php echo htmlspecialchars(substr($d['description'], 0, 50)); ?>...</small>
+                                        <small class="text-muted"><?php echo htmlspecialchars(substr($d['description'] ?? '', 0, 50)); ?>...</small>
                                     </td>
                                     <td style="padding: 15px;"><?php echo htmlspecialchars($d['head_of_dept'] ?: '-'); ?></td>
                                     <td style="padding: 15px;">

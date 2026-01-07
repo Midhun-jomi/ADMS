@@ -21,11 +21,14 @@ $allocation = db_select_one("SELECT na.*, s_doc.first_name as doc_first, s_doc.l
 // Handle Vitals Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
     $v_patient_id = $_POST['v_patient_id'];
-    $r_by = $_POST['recorded_by_id'] ?? $user_id;
+    $v_appt_id = $_POST['v_appointment_id'] ?? null;
+    $r_by = $_POST['recorded_by_id'] ?? $user_id; // recorded_by_id not actually in form, defaulting to $user_id
     
+    // Save Metrics
     $metrics = [
         'heart_rate' => ['value' => $_POST['heart_rate'], 'unit' => 'bpm'],
         'glucose' => ['value' => $_POST['glucose'], 'unit' => 'mg/dL'],
+        'weight' => ['value' => $_POST['weight'], 'unit' => 'kg'],
         'cholesterol' => ['value' => $_POST['cholesterol'], 'unit' => 'mg/dL'],
         'temperature' => ['value' => $_POST['temperature'], 'unit' => 'F'],
         'bp_systolic' => ['value' => $_POST['bp_systolic'], 'unit' => 'mmHg'],
@@ -38,10 +41,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
                 'patient_id' => $v_patient_id,
                 'metric_type' => $type,
                 'metric_value' => json_encode($data),
-                'recorded_by' => $r_by
+                'recorded_by' => $user_id
             ]);
         }
     }
+    
+    // Save Nurse Note / History
+    if (!empty($_POST['nurse_notes']) && $v_appt_id) {
+        $note = trim($_POST['nurse_notes']);
+        if ($note) {
+            $timestamp = date('h:i A');
+            $auth_user = db_select_one("SELECT first_name, last_name FROM staff WHERE user_id = $1", [$user_id]);
+            $nurse_name = $auth_user ? ($auth_user['first_name'].' '.$auth_user['last_name']) : 'Nurse';
+            
+            // Append to reason
+            $appt = db_select_one("SELECT reason FROM appointments WHERE id = $1", [$v_appt_id]);
+            if ($appt) {
+                $new_reason = ($appt['reason'] ?? '') . "\n\n[Nurse Entry $timestamp]: " . $note;
+                db_query("UPDATE appointments SET reason = $1 WHERE id = $2", [$new_reason, $v_appt_id]);
+            }
+        }
+    }
+    
     echo "<meta http-equiv='refresh' content='0'>";
 }
 
@@ -58,6 +79,22 @@ $sql = "SELECT a.id as admission_id, a.patient_id, a.admission_date, a.diagnosis
         ORDER BY r.room_number";
 
 $admissions = db_select($sql);
+
+// Fetch Outpatients (Appointments for Allocated Doctor)
+$outpatients = [];
+if (!empty($allocation['doctor_id'])) {
+    $doc_id = $allocation['doctor_id'];
+    // Postgres specific date check
+    $sql_op = "SELECT a.*, p.first_name, p.last_name, p.date_of_birth, p.id as patient_id,
+                      (SELECT profile_image FROM users u WHERE u.id = p.user_id) as p_image
+               FROM appointments a
+               JOIN patients p ON a.patient_id = p.id
+               WHERE a.doctor_id = $1 
+                 AND a.appointment_time::date = CURRENT_DATE
+                 AND a.status != 'cancelled'
+               ORDER BY a.appointment_time ASC";
+    $outpatients = db_select($sql_op, [$doc_id]);
+}
 ?>
 
 <style>
@@ -149,6 +186,61 @@ $admissions = db_select($sql);
 <div class="dashboard-grid-layout">
     <!-- Left Column: Patient List -->
     <div class="glass-panel">
+        
+        <!-- SECTION 1: TODAY'S OUTPATIENTS (If Allocated to Doctor) -->
+        <?php if (!empty($allocation['doctor_id'])): ?>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #333;"><i class="fas fa-user-clock" style="color:#ff9800; margin-right:10px;"></i> Today's Clinic (Dr. <?php echo htmlspecialchars($allocation['doc_last']); ?>)</h3>
+                <span class="badge badge-warning"><?php echo count($outpatients); ?> Appointments</span>
+            </div>
+
+            <?php if (empty($outpatients)): ?>
+                <div style="text-align: center; padding: 20px; color: #888; border-bottom: 1px solid #eee; margin-bottom: 20px;">
+                    <p>No appointments scheduled for today.</p>
+                </div>
+            <?php else: ?>
+                <div class="patient-list" style="margin-bottom: 40px;">
+                    <?php foreach ($outpatients as $opt): 
+                        $age = date_diff(date_create($opt['date_of_birth']), date_create('today'))->y;
+                        $p_img = $opt['p_image'] ?: "https://ui-avatars.com/api/?name=" . urlencode($opt['first_name'] . ' ' . $opt['last_name']);
+                        $time_formatted = date('h:i A', strtotime($opt['appointment_time']));
+                    ?>
+                    <div class="patient-card-item" style="border-left: 4px solid #ff9800;">
+                        <div class="p-room" style="background: #fff3e0; color: #e65100; min-width: 80px;">
+                            <span style="font-size: 1.1em;"><?php echo $time_formatted; ?></span>
+                            <span style="font-size: 0.6em; text-transform: uppercase;">Time</span>
+                        </div>
+                        
+                        <img src="<?php echo $p_img; ?>" class="p-avatar">
+                        
+                        <div class="p-info">
+                            <span class="p-name"><?php echo htmlspecialchars($opt['first_name'] . ' ' . $opt['last_name']); ?></span>
+                            <span class="p-meta">
+                                <?php echo $age; ?> yrs &bull; Status: <?php echo ucfirst($opt['status']); ?>
+                            </span>
+                        </div>
+                        
+                        <div class="p-actions">
+                             <button 
+                                type="button"
+                                class="btn btn-sm btn-light" 
+                                style="color: #ff9800; border: 1px solid #ff9800;"
+                                data-patient-id="<?php echo $opt['patient_id']; ?>"
+                                data-patient-name="<?php echo htmlspecialchars($opt['first_name'] . ' ' . $opt['last_name']); ?>"
+                                data-appt-id="<?php echo $opt['id']; ?>"
+                                onclick="openVitalsModalFromElement(this)">
+                                <i class="fas fa-heartbeat"></i> Take Vitals
+                            </button>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <!-- SECTION 2: ADMITTED PATIENTS -->
+        <hr style="margin: 30px 0; border: 0; border-top: 2px dashed #eee;">
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="margin: 0; color: #333;">Active In-Patients</h3>
             <span class="badge badge-primary"><?php echo count($admissions); ?> Current</span>
@@ -184,8 +276,14 @@ $admissions = db_select($sql);
                     </div>
                     
                     <div class="p-actions">
-                        <button onclick='openVitalsModal(<?php echo $adm["patient_id"]; ?>, "<?php echo htmlspecialchars($adm["first_name"] . " " . $adm["last_name"]); ?>")' 
-                            class="btn btn-sm btn-light" style="color: #21a9af; border: 1px solid #21a9af;">
+                        <button 
+                            type="button"
+                            class="btn btn-sm btn-light" 
+                            style="color: #21a9af; border: 1px solid #21a9af;"
+                            data-patient-id="<?php echo $adm['patient_id']; ?>"
+                            data-patient-name="<?php echo htmlspecialchars($adm['first_name'] . ' ' . $adm['last_name']); ?>"
+                            data-appt-id=""
+                            onclick="openVitalsModalFromElement(this)">
                             <i class="fas fa-notes-medical"></i> Vitals
                         </button>
                         <a href="patient_care.php?patient_id=<?php echo $adm['patient_id']; ?>" class="btn btn-sm btn-primary" style="background: #21a9af; border: none;">
@@ -233,7 +331,7 @@ $admissions = db_select($sql);
 <div id="nurseVitalsModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
     <div class="modal-content" style="background-color: #fefefe; margin: 10% auto; padding: 0; border: none; width: 500px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
         <div style="background: #21a9af; color: white; padding: 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 1.2rem;">Record Vitals</h3>
+            <h3 style="margin: 0; font-size: 1.2rem;">Record Vitals & History</h3>
             <span onclick="closeVitalsModal()" style="font-size: 24px; cursor: pointer; opacity: 0.8;">&times;</span>
         </div>
         
@@ -242,11 +340,16 @@ $admissions = db_select($sql);
             <form method="POST">
                 <input type="hidden" name="add_vitals" value="1">
                 <input type="hidden" name="v_patient_id" id="vitalsPatientId">
+                <input type="hidden" name="v_appointment_id" id="vitalsAppointmentId">
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; font-size: 0.8em; font-weight: 600; color: #555; margin-bottom: 5px;">Temp (°F)</label>
                         <input type="number" step="0.1" name="temperature" class="form-control" placeholder="98.6" style="border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8em; font-weight: 600; color: #555; margin-bottom: 5px;">Weight (kg)</label>
+                        <input type="number" step="0.1" name="weight" class="form-control" placeholder="kg" style="border-radius: 8px;">
                     </div>
                     <div>
                         <label style="display: block; font-size: 0.8em; font-weight: 600; color: #555; margin-bottom: 5px;">Heart Rate (BPM)</label>
@@ -276,15 +379,33 @@ $admissions = db_select($sql);
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; background: #21a9af; border: none; padding: 12px; border-radius: 10px; font-weight: 600;">Save Vitals Record</button>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 0.8em; font-weight: 600; color: #555; margin-bottom: 5px;">Nurse Notes / Vital History / Chief Complaint</label>
+                    <textarea name="nurse_notes" class="form-control" rows="3" placeholder="Enter patient history, complaints, or observations..." style="border-radius: 8px; width: 100%;"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; background: #21a9af; border: none; padding: 12px; border-radius: 10px; font-weight: 600;">Save Record</button>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    function openVitalsModal(pid, pname) {
+    function openVitalsModalFromElement(btn) {
+        var pid = btn.getAttribute('data-patient-id');
+        var pname = btn.getAttribute('data-patient-name');
+        var apptId = btn.getAttribute('data-appt-id');
+        
         document.getElementById('vitalsPatientId').value = pid;
+        document.getElementById('vitalsAppointmentId').value = apptId || '';
+        document.getElementById('vitalsPatientName').textContent = pname;
+        document.getElementById('nurseVitalsModal').style.display = 'block';
+    }
+    
+    // Fallback for legacy calls if any
+    function openVitalsModal(pid, pname, apptId) {
+        document.getElementById('vitalsPatientId').value = pid;
+        document.getElementById('vitalsAppointmentId').value = apptId || '';
         document.getElementById('vitalsPatientName').textContent = pname;
         document.getElementById('nurseVitalsModal').style.display = 'block';
     }

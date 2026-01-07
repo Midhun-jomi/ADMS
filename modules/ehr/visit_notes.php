@@ -184,6 +184,9 @@ $current_rx = db_select_one("SELECT medication_details FROM prescriptions WHERE 
 $prescribed_meds = $current_rx ? json_decode($current_rx['medication_details'], true) : [];
 
 $age = date_diff(date_create($appt['date_of_birth']), date_create('today'))->y;
+
+// Fetch Lab Results for Modal
+$lab_results_list = db_select("SELECT * FROM laboratory_tests WHERE patient_id = $1 ORDER BY created_at DESC", [$patient_id]);
 ?>
 
 <style>
@@ -279,7 +282,7 @@ $age = date_diff(date_create($appt['date_of_birth']), date_create('today'))->y;
             <?php else: ?>
                 <div class="vitals-grid">
                     <?php 
-                        $metrics_map = ['heart_rate' => ['label' => 'HR', 'icon' => 'fa-heart'], 'temperature' => ['label' => 'Temp', 'icon' => 'fa-thermometer-half'], 'bp_systolic' => ['label' => 'BP Sys', 'icon' => 'fa-tint'], 'glucose' => ['label' => 'Glu', 'icon' => 'fa-cube']];
+                        $metrics_map = ['heart_rate' => ['label' => 'HR', 'icon' => 'fa-heart'], 'temperature' => ['label' => 'Temp', 'icon' => 'fa-thermometer-half'], 'bp_systolic' => ['label' => 'BP Sys', 'icon' => 'fa-tint'], 'glucose' => ['label' => 'Glu', 'icon' => 'fa-cube'], 'weight' => ['label' => 'Weight', 'icon' => 'fa-weight']];
                         foreach ($metrics_map as $key => $meta): if (isset($latest_vitals[$key])):
                             $val = $latest_vitals[$key]['value']; $unit = $latest_vitals[$key]['unit'];
                     ?>
@@ -328,6 +331,10 @@ $age = date_diff(date_create($appt['date_of_birth']), date_create('today'))->y;
                         <!-- Lab Button Triggers Modal -->
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openLabModal()">
                             <i class="fas fa-flask"></i> Order Lab
+                        </button>
+
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openViewLabModal()">
+                            <i class="fas fa-vial"></i> View Lab Results
                         </button>
                         
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openMedModal()"><i class="fas fa-pills"></i> Meds</button>
@@ -438,7 +445,66 @@ $age = date_diff(date_create($appt['date_of_birth']), date_create('today'))->y;
     </div>
 </div>
 
+    </div>
+</div>
+
+<!-- View Lab Results Modal -->
+<div id="viewLabModal" class="lab-modal">
+    <div class="lab-modal-content" style="width: 700px; max-width: 90%;">
+        <h4 style="margin-top: 0; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fas fa-vial"></i> Laboratory Results</span>
+            <button type="button" onclick="closeViewLabModal()" style="background:none; border:none; font-size:1.2em; cursor:pointer;">&times;</button>
+        </h4>
+        <div style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
+            <table class="table table-hover" style="font-size: 0.9em; width: 100%;">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th style="padding: 10px;">Date</th>
+                        <th style="padding: 10px;">Test</th>
+                        <th style="padding: 10px;">Status</th>
+                        <th style="padding: 10px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($lab_results_list)): ?>
+                        <tr><td colspan="4" style="text-align:center; padding: 20px; color: #777;">No lab results found.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($lab_results_list as $lr): ?>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px;"><?php echo date('M d, Y', strtotime($lr['created_at'])); ?></td>
+                            <td style="padding: 10px;"><strong><?php echo htmlspecialchars($lr['test_type']); ?></strong></td>
+                            <td style="padding: 10px;">
+                                <span class="badge <?php echo $lr['status'] == 'completed' ? 'badge-success' : 'badge-warning'; ?>">
+                                    <?php echo ucfirst($lr['status']); ?>
+                                </span>
+                            </td>
+                            <td style="padding: 10px;">
+                                <?php if ($lr['status'] === 'completed'): ?>
+                                    <a href="../../modules/lab/results.php?id=<?php echo $lr['id']; ?>" target="_blank" class="btn btn-sm btn-primary" style="padding: 2px 8px; font-size: 0.8em;">View Report</a>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-actions" style="border-top: 1px solid #eee; padding-top: 15px;">
+            <button type="button" class="btn btn-secondary" onclick="closeViewLabModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    function openViewLabModal() {
+        document.getElementById('viewLabModal').style.display = 'block';
+    }
+
+    function closeViewLabModal() {
+        document.getElementById('viewLabModal').style.display = 'none';
+    }
     function openLabModal() {
         document.getElementById('labModal').style.display = 'block';
     }
@@ -543,8 +609,10 @@ $age = date_diff(date_create($appt['date_of_birth']), date_create('today'))->y;
     window.onclick = function(event) {
         const labModal = document.getElementById('labModal');
         const medModal = document.getElementById('medModal');
+        const viewLabModal = document.getElementById('viewLabModal');
         if (event.target == labModal) closeLabModal();
         if (event.target == medModal) closeMedModal();
+        if (event.target == viewLabModal) closeViewLabModal();
     }
 </script>
 

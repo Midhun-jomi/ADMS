@@ -64,6 +64,15 @@ $admissions = db_select("
     ORDER BY adm.admission_date DESC
 ", [$patient_id]);
 
+// Fetch Lab Results
+$lab_results = db_select("
+    SELECT l.*, s.first_name as doc_first, s.last_name as doc_last 
+    FROM laboratory_tests l 
+    LEFT JOIN staff s ON l.doctor_id = s.id 
+    WHERE l.patient_id = $1 
+    ORDER BY l.created_at DESC
+", [$patient_id]);
+
 // Calculate Vitals (Mock or from visits if table exists, using a placeholder for now or parsing medical_history if structured)
 // For now, we will display the raw text history prominent, but adding tabs for structured data.
 ?>
@@ -192,6 +201,9 @@ $admissions = db_select("
             <li class="nav-item">
                 <a class="nav-link" id="adm-tab" data-toggle="tab" href="#adm" role="tab">Admissions</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" id="lab-tab" data-toggle="tab" href="#lab" role="tab">Lab Results</a>
+            </li>
         </ul>
         
         <div class="tab-content" id="historyTabsContent">
@@ -310,8 +322,59 @@ $admissions = db_select("
                     </table>
                 </div>
             </div>
+
+            <!-- Lab Results -->
+            <div class="tab-pane fade" id="lab" role="tabpanel">
+                <h4>Laboratory Results</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Test Type</th>
+                                <th>Ordered By</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($lab_results as $lab): ?>
+                            <tr>
+                                <td><?php echo date('M d, Y', strtotime($lab['created_at'])); ?></td>
+                                <td><?php echo htmlspecialchars($lab['test_type']); ?></td>
+                                <td>Dr. <?php echo htmlspecialchars($lab['doc_last']); ?></td>
+                                <td>
+                                    <?php if ($lab['status'] === 'completed'): ?>
+                                        <span class="badge badge-success">Completed</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-warning"><?php echo ucfirst($lab['status']); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <a href="../../modules/lab/results.php?id=<?php echo $lab['id']; ?>" class="btn btn-sm btn-primary">View Results</a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php if(empty($lab_results)): ?><tr><td colspan="5">No lab results found.</td></tr><?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Auto-select tab based on hash
+    document.addEventListener("DOMContentLoaded", function() {
+        if (window.location.hash) {
+            var triggerEl = document.querySelector('a[href="' + window.location.hash + '"]');
+            if (triggerEl) {
+                // Bootstrap 4 Tab show
+                $(triggerEl).tab('show');
+            }
+        }
+    });
+</script>
 
 <?php include '../../includes/footer.php'; ?>
