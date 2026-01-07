@@ -164,8 +164,8 @@ $v_child = $visitor_stats['child'] ?? 0;
         display: inline-block;
         max-width: 120px;
     }
-    .heart-stats strong { font-size: 1.5em; display: block; }
-    .heart-stats span { font-size: 0.8em; color: #555; }
+    .heart-stats strong { font-size: 1.2em; display: block; }
+    .heart-stats small { font-size: 0.75em; color: #555; }
 
     /* Vital Chips */
     .vital-chip {
@@ -288,8 +288,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
     echo "<meta http-equiv='refresh' content='0'>";
 }
 
-// Fetch Latest Metrics for the "Active" patient (First appointment patient or selected)
-$active_patient = $todays_appts[0] ?? null;
+// Fetch Latest Metrics for the "Active" patient (Most recently recorded vitals)
+$latest_metric_entry = db_select_one("SELECT patient_id, recorded_at FROM patient_health_metrics ORDER BY recorded_at DESC LIMIT 1");
+
+$active_patient = null;
+if ($latest_metric_entry) {
+    // Fetch patient details for the latest metric
+    $active_patient = db_select_one("SELECT id as patient_id, first_name, last_name FROM patients WHERE id = $1", [$latest_metric_entry['patient_id']]);
+}
+
 $metrics_data = [
     'heart_rate' => 72, 
     'glucose' => 100, 
@@ -302,6 +309,7 @@ if ($active_patient) {
                                  WHERE patient_id = $1 
                                  ORDER BY recorded_at DESC", [$active_patient['patient_id']]);
     
+    $found_types = [];
     foreach ($latest_metrics as $lm) {
         $val = json_decode($lm['metric_value'], true);
         // Only take the first found (latest) for each type
@@ -392,8 +400,7 @@ if ($active_patient) {
                 <div style="z-index: 2;">
                     <h3 style="margin: 0; color: #444;">Live Heart Rate</h3>
                     <p style="color: #666; font-size: 0.9em;">
-                        <?php echo $active_patient ? htmlspecialchars($active_patient['first_name'] . ' ' . $active_patient['last_name']) : 'No Active Patient'; ?> 
-                        (Current)
+                        <?php echo $active_patient ? htmlspecialchars($active_patient['first_name'] . ' ' . $active_patient['last_name']) : 'No Activity'; ?> 
                     </p>
                 </div>
                 
@@ -411,15 +418,50 @@ if ($active_patient) {
                 </div>
             </div>
 
-            <!-- 2. ECG Recording -->
-            <div class="glass-card">
-                <div class="card-header" style="border: none; padding-bottom: 0;">
-                    <span>ECG Recording</span>
+            <!-- 2. Schedule Card (Moved) -->
+            <div class="glass-card schedule-card" style="padding: 15px; overflow-y: auto; max-height: 300px;">
+                <div class="card-header" style="border: none; padding-bottom: 5px; display: flex; justify-content: space-between;">
+                    <span><i class="far fa-calendar-alt text-warning"></i> Schedule</span>
+                    <i class="fas fa-ellipsis-v text-muted"></i>
                 </div>
-                <canvas id="ecgChart" height="150"></canvas>
+                
+                <div class="date-strip" style="justify-content: space-around; margin-bottom: 10px;">
+                    <?php 
+                    // Generate 7 days centered on selected date
+                    // Showing fewer days to fit better? Keep 7 for now, css might need tweak
+                    for($i=-2; $i<=2; $i++): // Reduce to 5 days for space
+                        $d = strtotime("$selected_date $i days");
+                        $day_num = date('d', $d);
+                        $day_name = date('M', $d);
+                        $full_date = date('Y-m-d', $d);
+                        $is_active = ($full_date === $selected_date) ? 'active' : '';
+                    ?>
+                    <a href="?date=<?php echo $full_date; ?>" style="text-decoration: none; color: inherit;">
+                        <div class="date-item <?php echo $is_active; ?>" style="font-size: 0.7em; width: 25px;">
+                            <div style="opacity: 0.6;"><?php echo $day_name; ?></div>
+                            <strong style="font-size: 1.2em;"><?php echo $day_num; ?></strong>
+                        </div>
+                    </a>
+                    <?php endfor; ?>
+                </div>
+
+                <div class="schedule-list">
+                    <?php if (empty($todays_appts)): ?>
+                        <p class="text-muted text-center py-2" style="font-size: 0.9em;">No appointments.</p>
+                    <?php else: ?>
+                        <?php foreach ($todays_appts as $appt): ?>
+                            <div class="appt-item" style="padding: 10px 0;">
+                                <img src="<?php echo $appt['p_image'] ?: 'https://ui-avatars.com/api/?name='.urlencode($appt['first_name']); ?>" class="appt-img" style="width: 35px; height: 35px;">
+                                <div class="appt-info">
+                                    <span class="appt-name" style="font-size: 0.85em;"><?php echo htmlspecialchars($appt['first_name'] . ' ' . $appt['last_name']); ?></span>
+                                    <span class="appt-role" style="font-size: 0.75em;"><?php echo date('h:i A', strtotime($appt['appointment_time'])); ?></span>
+                                </div>
+                                <a href="/modules/ehr/visit_notes.php?appointment_id=<?php echo $appt['id']; ?>" class="btn-sm btn-light" style="padding: 2px 5px;"><i class="fas fa-chevron-right" style="font-size: 0.8em;"></i></a>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
             </div>
-            
-            <!-- 3. Total Visitors -->
             <div class="glass-card">
                 <div class="card-header" style="border: none; padding-bottom: 0;">
                     <span>Total Visitors</span>
@@ -437,48 +479,7 @@ if ($active_patient) {
 
     <!-- Sidebar Column -->
     <div class="sidebar-col">
-        <div class="schedule-card">
-            <div class="card-header" style="border: none; padding-bottom: 5px;">
-                <span><i class="far fa-calendar-alt text-warning"></i> Schedule</span>
-                <i class="fas fa-ellipsis-v text-muted"></i>
-            </div>
-            
-            <div class="date-strip">
-                <?php 
-                // Generate 7 days centered on selected date
-                for($i=-3; $i<=3; $i++): 
-                    $d = strtotime("$selected_date $i days");
-                    $day_num = date('d', $d);
-                    $day_name = date('M', $d);
-                    $full_date = date('Y-m-d', $d);
-                    $is_active = ($full_date === $selected_date) ? 'active' : '';
-                ?>
-                <a href="?date=<?php echo $full_date; ?>" style="text-decoration: none; color: inherit;">
-                    <div class="date-item <?php echo $is_active; ?>">
-                        <div style="opacity: 0.6; font-size: 0.8em;"><?php echo $day_name; ?></div>
-                        <strong><?php echo $day_num; ?></strong>
-                    </div>
-                </a>
-                <?php endfor; ?>
-            </div>
 
-            <div class="schedule-list">
-                <?php if (empty($todays_appts)): ?>
-                    <p class="text-muted text-center py-4">No appointments today.</p>
-                <?php else: ?>
-                    <?php foreach ($todays_appts as $appt): ?>
-                        <div class="appt-item">
-                            <img src="<?php echo $appt['p_image'] ?: 'https://ui-avatars.com/api/?name='.urlencode($appt['first_name']); ?>" class="appt-img">
-                            <div class="appt-info">
-                                <span class="appt-name"><?php echo htmlspecialchars($appt['first_name'] . ' ' . $appt['last_name']); ?></span>
-                                <span class="appt-role"><?php echo date('h:i A', strtotime($appt['appointment_time'])); ?> - <?php echo htmlspecialchars($appt['reason']); ?></span>
-                            </div>
-                            <a href="/modules/ehr/visit_notes.php?appointment_id=<?php echo $appt['id']; ?>" class="btn-sm btn-light"><i class="fas fa-chevron-right"></i></a>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </div>
 
         <div class="issue-card">
             <div class="card-header" style="border: none;">
@@ -495,27 +496,7 @@ if ($active_patient) {
 </div>
 
 <script>
-    // ECG Chart
-    const ctxECG = document.getElementById('ecgChart').getContext('2d');
-    new Chart(ctxECG, {
-        type: 'line',
-        data: {
-            labels: Array.from({length: 50}, (_, i) => i),
-            datasets: [{
-                label: 'ECG',
-                data: Array.from({length: 50}, () => Math.random() * 100),
-                borderColor: '#FF8F6B',
-                borderWidth: 2,
-                tension: 0.4,
-                pointRadius: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { x: { display: false }, y: { display: false } }
-        }
-    });
+
 
     // Donut Chart
     const ctxVisitor = document.getElementById('visitorChart').getContext('2d');
