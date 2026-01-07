@@ -17,6 +17,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['role'] = $user['role'];
         $_SESSION['email'] = $user['email'];
 
+        // Audit Log (Added by Assistant)
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $ua = $_SERVER['HTTP_USER_AGENT'];
+        log_audit($user['id'], 'LOGIN_SUCCESS', json_encode([
+            'message' => 'User logged in successfully.',
+            'ip' => $ip,
+            'browser' => $ua
+        ]));
+
+        // Update Staff Status
+        $is_staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$user['id']]);
+        if ($is_staff) {
+            db_update('staff', ['status' => 'active'], ['user_id' => $user['id']]);
+        }
+        usleep(100000); // 100ms propagation delay
+
         // Redirect based on role
         if ($user['role'] === 'nurse') {
             header("Location: modules/patient_management/nursing_station.php");
@@ -27,6 +43,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         exit();
     } else {
+        // Log Failure
+        $target_user_id = $user ? $user['id'] : null;
+        log_audit($target_user_id, 'LOGIN_FAILED', json_encode([
+            'attempted_email' => $email,
+            'reason' => 'Invalid credentials',
+            'ip' => $_SERVER['REMOTE_ADDR'],
+            'browser' => $_SERVER['HTTP_USER_AGENT']
+        ]));
+
         $error = "Invalid email or password.";
     }
 }

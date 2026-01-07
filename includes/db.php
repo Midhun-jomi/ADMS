@@ -1,7 +1,6 @@
 <?php
 // includes/db.php
 date_default_timezone_set('Asia/Kolkata'); // Ensure consistent timezone
-require_once __DIR__ . '/config.php';
 
 
 $host     = 'aws-1-ap-southeast-2.pooler.supabase.com';
@@ -104,11 +103,11 @@ function db_delete($table, $conditions) {
 
 // Audit Logging Helper
 function log_audit($user_id, $action, $details = null) {
+    global $conn;
     // If user_id is null (e.g. failed login), we can store NULL or 0 if schema allows.
     // Schema: user_id UUID REFERENCES users(id). So it must be valid or NULL.
     // Let's assume schema allows NULL for system events or failed logins if we don't have ID.
     // Actually, for failed login, we might not have ID.
-    // Let's check schema.sql if we could. But I don't want to read it again.
     // Let's just try to insert. If $user_id is null, we pass NULL.
     
     // Ensure details is JSON
