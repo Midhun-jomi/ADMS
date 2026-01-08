@@ -139,9 +139,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 
         <div class="menu-category">Enterprise & AI</div>
+        <?php if (in_array($_SESSION['role'], ['admin', 'doctor', 'nurse'])): ?>
         <li><a href="<?php echo BASE_URL; ?>/modules/ai/diagnosis_assist.php">
             <i class="fas fa-robot"></i> AI Assist
         </a></li>
+        <?php endif; ?>
         <li><a href="<?php echo BASE_URL; ?>/modules/queue/display.php" target="_blank">
             <i class="fas fa-tv"></i> Queue Board
         </a></li>

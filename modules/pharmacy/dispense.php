@@ -131,16 +131,17 @@ $prescriptions = db_select("SELECT pr.*, p.first_name, p.last_name
                 <tr style="border-bottom: 1px solid #dee2e6;">
                     <td style="padding: 10px;"><?php echo date('M d, Y', strtotime($rx['created_at'])); ?></td>
                     <td style="padding: 10px;"><?php echo htmlspecialchars($rx['first_name'] . ' ' . $rx['last_name']); ?></td>
-                    <td style="padding: 10px;">
+                    <td style="padding: 10px; word-break: break-word; max-width: 400px;">
                         <?php 
                             $meds = json_decode($rx['medication_details'], true);
-                            foreach ($meds as $m) {
-                                echo htmlspecialchars($m['name'] . ' (' . $m['quantity'] . ') - ' . $m['dosage']) . "<br>";
+                            if (is_array($meds)) {
+                                foreach ($meds as $m) {
+                                    echo htmlspecialchars($m['name'] . ' (' . $m['quantity'] . ') - ' . $m['dosage']) . "<br>";
+                                }
                             }
                         ?>
                     </td>
-                    <td style="padding: 10px;">
-                    <td style="padding: 10px;">
+                    <td style="padding: 10px; white-space: nowrap; width: 1%; text-align: center;">
                         <?php if ($role !== 'doctor'): ?>
                             <form method="POST" action="process_dispense.php" onsubmit="return confirm('Dispense medications and generate bill?');">
                                 <input type="hidden" name="prescription_id" value="<?php echo $rx['id']; ?>">
@@ -149,7 +150,6 @@ $prescriptions = db_select("SELECT pr.*, p.first_name, p.last_name
                         <?php else: ?>
                             <span style="color: #6c757d; font-size: 0.9em;">Pending Dispense</span>
                         <?php endif; ?>
-                    </td>
                     </td>
                 </tr>
             <?php endforeach; ?>

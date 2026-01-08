@@ -406,7 +406,7 @@ if ($active_patient) {
             <!-- 1. Heart Card -->
             <div class="glass-card heart-card">
                 <div style="z-index: 2;">
-                    <h3 style="margin: 0; color: #444;">Live Heart Rate</h3>
+                    <h3 style="margin: 0; color: #444;">Heart Rate</h3>
                     <p style="color: #666; font-size: 0.9em;">
                         <?php echo $active_patient ? htmlspecialchars($active_patient['first_name'] . ' ' . $active_patient['last_name']) : 'No Activity'; ?> 
                     </p>

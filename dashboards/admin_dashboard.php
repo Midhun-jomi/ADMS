@@ -181,6 +181,55 @@ $revenue_today = 0;
                 </table>
             </div>
         </div>
+        
+        <!-- Recent Feedback Widget (New) -->
+        <div class="card mt-4">
+            <div class="card-header border-0 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">❤️ Patient Feedback</h4>
+                <a href="../modules/feedback/survey.php" class="btn btn-sm btn-light">View All</a>
+            </div>
+            <div class="table-responsive">
+                <?php
+                $recent_feedback = db_select("
+                    SELECT f.rating, f.comments, f.created_at, p.first_name, p.last_name 
+                    FROM patient_feedback f 
+                    LEFT JOIN patients p ON f.patient_id = p.id 
+                    ORDER BY f.created_at DESC LIMIT 3
+                ");
+                ?>
+                <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Patient</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($recent_feedback as $fb): ?>
+                        <tr>
+                            <td style="font-weight: 600;">
+                                <?php echo $fb['first_name'] ? htmlspecialchars($fb['first_name'] . ' ' . $fb['last_name']) : 'Anonymous'; ?>
+                            </td>
+                            <td>
+                                <span style="color: #ffc107; font-size: 1.1em;">
+                                    <?php 
+                                    for($i=0; $i<5; $i++) {
+                                        echo ($i < $fb['rating']) ? '★' : '<span style="color: #e0e0e0;">★</span>';
+                                    }
+                                    ?>
+                                </span>
+                            </td>
+                            <td style="white-space: normal; max-width: 300px; font-style: italic; color: #555;">
+                                "<?php echo htmlspecialchars(mb_strimwidth($fb['comments'], 0, 80, "...")); ?>"
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php if(empty($recent_feedback)): ?><tr><td colspan="3" class="text-center text-muted py-3">No feedback yet.</td></tr><?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 

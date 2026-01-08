@@ -8,11 +8,17 @@ $role = get_user_role();
 
 $appointment_id = $_GET['appointment_id'] ?? null;
 
+$is_embedded = isset($_GET['embedded']);
+
 if (!$appointment_id) {
-    $page_title = "Consultation & Notes";
-    include '../../includes/header.php';
+    if (!$is_embedded) {
+        $page_title = "Consultation & Notes";
+        include '../../includes/header.php';
+    } else {
+        echo '<link rel="stylesheet" href="../../assets/css/style.css">';
+    }
     echo "<div class='alert alert-danger'>Appointment ID required.</div>";
-    include '../../includes/footer.php';
+    if (!$is_embedded) include '../../includes/footer.php';
     exit();
 }
 
@@ -173,16 +179,93 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
 
         if ($doc_pk && !empty($test_types)) {
             $count = 0;
+            // Lab Test Price Map (Standard Rates)
+            $lab_prices = [
+                'Complete Blood Count (CBC)' => 300,
+                'Lipid Profile' => 550,
+                'Liver Function Test' => 600,
+                'Renal Function Test' => 600,
+                'Thyroid Profile' => 800,
+                'Urinalysis' => 150,
+                'Blood Sugar (Fasting)' => 100,
+                'Blood Sugar (Post Prandial)' => 100,
+                'HbA1c' => 400,
+                'Electrolytes' => 450
+            ];
+
             foreach ($test_types as $type) {
                 $type = trim($type);
                 if (!empty($type)) {
+                    // 1. Create Lab Order
                     $sql = "INSERT INTO laboratory_tests (patient_id, doctor_id, test_type, status) VALUES ($1, $2, $3, 'ordered')";
                     db_query($sql, [$patient_id, $doc_pk, $type]);
+                    
+                    // 2. Generate Bill for this test
+                    $price = $lab_prices[$type] ?? 250; // Default fallback price
+                    db_insert('billing', [
+                        'patient_id' => $patient_id,
+                        'appointment_id' => $appointment_id,
+                        'total_amount' => $price,
+                        'status' => 'pending',
+                        'service_description' => "Lab Test: $type"
+                    ]);
+
                     $count++;
                 }
             }
             if ($count > 0) {
-                $success = "$count Lab Order(s) Sent Successfully.";
+                $success = "$count Lab Order(s) Sent & Billed Successfully.";
+            }
+        }
+    }
+
+    // 2.5 Handle Radiology Order
+    if (isset($_POST['order_radiology'])) {
+        $rad_input = $_POST['order_radiology'];
+        $rad_types = is_array($rad_input) ? $rad_input : explode(',', $rad_input);
+        
+        $doc_id = get_user_id();
+        $doctor = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$doc_id]);
+        $doc_pk = $doctor ? $doctor['id'] : null;
+
+        if ($doc_pk && !empty($rad_types)) {
+            $count = 0;
+            // Radiology Price Map
+            $rad_prices = [
+                'X-Ray (Chest)' => 500,
+                'X-Ray (Limb)' => 600,
+                'MRI (Brain)' => 3500,
+                'CT Scan (Abdomen)' => 2500,
+                'Ultrasound' => 1200,
+                'ECG' => 300
+            ];
+
+            foreach ($rad_types as $type) {
+                $type = trim($type);
+                if (!empty($type)) {
+                    // 1. Create Radiology Request
+                    db_insert('radiology_reports', [
+                        'patient_id' => $patient_id,
+                        'doctor_id' => $doc_pk,
+                        'report_type' => $type,
+                        'status' => 'ordered'
+                    ]);
+
+                    // 2. Billing
+                    $price = $rad_prices[$type] ?? 1000;
+                    db_insert('billing', [
+                        'patient_id' => $patient_id,
+                        'appointment_id' => $appointment_id,
+                        'total_amount' => $price,
+                        'status' => 'pending',
+                        'service_description' => "Radiology: $type"
+                    ]);
+
+                    $count++;
+                }
+            }
+            if ($count > 0) {
+                $success = "$count Radiology Request(s) Sent & Billed.";
             }
         }
     }
@@ -330,12 +413,29 @@ include '../../includes/header.php';
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 </style>
 
+<?php if (!$is_embedded): ?>
 <div class="header-actions" style="margin-bottom: 20px;">
     <a href="appointments.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Schedule</a>
 </div>
+<?php endif; ?>
 
 <?php if (isset($success)): ?>
     <div class="alert alert-success"><?php echo $success; ?></div>
+<?php endif; ?>
+
+<?php if ($is_embedded): ?>
+    <!-- QUICK ACTIONS TOOLBAR (EMBEDDED ONLY) -->
+    <div style="background: #eef2f7; padding: 10px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid #dae1e7; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <span style="font-size: 0.85em; font-weight: 600; color: #555; margin-right: 5px;">Quick Actions:</span>
+        <button type="button" class="btn btn-primary btn-sm" onclick="openLabModal()"><i class="fas fa-flask"></i> Order Lab</button>
+        <button type="button" class="btn btn-success btn-sm" onclick="openMedModal()"><i class="fas fa-pills"></i> Prescribe Meds</button>
+        <button type="button" class="btn btn-warning btn-sm" onclick="openRadModal()"><i class="fas fa-x-ray"></i> Radiology</button>
+        <button type="button" class="btn btn-info btn-sm" onclick="openViewLabModal()"><i class="fas fa-vial"></i> View Results</button>
+        
+        <div style="flex-grow: 1;"></div>
+        
+        <button onclick="document.querySelector('[name=complete_visit]').click()" class="btn btn-dark btn-sm"><i class="fas fa-check-circle"></i> Complete Visit</button>
+    </div>
 <?php endif; ?>
 
 <div class="visit-grid">
@@ -443,6 +543,21 @@ include '../../includes/header.php';
                 </div>
             </div>
 
+            <?php if ($is_embedded): ?>
+                <!-- QUICK ACTIONS TOOLBAR (EMBEDDED ONLY) -->
+                <div style="background: #eef2f7; padding: 10px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border: 1px solid #dae1e7;">
+                    <span style="font-size: 0.85em; font-weight: 600; color: #555; margin-right: 5px;">Quick Actions:</span>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="openLabModal()"><i class="fas fa-flask"></i> Order Lab</button>
+                    <button type="button" class="btn btn-success btn-sm" onclick="openMedModal()"><i class="fas fa-pills"></i> Prescribe Meds</button>
+                    <button type="button" class="btn btn-warning btn-sm" onclick="openRadModal()"><i class="fas fa-x-ray"></i> Radiology</button>
+                    <button type="button" class="btn btn-info btn-sm" onclick="openViewLabModal()"><i class="fas fa-vial"></i> View Results</button>
+                    
+                    <div style="flex-grow: 1;"></div>
+                    
+                    <button onclick="document.querySelector('[name=complete_visit]').click()" class="btn btn-dark btn-sm"><i class="fas fa-check-circle"></i> Complete Visit</button>
+                </div>
+            <?php endif; ?>
+
             <?php if (isset($_POST['call_patient_now'])): 
                 // Display room info if available
                 $room_info = db_select_one("SELECT r.room_number FROM staff s JOIN rooms r ON s.primary_room_id = r.id WHERE s.id = $1", [$staff['id'] ?? 0]);
@@ -531,6 +646,11 @@ include '../../includes/header.php';
                             <i class="fas fa-flask"></i> Order Lab
                         </button>
 
+                        <!-- Radiology Button -->
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openRadModal()">
+                            <i class="fas fa-x-ray"></i> Order Radiology
+                        </button>
+                        
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openViewLabModal()">
                             <i class="fas fa-vial"></i> View Lab Results
                         </button>
@@ -697,6 +817,29 @@ include '../../includes/header.php';
     </div>
 </div>
 
+<!-- Radiology Modal -->
+<div id="radModal" class="lab-modal">
+    <div class="lab-modal-content">
+        <h4 style="margin-top: 0;"><i class="fas fa-x-ray"></i> Order Radiology Scan</h4>
+        <p style="color: #666; font-size: 0.9em;">Select recommended imaging:</p>
+        
+        <form method="POST" id="radForm">
+            <div id="radList">
+                <label class="lab-checkbox"><input type="checkbox" name="order_radiology[]" value="X-Ray"> X-Ray  </label>
+                <label class="lab-checkbox"><input type="checkbox" name="order_radiology[]" value="MRI (Brain)"> MRI (Brain)</label>
+                <label class="lab-checkbox"><input type="checkbox" name="order_radiology[]" value="CT Scan (Abdomen)"> CT Scan (Abdomen)</label>
+                <label class="lab-checkbox"><input type="checkbox" name="order_radiology[]" value="Ultrasound"> Ultrasound</label>
+                <label class="lab-checkbox"><input type="checkbox" name="order_radiology[]" value="ECG"> ECG</label>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-light" onclick="closeRadModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Order Selected</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- View Lab Results Modal -->
 <div id="viewLabModal" class="lab-modal">
     <div class="lab-modal-content" style="width: 700px; max-width: 90%;">
@@ -748,20 +891,33 @@ include '../../includes/header.php';
 
 <script>
     function openViewLabModal() {
-        document.getElementById('viewLabModal').style.display = 'block';
+        document.getElementById('viewLabModal').style.display = 'flex';
     }
 
     function closeViewLabModal() {
         document.getElementById('viewLabModal').style.display = 'none';
     }
     function openLabModal() {
-        document.getElementById('labModal').style.display = 'block';
+        document.getElementById('labModal').style.display = 'flex';
     }
     
     function closeLabModal() {
         document.getElementById('labModal').style.display = 'none';
         // Reset selection visual state
         document.querySelectorAll('.lab-checkbox input').forEach(input => {
+            input.checked = false;
+            input.parentElement.classList.remove('active');
+        });
+    }
+
+    function openRadModal() {
+        document.getElementById('radModal').style.display = 'flex';
+    }
+    
+    function closeRadModal() {
+        document.getElementById('radModal').style.display = 'none';
+        // Reset selection visual state
+        document.querySelectorAll('#radList .lab-checkbox input').forEach(input => {
             input.checked = false;
             input.parentElement.classList.remove('active');
         });
@@ -885,4 +1041,4 @@ include '../../includes/header.php';
     }
 </script>
 
-<?php include '../../includes/footer.php'; ?>
+<?php if (!$is_embedded) include '../../includes/footer.php'; ?>

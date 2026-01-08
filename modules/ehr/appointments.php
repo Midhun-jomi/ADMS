@@ -13,39 +13,57 @@ include '../../includes/header.php';
 $appointments = [];
 $stats_data = []; // For charts
 
+// Sorting Logic (Universal)
+$sort_order = $_GET['sort'] ?? 'default';
+
+// Helper to get Date Sort Clause
+function getDateSortSQL($alias = 'a') {
+    return "
+        CASE 
+            WHEN DATE($alias.appointment_time) = CURRENT_DATE THEN 1 
+            WHEN $alias.appointment_time > NOW() THEN 2 
+            ELSE 3 
+        END ASC,
+        CASE 
+            WHEN $alias.appointment_time < NOW() AND DATE($alias.appointment_time) != CURRENT_DATE THEN $alias.appointment_time 
+            ELSE NULL 
+        END DESC,
+        $alias.appointment_time ASC";
+}
+
 if ($role === 'patient') {
     $patient = db_select_one("SELECT id FROM patients WHERE user_id = $1", [$user_id]);
     if ($patient) {
+        // Patient Sorting
+        $p_sort = "";
+        switch ($sort_order) {
+            case 'desc': $p_sort = "ORDER BY a.appointment_time DESC"; break;
+            case 'asc':  $p_sort = "ORDER BY a.appointment_time ASC"; break;
+            case 'name_asc': $p_sort = "ORDER BY s.first_name ASC, s.last_name ASC"; break;
+            case 'name_desc': $p_sort = "ORDER BY s.first_name DESC, s.last_name DESC"; break;
+            default: $p_sort = "ORDER BY " . getDateSortSQL('a'); break;
+        }
+
         $sql = "SELECT a.*, s.first_name as doc_first, s.last_name as doc_last, s.specialization, r.room_number 
                 FROM appointments a 
                 LEFT JOIN staff s ON a.doctor_id = s.id 
                 LEFT JOIN rooms r ON a.room_id = r.id 
                 WHERE a.patient_id = $1 
-                ORDER BY a.appointment_time DESC";
+                $p_sort";
         $appointments = db_select($sql, [$patient['id']]);
     }
 } elseif ($role === 'doctor') {
     $staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$user_id]);
     if ($staff) {
 
-        // Sorting Logic
-        $sort_order = $_GET['sort'] ?? 'default';
-        $p_sort = "ORDER BY 
-            CASE 
-                WHEN DATE(a.appointment_time) = CURRENT_DATE THEN 1 
-                WHEN a.appointment_time > NOW() THEN 2 
-                ELSE 3 
-            END ASC,
-            CASE 
-                WHEN a.appointment_time < NOW() AND DATE(a.appointment_time) != CURRENT_DATE THEN a.appointment_time 
-                ELSE NULL 
-            END DESC,
-            a.appointment_time ASC"; // Smart Sort: Today -> Future -> Past(Newest)
-
-        if ($sort_order === 'desc') {
-            $p_sort = "ORDER BY a.appointment_time DESC";
-        } elseif ($sort_order === 'asc') {
-            $p_sort = "ORDER BY a.appointment_time ASC";
+        // Doctor Sorting
+        $d_sort = "";
+        switch ($sort_order) {
+            case 'desc': $d_sort = "ORDER BY a.appointment_time DESC"; break;
+            case 'asc':  $d_sort = "ORDER BY a.appointment_time ASC"; break;
+            case 'name_asc': $d_sort = "ORDER BY p.first_name ASC, p.last_name ASC"; break;
+            case 'name_desc': $d_sort = "ORDER BY p.first_name DESC, p.last_name DESC"; break;
+            default: $d_sort = "ORDER BY " . getDateSortSQL('a'); break;
         }
 
         $sql = "SELECT a.*, p.first_name as pat_first, p.last_name as pat_last, r.room_number,
@@ -54,7 +72,7 @@ if ($role === 'patient') {
                 LEFT JOIN patients p ON a.patient_id = p.id 
                 LEFT JOIN rooms r ON a.room_id = r.id 
                 WHERE a.doctor_id = $1 
-                $p_sort";
+                $d_sort";
         $appointments = db_select($sql, [$staff['id']]);
 
         // Get Weekly Stats (Last 7 days)
@@ -68,12 +86,22 @@ if ($role === 'patient') {
     }
 } else {
     // Admin/Other View (All)
+    $a_sort = "";
+    switch ($sort_order) {
+        case 'desc': $a_sort = "ORDER BY a.appointment_time DESC"; break;
+        case 'asc':  $a_sort = "ORDER BY a.appointment_time ASC"; break;
+        // Sort by Patient Name Default
+        case 'name_asc': $a_sort = "ORDER BY p.first_name ASC, p.last_name ASC"; break;
+        case 'name_desc': $a_sort = "ORDER BY p.first_name DESC, p.last_name DESC"; break;
+        default: $a_sort = "ORDER BY a.appointment_time DESC"; break;
+    }
+
     $sql = "SELECT a.*, p.first_name as pat_first, p.last_name as pat_last, 
             s.first_name as doc_first, s.last_name as doc_last
             FROM appointments a 
             LEFT JOIN patients p ON a.patient_id = p.id 
             LEFT JOIN staff s ON a.doctor_id = s.id
-            ORDER BY a.appointment_time DESC LIMIT 50";
+            $a_sort LIMIT 50";
     $appointments = db_select($sql);
 }
 
@@ -253,15 +281,15 @@ if (empty($labels) && $role === 'doctor') {
 <div class="appt-list-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3 style="margin: 0; font-size: 1.2rem;">Appointment List</h3>
-        <?php if ($role === 'doctor'): ?>
-            <form method="GET" style="margin: 0;">
-                <select name="sort" onchange="this.form.submit()" style="padding: 8px 15px; border-radius: 8px; border: 1px solid #ddd; background: #f9f9f9; cursor: pointer; font-size: 0.9em;">
-                    <option value="default" <?php echo ($sort_order == 'default') ? 'selected' : ''; ?>>Today First</option>
-                    <option value="desc" <?php echo ($sort_order == 'desc') ? 'selected' : ''; ?>>Newest First</option>
-                    <option value="asc" <?php echo ($sort_order == 'asc') ? 'selected' : ''; ?>>Oldest First</option>
-                </select>
-            </form>
-        <?php endif; ?>
+        <form method="GET" style="margin: 0;">
+            <select name="sort" onchange="this.form.submit()" style="padding: 8px 15px; border-radius: 8px; border: 1px solid #ddd; background: #f9f9f9; cursor: pointer; font-size: 0.9em;">
+                <option value="default" <?php echo ($sort_order == 'default') ? 'selected' : ''; ?>>Smart Sort</option>
+                <option value="desc" <?php echo ($sort_order == 'desc') ? 'selected' : ''; ?>>Newest First</option>
+                <option value="asc" <?php echo ($sort_order == 'asc') ? 'selected' : ''; ?>>Oldest First</option>
+                <option value="name_asc" <?php echo ($sort_order == 'name_asc') ? 'selected' : ''; ?>>Name (A-Z)</option>
+                <option value="name_desc" <?php echo ($sort_order == 'name_desc') ? 'selected' : ''; ?>>Name (Z-A)</option>
+            </select>
+        </form>
     </div>
     
     <?php if (empty($appointments)): ?>
