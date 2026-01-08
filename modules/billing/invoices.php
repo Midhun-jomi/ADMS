@@ -82,43 +82,52 @@ if ($role === 'patient') {
 <div class="billing-container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
     
     <!-- Summary Stats -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-        <?php
-        // Calculate totals
-        $total_pending = 0;
-        $total_paid = 0;
-        foreach ($invoices as $inv) {
-            if ($inv['status'] == 'paid') $total_paid += $inv['total_amount'];
-            elseif ($inv['status'] == 'pending') $total_pending += $inv['total_amount'];
-        }
-        ?>
-        <div class="billing-stat-card">
-            <div class="billing-icon" style="background: #fee2e2; color: #dc2626;">
-                <i class="fas fa-exclamation-circle"></i>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; gap: 20px; flex-wrap: wrap;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; flex-grow: 1;">
+            <?php
+            // Calculate totals
+            $total_pending = 0;
+            $total_paid = 0;
+            $pending_ids = [];
+            foreach ($invoices as $inv) {
+                if ($inv['status'] == 'paid') $total_paid += $inv['total_amount'];
+                elseif ($inv['status'] == 'pending') {
+                    $total_pending += $inv['total_amount'];
+                    $pending_ids[] = $inv['id'];
+                }
+            }
+            ?>
+            <div class="billing-stat-card">
+                <div class="billing-icon" style="background: #fee2e2; color: #dc2626;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="billing-info">
+                    <h4>₹<?php echo number_format($total_pending, 2); ?></h4>
+                    <p>Pending Bills</p>
+                </div>
             </div>
-            <div class="billing-info">
-                <h4>₹<?php echo number_format($total_pending, 2); ?></h4>
-                <p>Pending Bills</p>
-            </div>
-        </div>
-        <div class="billing-stat-card">
-            <div class="billing-icon" style="background: #dcfce7; color: #16a34a;">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="billing-info">
-                <h4>₹<?php echo number_format($total_paid, 2); ?></h4>
-                <p>Total Paid</p>
-            </div>
-        </div>
-        <div class="billing-stat-card">
-            <div class="billing-icon" style="background: #e0e7ff; color: #4f46e5;">
-                <i class="fas fa-file-invoice"></i>
-            </div>
-            <div class="billing-info">
-                <h4><?php echo count($invoices); ?></h4>
-                <p>Total Invoices</p>
+            <div class="billing-stat-card">
+                <div class="billing-icon" style="background: #dcfce7; color: #16a34a;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="billing-info">
+                    <h4>₹<?php echo number_format($total_paid, 2); ?></h4>
+                    <p>Total Paid</p>
+                </div>
             </div>
         </div>
+
+        <?php if ($role === 'patient' && $total_pending > 0): ?>
+            <div style="padding-bottom: 5px;">
+                <form method="GET" action="process_payment.php">
+                    <input type="hidden" name="pay_all" value="1">
+                    <input type="hidden" name="billing_ids" value="<?php echo implode(',', $pending_ids); ?>">
+                    <button type="submit" class="btn btn-success" style="padding: 15px 30px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);">
+                        <i class="fas fa-credit-card"></i> SETTLE ALL PENDING (₹<?php echo number_format($total_pending, 2); ?>)
+                    </button>
+                </form>
+            </div>
+        <?php endif; ?>
     </div>
 
     <?php if ($error): ?>

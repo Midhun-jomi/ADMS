@@ -6,10 +6,15 @@ $page_title = "Doctor Dashboard";
 include '../includes/header.php';
 
 $user_id = get_user_id();
-// Get doctor ID
-$staff = db_select_one("SELECT id, first_name, last_name, specialization FROM staff WHERE user_id = $1", [$user_id]);
+// Get doctor ID and Room
+$staff = db_select_one("SELECT s.id, s.first_name, s.last_name, s.specialization, r.room_number, r.location 
+                        FROM staff s 
+                        LEFT JOIN rooms r ON s.primary_room_id = r.id 
+                        WHERE s.user_id = $1", [$user_id]);
 $doctor_id = $staff['id'] ?? 0;
 $doctor_name = $staff['first_name'] ?? 'Doctor';
+$doctor_room = $staff['room_number'] ?? 'Not Assigned';
+$doctor_location = $staff['location'] ?? 'General Outpatient';
 
 // Date Range for today
 // Date Range for selected date (or today)
@@ -298,10 +303,10 @@ if ($latest_metric_entry) {
 }
 
 $metrics_data = [
-    'heart_rate' => 72, 
-    'glucose' => 100, 
-    'cholesterol' => 150, 
-    'stress_level' => 'Normal'
+    'heart_rate' => 0, 
+    'glucose' => 0, 
+    'cholesterol' => 0, 
+    'stress_level' => 'N/A'
 ];
 
 if ($active_patient) {
@@ -311,11 +316,11 @@ if ($active_patient) {
     
     $found_types = [];
     foreach ($latest_metrics as $lm) {
-        $val = json_decode($lm['metric_value'], true);
-        // Only take the first found (latest) for each type
-        if (!isset($found_types[$lm['metric_type']])) {
-            $metrics_data[$lm['metric_type']] = $val['value'] ?? $val;
-            $found_types[$lm['metric_type']] = true;
+        $val_json = json_decode($lm['metric_value'], true);
+        $type = $lm['metric_type'];
+        if (!isset($found_types[$type])) {
+            $metrics_data[$type] = $val_json['value'] ?? 0;
+            $found_types[$type] = true;
         }
     }
 }
@@ -323,8 +328,12 @@ if ($active_patient) {
 
 <div class="dash-header">
     <div>
-        <h1>Good Morning, <?php echo htmlspecialchars($doctor_name); ?></h1>
-        <p>You have <?php echo $appt_count; ?> appointment<?php echo $appt_count != 1 ? 's' : ''; ?> today</p>
+        <h1>Good Morning, Dr. <?php echo htmlspecialchars($doctor_name); ?></h1>
+        <p>
+            <i class="fas fa-hospital-user"></i> <?php echo htmlspecialchars($doctor_location); ?> 
+            <span style="margin: 0 10px; opacity: 0.5;">|</span>
+            <i class="fas fa-door-open"></i> Room <?php echo htmlspecialchars($doctor_room); ?>
+        </p>
     </div>
     <div class="date-controls">
         <button class="control-pill active" onclick="document.getElementById('vitalsModal').style.display='block'">
@@ -380,12 +389,11 @@ if ($active_patient) {
             </div>
 
             <div class="form-group" style="margin-top: 15px;">
-                <label>ECG Data (Comma sep. 50 values)</label>
-                <input type="text" name="ecg_data" class="form-control" placeholder="10,40,20..." value="<?php echo implode(',', array_map(function() { return rand(20, 80); }, range(1, 50))); ?>">
-                <small class="text-muted">Auto-generated mock data for demo</small>
+                <label>Observations / Notes</label>
+                <textarea name="nurse_notes" class="form-control" rows="2" placeholder="Enter clinical observations..."></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Save Records</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Save Clinical Records</button>
         </form>
     </div>
 </div>
@@ -483,13 +491,22 @@ if ($active_patient) {
 
         <div class="issue-card">
             <div class="card-header" style="border: none;">
-                <span>Issue Found <i class="fas fa-info-circle text-danger"></i></span>
-                <i class="fas fa-arrow-up text-muted" style="transform: rotate(45deg);"></i>
+                <span>Patient Medical History <i class="fas fa-info-circle text-info"></i></span>
             </div>
-            <div>
-                <span class="issue-tag">Osteoporosis</span>
-                <span class="issue-tag">Bisphosphonate drugs</span>
-                <span class="issue-tag">Hypertension</span>
+            <div style="padding: 10px;">
+                <?php 
+                if ($active_patient):
+                    $pat_data = db_select_one("SELECT medical_history FROM patients WHERE id = $1", [$active_patient['patient_id']]);
+                    if ($pat_data && $pat_data['medical_history']):
+                        $m_tags = explode(',', $pat_data['medical_history']);
+                        foreach (array_slice($m_tags, 0, 5) as $mtag):
+                ?>
+                    <span class="issue-tag" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;"><?php echo htmlspecialchars(trim($mtag)); ?></span>
+                <?php endforeach; else: ?>
+                    <p style="font-size: 0.8em; color: #888; font-style: italic;">No medical history recorded for this patient.</p>
+                <?php endif; else: ?>
+                    <p style="font-size: 0.8em; color: #888;">Select a patient to view history.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>

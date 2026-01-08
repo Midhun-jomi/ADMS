@@ -118,3 +118,51 @@
     [date] => 2026-01-07
 )
 
+2026-01-08 10:09:18 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2026-01-08
+)
+
+2026-01-08 10:09:39 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2026-01-08
+)
+
+2026-01-08 10:10:24 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2026-01-08
+)
+
+2026-01-08 10:10:38 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2026-01-14
+)
+
+2026-01-08 10:10:44 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2026-02-14
+)
+
+2026-01-08 10:10:51 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2026-02-14
+)
+
+2026-01-08 10:11:56 Request: Array
+(
+    [doctor_id] => 83e347e8-9607-450b-b69a-da551bc384bd
+    [date] => 2026-01-08
+)
+
+2026-01-08 10:15:18 Request: Array
+(
+    [doctor_id] => c5c7e045-a10b-4450-8c59-54b8b74095e9
+    [date] => 2026-01-08
+)
+

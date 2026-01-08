@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Get patient ID
     $user_id = $_SESSION['user_id'];
-    $patient = db_select_one("SELECT id FROM patients WHERE user_id = $1", [$user_id]);
+    $patient = db_select_one("SELECT id, first_name, last_name FROM patients WHERE user_id = $1", [$user_id]);
     
     if ($patient) {
         // Server-side validation: Prevent past dates
@@ -50,6 +50,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 
                 try {
                     db_insert('appointments', $data);
+                    
+                    // Notify Doctor
+                    $pat_name = $patient['first_name'] . ' ' . $patient['last_name'];
+                    // Get Doctor User ID to notify
+                    $doc_user = db_select_one("SELECT user_id FROM staff WHERE id = $1", [$doctor_id]);
+                    if ($doc_user) {
+                        $msg = "New appointment booked by $pat_name for " . date('M d, h:i A', strtotime($appointment_time));
+                        db_insert('notifications', [
+                            'user_id' => $doc_user['user_id'], 
+                            'title' => 'New Appointment',
+                            'message' => $msg, 
+                            'type' => 'appointment'
+                        ]);
+                    }
+
                     $success = "Appointment booked successfully!";
                 } catch (Exception $e) {
                     $error = "Booking failed: " . $e->getMessage();

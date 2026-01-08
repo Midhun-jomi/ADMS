@@ -15,8 +15,8 @@ if (strlen($query) > 2) {
     // Escape for LIKE
     $search_term = "%" . $query . "%";
     
-    // 1. Search Patients (Doctors/Admins only)
-    if ($role === 'doctor' || $role === 'admin' || $role === 'receptionist') {
+    // 1. Search Patients (Clinical/Admin staff)
+    if (in_array($role, ['doctor', 'admin', 'receptionist', 'nurse', 'head_nurse'])) {
         $pats = db_select("SELECT id, first_name, last_name, 'Patient' as type, '/modules/ehr/history.php?patient_id=' || id as link 
                            FROM patients 
                            WHERE first_name ILIKE $1 OR last_name ILIKE $1", [$search_term]);

@@ -21,8 +21,8 @@ $allocation = db_select_one("SELECT na.*, s_doc.first_name as doc_first, s_doc.l
 // Handle Vitals Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
     $v_patient_id = $_POST['v_patient_id'];
-    $v_appt_id = $_POST['v_appointment_id'] ?? null;
-    $r_by = $_POST['recorded_by_id'] ?? $user_id; // recorded_by_id not actually in form, defaulting to $user_id
+    $v_appt_id = !empty($_POST['v_appointment_id']) ? $_POST['v_appointment_id'] : null;
+    $r_by = $_POST['recorded_by_id'] ?? $user_id;
     
     // Save Metrics
     $metrics = [
@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
         if (!empty($data['value'])) {
              db_insert('patient_health_metrics', [
                 'patient_id' => $v_patient_id,
+                'appointment_id' => $v_appt_id,
                 'metric_type' => $type,
                 'metric_value' => json_encode($data),
                 'recorded_by' => $user_id
@@ -55,15 +56,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
             $nurse_name = $auth_user ? ($auth_user['first_name'].' '.$auth_user['last_name']) : 'Nurse';
             
             // Append to reason
-            $appt = db_select_one("SELECT reason FROM appointments WHERE id = $1", [$v_appt_id]);
+            $appt = db_select_one("SELECT reason, doctor_id FROM appointments WHERE id = $1", [$v_appt_id]);
             if ($appt) {
                 $new_reason = ($appt['reason'] ?? '') . "\n\n[Nurse Entry $timestamp]: " . $note;
                 db_query("UPDATE appointments SET reason = $1 WHERE id = $2", [$new_reason, $v_appt_id]);
+
+                // Notify Doctor that Vitals/History is ready
+                if ($appt['doctor_id']) {
+                    $doc_user = db_select_one("SELECT user_id FROM staff WHERE id = $1", [$appt['doctor_id']]);
+                    if ($doc_user) {
+                        db_insert('notifications', [
+                            'user_id' => $doc_user['user_id'],
+                            'title' => 'Triage Completed',
+                            'message' => "Nurse has updated vitals and clinical findings for a patient. Ready for consultation.",
+                            'is_read' => 0
+                        ]);
+                    }
+                }
             }
         }
     }
     
     echo "<meta http-equiv='refresh' content='0'>";
+}
+
+// Fetch Real-time Critical Alerts (Last 6 hours)
+$critical_alerts = db_select("SELECT p.first_name, p.last_name, m.metric_type, m.metric_value, m.recorded_at, r.room_number 
+                              FROM patient_health_metrics m
+                              JOIN patients p ON m.patient_id = p.id
+                              LEFT JOIN admissions a ON a.patient_id = p.id AND a.status = 'admitted'
+                              LEFT JOIN rooms r ON a.room_id = r.id
+                              WHERE m.recorded_at > NOW() - INTERVAL '6 hours'
+                              ORDER BY m.recorded_at DESC");
+
+$active_alerts = [];
+foreach ($critical_alerts as $alert) {
+    $val_data = json_decode($alert['metric_value'], true);
+    $val = floatval($val_data['value'] ?? 0);
+    $is_critical = false;
+    $msg = '';
+    
+    if ($alert['metric_type'] == 'bp_systolic' && ($val > 160 || $val < 90)) { $is_critical = true; $msg = "Abnormal Blood Pressure ($val)"; }
+    if ($alert['metric_type'] == 'glucose' && ($val > 250 || $val < 60)) { $is_critical = true; $msg = "Critical Glucose Level ($val)"; }
+    if ($alert['metric_type'] == 'heart_rate' && ($val > 120 || $val < 50)) { $is_critical = true; $msg = "Arrhythmia Alert ($val BPM)"; }
+    if ($alert['metric_type'] == 'temperature' && $val > 102) { $is_critical = true; $msg = "High Fever ($val F)"; }
+
+    if ($is_critical) {
+        $active_alerts[] = [
+            'patient' => $alert['first_name'].' '.$alert['last_name'],
+            'room' => $alert['room_number'] ?? 'OPD',
+            'msg' => $msg,
+            'time' => date('h:i A', strtotime($alert['recorded_at']))
+        ];
+    }
 }
 
 // Fetch Admitted Patients
@@ -182,6 +227,79 @@ if (!empty($allocation['doctor_id'])) {
     </div>
 </div>
 
+<!-- Quick Entry Bar -->
+<div class="glass-panel" style="margin-bottom: 30px; border: 2px solid #21a9af; background: #f0fdfa;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+        <div style="flex: 1; min-width: 300px;">
+            <h4 style="margin: 0 0 5px 0; color: #115e59;"><i class="fas fa-search-plus"></i> Quick Vitals Entry</h4>
+            <p style="margin: 0; font-size: 0.85em; color: #134e4a;">Search by Patient Name or UHID to record new clinical data.</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex: 1; min-width: 300px;">
+            <input type="text" id="quickPatientSearch" class="form-control" placeholder="Search Name or UHID..." style="border-radius: 10px;" oninput="debouncedSearch()" onkeyup="if(event.key === 'Enter') searchAndRecordVitals()">
+            <button class="btn btn-primary" style="background: #21a9af; border: none; white-space: nowrap; border-radius: 10px;" onclick="searchAndRecordVitals()">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+    </div>
+    <div id="search_results" style="margin-top: 15px; display: none; background: white; border-radius: 10px; padding: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); max-height: 250px; overflow-y: auto;">
+        <!-- AJAX results will appear here -->
+    </div>
+</div>
+
+<script>
+let searchTimeout = null;
+function debouncedSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(searchAndRecordVitals, 500);
+}
+
+async function searchAndRecordVitals() {
+    const query = document.getElementById('quickPatientSearch').value.trim();
+    const resDiv = document.getElementById('search_results');
+    
+    if (query.length < 2) {
+        resDiv.style.display = 'none';
+        return;
+    }
+    
+    resDiv.innerHTML = '<div style="text-align: center; padding: 15px; color: #666;"><i class="fas fa-spinner fa-spin"></i> Searching database...</div>';
+    resDiv.style.display = 'block';
+
+    try {
+        // Try absolute root first, then relative
+        let response = await fetch('/api/search_patients.php?q=' + encodeURIComponent(query));
+        if (!response.ok) {
+            response = await fetch('../../api/search_patients.php?q=' + encodeURIComponent(query));
+        }
+        if (!response.ok) throw new Error('API unreachable');
+        const data = await response.json();
+        
+        if (data.length === 0) {
+            resDiv.innerHTML = '<p style="padding: 10px; color: #888;">No patients found.</p>';
+        } else {
+            let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">';
+            data.forEach(p => {
+                html += `
+                    <div style="padding: 10px; border: 1px solid #eee; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="display: block;">${p.first_name} ${p.last_name}</strong>
+                            <small class="text-muted">UHID: P-${String(p.uhid || 0).padStart(4, '0')}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openVitalsModal('${p.id}', '${p.first_name} ${p.last_name}', '')">
+                            Select
+                        </button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            resDiv.innerHTML = html;
+        }
+    } catch (e) {
+        resDiv.innerHTML = '<p style="color: red;">Search failed. API not found.</p>';
+    }
+}
+</script>
+
 <!-- Main Layout -->
 <div class="dashboard-grid-layout">
     <!-- Left Column: Patient List -->
@@ -223,13 +341,13 @@ if (!empty($allocation['doctor_id'])) {
                         <div class="p-actions">
                              <button 
                                 type="button"
-                                class="btn btn-sm btn-light" 
-                                style="color: #ff9800; border: 1px solid #ff9800;"
+                                class="btn btn-sm btn-primary" 
+                                style="background: #ff9800; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600;"
                                 data-patient-id="<?php echo $opt['patient_id']; ?>"
                                 data-patient-name="<?php echo htmlspecialchars($opt['first_name'] . ' ' . $opt['last_name']); ?>"
                                 data-appt-id="<?php echo $opt['id']; ?>"
                                 onclick="openVitalsModalFromElement(this)">
-                                <i class="fas fa-heartbeat"></i> Take Vitals
+                                <i class="fas fa-heartbeat"></i> RECORD VITALS
                             </button>
                         </div>
                     </div>
@@ -278,17 +396,14 @@ if (!empty($allocation['doctor_id'])) {
                     <div class="p-actions">
                         <button 
                             type="button"
-                            class="btn btn-sm btn-light" 
-                            style="color: #21a9af; border: 1px solid #21a9af;"
+                            class="btn btn-sm btn-primary" 
+                            style="background: #21a9af; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600;"
                             data-patient-id="<?php echo $adm['patient_id']; ?>"
                             data-patient-name="<?php echo htmlspecialchars($adm['first_name'] . ' ' . $adm['last_name']); ?>"
                             data-appt-id=""
                             onclick="openVitalsModalFromElement(this)">
-                            <i class="fas fa-notes-medical"></i> Vitals
+                            <i class="fas fa-plus-circle"></i> RECORD VITALS
                         </button>
-                        <a href="patient_care.php?patient_id=<?php echo $adm['patient_id']; ?>" class="btn btn-sm btn-primary" style="background: #21a9af; border: none;">
-                            <i class="fas fa-caret-right"></i> Care
-                        </a>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -298,30 +413,37 @@ if (!empty($allocation['doctor_id'])) {
 
     <!-- Right Column: Quick Stats/Tasks -->
     <div style="display: flex; flex-direction: column; gap: 20px;">
-        <div class="glass-panel" style="background: #fff8e1; border: none;">
-            <h4 style="margin: 0 0 15px 0; color: #d97706;"><i class="fas fa-exclamation-triangle"></i> Critical Alerts</h4>
-            <!-- Mock Alerts -->
-            <div style="font-size: 0.9em; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px;">
-                <strong>Room 101</strong>: High BP Report <span style="float: right; font-size: 0.8em; color: #888;">5m ago</span>
-            </div>
-            <div style="font-size: 0.9em;">
-                <strong>Room 205</strong>: Medication Due <span style="float: right; font-size: 0.8em; color: #888;">10m ago</span>
-            </div>
+        <div class="glass-panel" style="background: <?php echo empty($active_alerts) ? '#f0fff4' : '#fff8e1'; ?>; border: none;">
+            <h4 style="margin: 0 0 15px 0; color: <?php echo empty($active_alerts) ? '#2f855a' : '#d97706'; ?>;">
+                <i class="fas <?php echo empty($active_alerts) ? 'fa-check-circle' : 'fa-exclamation-triangle'; ?>"></i> 
+                <?php echo empty($active_alerts) ? 'System Stable' : 'Critical Alerts'; ?>
+            </h4>
+            
+            <?php if (empty($active_alerts)): ?>
+                <p style="font-size: 0.85em; color: #555; margin: 0;">No critical vital deviations detected in the last 6 hours.</p>
+            <?php else: ?>
+                <?php foreach(array_slice($active_alerts, 0, 3) as $alert): ?>
+                    <div style="font-size: 0.85em; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px;">
+                        <strong style="color: #c53030;"><?php echo htmlspecialchars($alert['room']); ?></strong>: <?php echo htmlspecialchars($alert['msg']); ?> 
+                        <div style="font-size: 0.8em; color: #888;"><?php echo htmlspecialchars($alert['patient']); ?> &bull; <?php echo $alert['time']; ?></div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
 
         <div class="glass-panel">
-            <h4 style="margin: 0 0 15px 0;">My Shift Info</h4>
+            <h4 style="margin: 0 0 15px 0;">Station Status</h4>
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9em;">
-                <span style="color: #666;">Start Time</span>
-                <strong>08:00 AM</strong>
+                <span style="color: #666;">Current Time</span>
+                <strong><?php echo date('h:i A'); ?></strong>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9em;">
-                <span style="color: #666;">End Time</span>
-                <strong>04:00 PM</strong>
+                <span style="color: #666;">Active Patients</span>
+                <strong><?php echo count($admissions) + count($outpatients); ?></strong>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 0.9em;">
-                <span style="color: #666;">Ward Head</span>
-                <strong>Sarah J.</strong>
+                <span style="color: #666;">Staff On Duty</span>
+                <strong><?php echo htmlspecialchars($nurse['first_name'] . ' ' . $nurse['last_name']); ?></strong>
             </div>
         </div>
     </div>

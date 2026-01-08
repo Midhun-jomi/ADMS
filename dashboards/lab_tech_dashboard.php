@@ -10,16 +10,47 @@ include '../includes/header.php';
 // Stats
 $pending_tests = db_select_one("SELECT COUNT(*) as c FROM laboratory_tests WHERE status = 'ordered'")['c'];
 $completed_tests = db_select_one("SELECT COUNT(*) as c FROM laboratory_tests WHERE status = 'completed'")['c'];
+$tests_today = db_select_one("SELECT COUNT(*) as c FROM laboratory_tests WHERE created_at >= CURRENT_DATE")['c'];
+
+// Latest Request logic (Absolute latest)
+$latest_req = db_select_one("SELECT l.*, p.first_name, p.last_name 
+                             FROM laboratory_tests l 
+                             JOIN patients p ON l.patient_id = p.id 
+                             WHERE l.status = 'ordered'
+                             ORDER BY l.created_at DESC LIMIT 1");
 ?>
 
-<div class="dashboard-stats">
-    <div class="stat-card">
-        <h3><?php echo $pending_tests; ?></h3>
-        <p>Pending Tests</p>
+<style>
+    .smart-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+    .smart-stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border: 1px solid #eee; text-align: center; }
+    .smart-stat-card h3 { font-size: 2rem; margin: 0; color: #333; }
+    .smart-stat-card p { margin: 5px 0 0; color: #888; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .latest-alert { background: #fff5f5; border-left: 5px solid #fc8181; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; }
+</style>
+
+<?php if ($latest_req): ?>
+<div class="latest-alert">
+    <div>
+        <strong style="color: #c53030;">LATEST REQUEST:</strong> 
+        <?php echo htmlspecialchars($latest_req['test_type']); ?> for <?php echo htmlspecialchars($latest_req['first_name']); ?> 
+        <span class="text-muted" style="font-size: 0.8em; margin-left: 10px;">(Received: <?php echo date('M d, H:i', strtotime($latest_req['created_at'])); ?>)</span>
     </div>
-    <div class="stat-card">
+    <a href="/modules/lab/results.php?id=<?php echo $latest_req['id']; ?>" class="btn btn-sm btn-danger">PROCESS NOW</a>
+</div>
+<?php endif; ?>
+
+<div class="smart-stat-grid">
+    <div class="smart-stat-card">
+        <h3><?php echo $pending_tests; ?></h3>
+        <p>Pending Orders</p>
+    </div>
+    <div class="smart-stat-card">
         <h3><?php echo $completed_tests; ?></h3>
-        <p>Completed Tests</p>
+        <p>Completed Reports</p>
+    </div>
+    <div class="smart-stat-card">
+        <h3><?php echo $tests_today; ?></h3>
+        <p>New Requests Today</p>
     </div>
 </div>
 

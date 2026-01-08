@@ -309,12 +309,20 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
                     </thead>
                     <tbody>
                         <!-- Mock row if details missing -->
-                         <tr style="border-bottom: 1px solid #edf2f7;">
-                            <td style="padding: 8px;">Sample Analysis</td>
-                            <td style="padding: 8px;">Normal</td>
-                            <td style="padding: 8px;">-</td>
-                            <td style="padding: 8px;">-</td>
-                        </tr>
+                        <?php if (!empty($result_data['details'])): ?>
+                            <?php foreach ($result_data['details'] as $metric): ?>
+                            <tr style="border-bottom: 1px solid #edf2f7;">
+                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['name'] ?? 'Unknown'); ?></td>
+                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['value'] ?? '-'); ?></td>
+                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['unit'] ?? ''); ?></td>
+                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['range'] ?? ''); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr style="border-bottom: 1px solid #edf2f7;">
+                                <td colspan="4" style="padding: 8px; text-align: center; color: #718096; font-style: italic;">Detailed metrics not available.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
