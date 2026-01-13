@@ -66,7 +66,7 @@ $inventory = db_select("SELECT * FROM pharmacy_inventory ORDER BY medication_nam
                 <input type="number" name="quantity" class="form-control" required>
             </div>
             <div style="flex: 1; min-width: 100px;">
-                <label>Unit Price ($)</label>
+                <label>Unit Price (₹)</label>
                 <input type="number" step="0.01" name="unit_price" class="form-control" required>
             </div>
             <div style="flex: 1; min-width: 150px;">
@@ -92,7 +92,7 @@ $inventory = db_select("SELECT * FROM pharmacy_inventory ORDER BY medication_nam
                 <tr style="border-bottom: 1px solid #dee2e6;">
                     <td style="padding: 10px;"><?php echo htmlspecialchars($item['medication_name']); ?></td>
                     <td style="padding: 10px;"><?php echo htmlspecialchars($item['quantity']); ?></td>
-                    <td style="padding: 10px;">$<?php echo htmlspecialchars($item['unit_price']); ?></td>
+                    <td style="padding: 10px;">₹<?php echo htmlspecialchars($item['unit_price']); ?></td>
                     <td style="padding: 10px;"><?php echo htmlspecialchars($item['expiry_date']); ?></td>
                     <td style="padding: 10px;">
                         <?php if ($item['quantity'] < 10): ?>

@@ -273,6 +273,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
     // 3. Handle Medication Prescription (AJAX)
     // We check for a special header or post val to know it's an AJAX call, or just standard POST
     if (isset($_POST['add_medication'])) {
+        file_put_contents('debug_med_post.log', print_r($_POST, true), FILE_APPEND);
         $med_name = $_POST['med_name'];
         $med_freq = $_POST['med_frequency']; // e.g. 1-0-1
         $med_days = (int)$_POST['med_days']; // Duration
@@ -397,7 +398,7 @@ include '../../includes/header.php';
         display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);
     }
     .lab-modal-content, .med-modal-content {
-        background-color: #fefefe; margin: 5% auto; padding: 25px; border: 1px solid #888; width: 650px; border-radius: 12px;
+        background-color: #fefefe; margin: 5% auto; padding: 25px; border: 1px solid #888; width: 650px; max-width: 95%; border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out;
     }
     
@@ -544,18 +545,7 @@ include '../../includes/header.php';
             </div>
 
             <?php if ($is_embedded): ?>
-                <!-- QUICK ACTIONS TOOLBAR (EMBEDDED ONLY) -->
-                <div style="background: #eef2f7; padding: 10px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border: 1px solid #dae1e7;">
-                    <span style="font-size: 0.85em; font-weight: 600; color: #555; margin-right: 5px;">Quick Actions:</span>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="openLabModal()"><i class="fas fa-flask"></i> Order Lab</button>
-                    <button type="button" class="btn btn-success btn-sm" onclick="openMedModal()"><i class="fas fa-pills"></i> Prescribe Meds</button>
-                    <button type="button" class="btn btn-warning btn-sm" onclick="openRadModal()"><i class="fas fa-x-ray"></i> Radiology</button>
-                    <button type="button" class="btn btn-info btn-sm" onclick="openViewLabModal()"><i class="fas fa-vial"></i> View Results</button>
-                    
-                    <div style="flex-grow: 1;"></div>
-                    
-                    <button onclick="document.querySelector('[name=complete_visit]').click()" class="btn btn-dark btn-sm"><i class="fas fa-check-circle"></i> Complete Visit</button>
-                </div>
+                <!-- QUICK ACTIONS TOOLBAR MOVED TO TOP STICKY HEADER -->
             <?php endif; ?>
 
             <?php if (isset($_POST['call_patient_now'])): 
@@ -598,11 +588,32 @@ include '../../includes/header.php';
                                     <p style="color: #666; font-style: italic; margin: 0;">No medications prescribed for this visit.</p>
                                 <?php else: ?>
                                     <ul style="margin: 0; padding-left: 20px;">
-                                        <?php foreach ($prescribed_meds as $pm): ?>
+                                        <?php foreach ($prescribed_meds as $pm): 
+                                            // Fallback Logic for Duration
+                                            if (empty($pm['duration']) || $pm['duration'] === 'N/A') {
+                                                // Try to calculate from dosage (e.g. 1-0-1) and quantity
+                                                $qty = (int)($pm['quantity'] ?? 0);
+                                                $freq_str = explode('|', $pm['dosage'])[0] ?? '';
+                                                $daily_count = 0;
+                                                
+                                                if (strpos($freq_str, '-') !== false) {
+                                                    $daily_count = substr_count($freq_str, '1');
+                                                } elseif (stripos($freq_str, 'BID') !== false) { $daily_count = 2; }
+                                                elseif (stripos($freq_str, 'TID') !== false) { $daily_count = 3; }
+                                                elseif (stripos($freq_str, 'QD') !== false || stripos($freq_str, 'OD') !== false) { $daily_count = 1; }
+                                                
+                                                if ($daily_count > 0 && $qty > 0) {
+                                                    $days = ceil($qty / $daily_count);
+                                                    $pm['duration'] = "$days days (Calc)";
+                                                } else {
+                                                    $pm['duration'] = "N/A";
+                                                }
+                                            }
+                                        ?>
                                             <li style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0fdf4;">
                                                 <strong><?php echo htmlspecialchars($pm['name']); ?></strong> 
                                                 <span class="badge badge-success"><?php echo htmlspecialchars($pm['quantity']); ?> tabs total</span>
-                                                <br><small style="color: #065f46; font-weight: 600;"><i class="fas fa-calendar-day"></i> Duration: <?php echo htmlspecialchars($pm['duration'] ?? 'N/A'); ?></small>
+                                                <br><small style="color: #065f46; font-weight: 600;"><i class="fas fa-calendar-day"></i> Duration: <?php echo htmlspecialchars($pm['duration']); ?></small>
                                                 <br><small style="color: #555;"><?php echo htmlspecialchars($pm['dosage']); ?></small>
                                             </li>
                                         <?php endforeach; ?>
@@ -842,7 +853,7 @@ include '../../includes/header.php';
 
 <!-- View Lab Results Modal -->
 <div id="viewLabModal" class="lab-modal">
-    <div class="lab-modal-content" style="width: 700px; max-width: 90%;">
+    <div class="lab-modal-content" style="width: 100%; max-width: 700px;">
         <h4 style="margin-top: 0; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fas fa-vial"></i> Laboratory Results</span>
             <button type="button" onclick="closeViewLabModal()" style="background:none; border:none; font-size:1.2em; cursor:pointer;">&times;</button>

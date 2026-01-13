@@ -100,10 +100,10 @@ $payrolls = db_select("
                     <tr>
                         <td><?php echo htmlspecialchars($pay['first_name'] . ' ' . $pay['last_name']); ?></td>
                         <td><?php echo date('M Y', strtotime($pay['salary_month'])); ?></td>
-                        <td>$<?php echo number_format($pay['basic_salary'], 2); ?></td>
-                        <td>$<?php echo number_format($pay['allowances'], 2); ?></td>
-                        <td>$<?php echo number_format($pay['deductions'], 2); ?></td>
-                        <td><strong>$<?php echo number_format($pay['net_salary'] ?: ($pay['basic_salary'] + $pay['allowances'] - $pay['deductions']), 2); ?></strong></td>
+                        <td>₹<?php echo number_format($pay['basic_salary'], 2); ?></td>
+                        <td>₹<?php echo number_format($pay['allowances'], 2); ?></td>
+                        <td>₹<?php echo number_format($pay['deductions'], 2); ?></td>
+                        <td><strong>₹<?php echo number_format($pay['net_salary'] ?: ($pay['basic_salary'] + $pay['allowances'] - $pay['deductions']), 2); ?></strong></td>
                         <td>
                             <span class="badge badge-<?php echo $pay['status'] === 'paid' ? 'success' : 'warning'; ?>">
                                 <?php echo ucfirst($pay['status']); ?>

@@ -375,7 +375,8 @@ tr:last-child td {
 
 .form-control {
     width: 100%;
-    max-width: 100%; /* Prevent overflow */
+    max-width: 100%;
+    /* Prevent overflow */
     padding: 12px;
     border: 1px solid #eee;
     border-radius: 8px;
@@ -408,4 +409,169 @@ tr:last-child td {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     padding: 40px;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS
+   ========================================================================== */
+
+/* Overlay for sidebar */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+@media (max-width: 900px) {
+    :root {
+        --sidebar-width: 260px;
+        /* Keep defined for calculation if needed, but overridden pattern below */
+    }
+
+    /* 1. Sidebar becomes off-canvas */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 999;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    /* 2. Content expands to full width */
+    .content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* 3. Header Adjustments */
+    .top-header {
+        padding: 0 15px;
+    }
+
+    #sidebarToggle {
+        display: flex !important;
+        /* Show hamburger */
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .search-bar {
+        width: auto;
+        flex: 1;
+        margin-right: 15px;
+    }
+
+    .user-info {
+        display: none;
+        /* Hide name on small screens to save space */
+    }
+
+    .header-actions {
+        gap: 10px;
+    }
+
+    /* 4. Dashboard Grid */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        /* Single column */
+        gap: 15px;
+    }
+
+    /* 5. Tables */
+    .table-responsive,
+    .card-body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 600px;
+        /* Force scroll */
+    }
+
+    /* 6. Modals */
+    .modal-content,
+    .lab-modal-content,
+    .med-modal-content {
+        width: 95% !important;
+        margin: 5% auto !important;
+        min-width: auto !important;
+        max-width: 95% !important;
+    }
+
+    /* 7. Forms */
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group,
+    .check-grid {
+        width: 100%;
+    }
+
+    /* 8. Specific Page Fixes */
+    /* Telemedicine */
+    .clinical-sidebar {
+        position: relative;
+        width: 100% !important;
+        height: auto;
+        border-left: none;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .main-content {
+        padding: 15px;
+    }
+
+    /* 9. Visit Notes Grid */
+    .visit-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Extra Small Devices */
+@media (max-width: 480px) {
+    .search-bar input {
+        display: none;
+        /* Hide search input on very small screens, keep icon */
+    }
+
+    .search-bar {
+        background: transparent;
+        width: auto;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .stat-card {
+        min-height: auto;
+        padding: 15px;
+    }
+
+    .btn {
+        width: 100%;
+        /* Full width buttons */
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    .header-actions .btn {
+        width: auto;
+        /* Except header buttons */
+    }
 }

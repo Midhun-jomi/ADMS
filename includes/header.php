@@ -23,6 +23,9 @@ $user_role = $_SESSION['role'] ?? 'Guest';
         <div class="content-wrapper">
             <header class="top-header">
                 <div class="search-bar">
+                    <button id="sidebarToggle" class="icon-btn-sm" style="margin-right: 10px; display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <form action="<?php echo BASE_URL; ?>/search_results.php" method="GET" style="display: flex; align-items: center; width: 100%;">
                         <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; margin-right: 10px;" aria-label="Search">
                             <i class="fas fa-search" style="color: #888;"></i>

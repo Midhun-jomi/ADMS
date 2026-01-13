@@ -42,6 +42,7 @@ if (!$conn) {
 
 // Sync DB timezone with PHP timezone
 pg_query($conn, "SET TIME ZONE 'Asia/Kolkata'");
+ini_set('max_execution_time', 300);
 
 // Simple helper
 function db_query($sql, $params = []) {

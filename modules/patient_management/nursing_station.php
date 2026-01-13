@@ -230,11 +230,11 @@ if (!empty($allocation['doctor_id'])) {
 <!-- Quick Entry Bar -->
 <div class="glass-panel" style="margin-bottom: 30px; border: 2px solid #21a9af; background: #f0fdfa;">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-        <div style="flex: 1; min-width: 300px;">
+        <div style="flex: 1; min-width: 100%;">
             <h4 style="margin: 0 0 5px 0; color: #115e59;"><i class="fas fa-search-plus"></i> Quick Vitals Entry</h4>
             <p style="margin: 0; font-size: 0.85em; color: #134e4a;">Search by Patient Name or UHID to record new clinical data.</p>
         </div>
-        <div style="display: flex; gap: 10px; flex: 1; min-width: 300px;">
+        <div style="display: flex; gap: 10px; flex: 1; min-width: 100%;">
             <input type="text" id="quickPatientSearch" class="form-control" placeholder="Search Name or UHID..." style="border-radius: 10px;" oninput="debouncedSearch()" onkeyup="if(event.key === 'Enter') searchAndRecordVitals()">
             <button class="btn btn-primary" style="background: #21a9af; border: none; white-space: nowrap; border-radius: 10px;" onclick="searchAndRecordVitals()">
                 <i class="fas fa-search"></i> Search

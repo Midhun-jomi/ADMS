@@ -57,6 +57,7 @@ if ($_SESSION['role'] === 'admin') {
 <style>
     /* Modern Feedback UI */
     .feedback-container {
+        width: 95%;
         max-width: 600px;
         margin: 40px auto;
         background: #fff;
