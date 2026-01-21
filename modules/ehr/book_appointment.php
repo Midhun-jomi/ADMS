@@ -63,6 +63,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             'message' => $msg, 
                             'type' => 'appointment'
                         ]);
+                        
+                        // --- FCM INTEGRATION ---
+                        require_once '../../includes/fcm_service.php';
+                        
+                        // 1. Notify Doctor
+                        $doc_token_row = db_select_one("SELECT fcm_token FROM users WHERE id = $1", [$doc_user['user_id']]);
+                        if($doc_token_row && !empty($doc_token_row['fcm_token'])) {
+                            FCMService::send(
+                                $doc_token_row['fcm_token'], 
+                                'New Patient Appointment', 
+                                "{$pat_name} has booked for " . date('M d, h:i A', strtotime($appointment_time))
+                            );
+                        }
+                        
+                        // 2. Notify Patient (Confirmation)
+                        $pat_token_row = db_select_one("SELECT fcm_token FROM users WHERE id = $1", [$user_id]);
+                        if($pat_token_row && !empty($pat_token_row['fcm_token'])) {
+                            FCMService::send(
+                                $pat_token_row['fcm_token'], 
+                                'Appointment Confirmed', 
+                                "Your appointment with Dr. {$doc_name} is confirmed for " . date('M d, h:i A', strtotime($appointment_time))
+                            );
+                        }
+                        // -----------------------
                     }
 
                     $success = "Appointment booked successfully!";
@@ -300,19 +324,44 @@ function filterDoctors() {
     const doctorSelect = document.getElementById('doctor_id');
     const options = doctorSelect.options;
 
+    // Reset doctor selection
+    doctorSelect.value = "";
+    
+    // Track if we have any visible options
+    let hasVisibleOptions = false;
+
     for (let i = 0; i < options.length; i++) {
         const option = options[i];
-        if (option.value === "") continue;
+        if (option.value === "") {
+            // Always show the placeholder option
+            option.style.display = "";
+            continue;
+        }
         
         const docSpec = option.getAttribute('data-spec');
+        
+        // Show if no filter selected OR if specialization matches
         if (spec === "" || docSpec === spec) {
             option.style.display = "";
+            option.disabled = false;
+            hasVisibleOptions = true;
         } else {
             option.style.display = "none";
+            option.disabled = true;
         }
     }
-    doctorSelect.value = "";
+    
+    // Update placeholder text based on filter
+    const placeholder = options[0];
+    if (spec === "") {
+        placeholder.textContent = "-- Choose Doctor --";
+    } else {
+        placeholder.textContent = hasVisibleOptions ? `-- Choose ${spec} Doctor --` : `No ${spec} doctors available`;
+    }
+    
+    // Reset slots
     document.getElementById('slot-container').innerHTML = '<p style="color: #777; font-size: 0.9em; margin: 0;">Please select a doctor and date first.</p>';
+    document.getElementById('selected_time').value = '';
 }
 
 function fetchSlots() {

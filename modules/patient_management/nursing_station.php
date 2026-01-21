@@ -23,6 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
     $v_patient_id = $_POST['v_patient_id'];
     $v_appt_id = !empty($_POST['v_appointment_id']) ? $_POST['v_appointment_id'] : null;
     $r_by = $_POST['recorded_by_id'] ?? $user_id;
+
+    // Handle "Mark Ready" (Nurse Action)
+    if (isset($_POST['mark_ready']) && $v_appt_id) {
+        require_once '../../includes/queue_logic.php';
+        update_appointment_status($v_appt_id, 'ready');
+        // Continue to record vitals if provided, or just refresh
+    }
     
     // Save Metrics
     $metrics = [
@@ -44,6 +51,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
                 'metric_value' => json_encode($data),
                 'recorded_by' => $user_id
             ]);
+
+            // Auto-detect critical and update Priority
+            $val = floatval($data['value']);
+            $is_crit = false;
+            if ($type == 'bp_systolic' && ($val > 160 || $val < 90)) $is_crit = true;
+            if ($type == 'glucose' && ($val > 250 || $val < 60)) $is_crit = true;
+            if ($type == 'heart_rate' && ($val > 120 || $val < 50)) $is_crit = true;
+            if ($type == 'temperature' && $val > 102) $is_crit = true;
+
+            if ($is_crit && $v_appt_id) {
+                db_query("UPDATE appointments SET priority = 'high-risk' WHERE id = $1", [$v_appt_id]);
+            }
         }
     }
     
@@ -322,9 +341,17 @@ async function searchAndRecordVitals() {
                         $age = date_diff(date_create($opt['date_of_birth']), date_create('today'))->y;
                         $p_img = $opt['p_image'] ?: "https://ui-avatars.com/api/?name=" . urlencode($opt['first_name'] . ' ' . $opt['last_name']);
                         $time_formatted = date('h:i A', strtotime($opt['appointment_time']));
+                        
+                        // Condition for styling
+                        $is_ready = ($opt['status'] === 'ready' || $opt['status'] === 'consulting');
+                        $card_border = $is_ready ? '#10b981' : '#ff9800'; // Green vs Orange
+                        $time_bg = $is_ready ? '#d1fae5' : '#fff3e0';
+                        $time_color = $is_ready ? '#047857' : '#e65100';
+                        $btn_bg = $is_ready ? '#10b981' : '#ff9800';
+                        $btn_text = $is_ready ? '<i class="fas fa-check"></i> SAVED' : '<i class="fas fa-heartbeat"></i> RECORD VITALS';
                     ?>
-                    <div class="patient-card-item" style="border-left: 4px solid #ff9800;">
-                        <div class="p-room" style="background: #fff3e0; color: #e65100; min-width: 80px;">
+                    <div class="patient-card-item" style="border-left: 4px solid <?php echo $card_border; ?>;">
+                        <div class="p-room" style="background: <?php echo $time_bg; ?>; color: <?php echo $time_color; ?>; min-width: 80px;">
                             <span style="font-size: 1.1em;"><?php echo $time_formatted; ?></span>
                             <span style="font-size: 0.6em; text-transform: uppercase;">Time</span>
                         </div>
@@ -342,12 +369,12 @@ async function searchAndRecordVitals() {
                              <button 
                                 type="button"
                                 class="btn btn-sm btn-primary" 
-                                style="background: #ff9800; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600;"
+                                style="background: <?php echo $btn_bg; ?>; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600;"
                                 data-patient-id="<?php echo $opt['patient_id']; ?>"
                                 data-patient-name="<?php echo htmlspecialchars($opt['first_name'] . ' ' . $opt['last_name']); ?>"
                                 data-appt-id="<?php echo $opt['id']; ?>"
                                 onclick="openVitalsModalFromElement(this)">
-                                <i class="fas fa-heartbeat"></i> RECORD VITALS
+                                <?php echo $btn_text; ?>
                             </button>
                         </div>
                     </div>
@@ -502,8 +529,12 @@ async function searchAndRecordVitals() {
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 0.8em; font-weight: 600; color: #555; margin-bottom: 5px;">Nurse Notes / Vital History / Chief Complaint</label>
                     <textarea name="nurse_notes" class="form-control" rows="3" placeholder="Enter patient history, complaints, or observations..." style="border-radius: 8px; width: 100%;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; background: #f0fdfa; padding: 10px; border-radius: 8px; border: 1px solid #ccfbf1;">
+                    <input type="checkbox" name="mark_ready" value="1" id="markReadyCheck" checked style="width: 20px; height: 20px;">
+                    <label for="markReadyCheck" style="font-weight: 600; color: #0f766e; cursor: pointer;">Patient Ready for Consultation</label>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; background: #21a9af; border: none; padding: 12px; border-radius: 10px; font-weight: 600;">Save Record</button>

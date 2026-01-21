@@ -22,6 +22,60 @@ $selected_date = $_GET['date'] ?? date('Y-m-d');
 $today_start = date('Y-m-d 00:00:00', strtotime($selected_date));
 $today_end = date('Y-m-d 23:59:59', strtotime($selected_date));
 
+// Handle Consultation Actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once '../includes/queue_logic.php';
+    require_once '../includes/fcm_service.php';
+
+    if (isset($_POST['start_consult']) && !empty($_POST['appt_id'])) {
+        // 1. Start Current Consult
+        update_appointment_status($_POST['appt_id'], 'consulting');
+        
+        // 2. Automate: Notify NEXT patient
+        // Find next eligible appointment (Waiting or Ready) that is NOT the one we just started
+        $next_appt = db_select_one("SELECT a.id, p.first_name, u.fcm_token 
+                                    FROM appointments a
+                                    JOIN patients p ON a.patient_id = p.id
+                                    JOIN users u ON p.user_id = u.id
+                                    WHERE a.doctor_id = $1 
+                                    AND a.status IN ('waiting', 'ready')
+                                    AND a.appointment_time >= CURRENT_DATE
+                                    AND a.id != $2
+                                    ORDER BY a.appointment_time ASC 
+                                    LIMIT 1", [$doctor_id, $_POST['appt_id']]);
+                                    
+        if ($next_appt && !empty($next_appt['fcm_token'])) {
+            $msg = "Hello {$next_appt['first_name']}, the doctor has started the previous consultation. You are next! Please be ready.";
+            FCMService::send($next_appt['fcm_token'], "Queue Update: You are Next", $msg);
+            // Optional: Feedback to doctor
+            echo "<script>setTimeout(() => alert('Next patient ({$next_appt['first_name']}) has been auto-notified!'), 500);</script>";
+        }
+
+    } elseif (isset($_POST['end_consult']) && !empty($_POST['appt_id'])) {
+        update_appointment_status($_POST['appt_id'], 'completed');
+    } elseif (isset($_POST['notify_patient']) && !empty($_POST['appt_id'])) {
+        require_once '../includes/fcm_service.php';
+        // Get Patient User ID and Details
+        $pat_details = db_select_one("SELECT p.first_name, p.last_name, p.user_id, u.fcm_token 
+                                      FROM appointments a 
+                                      JOIN patients p ON a.patient_id = p.id 
+                                      JOIN users u ON p.user_id = u.id 
+                                      WHERE a.id = $1", [$_POST['appt_id']]);
+        
+        if ($pat_details && !empty($pat_details['fcm_token'])) {
+            $msg = "Hello {$pat_details['first_name']}, you are next in line. Please proceed to Room $doctor_room.";
+            $res = FCMService::send($pat_details['fcm_token'], "Appointment Alert", $msg);
+            if($res['status'] == 'success' || $res['status'] == 'simulated') {
+                echo "<div class='alert alert-success' style='position:fixed; top:20px; right:20px; z-index:9999;'>Notification sent!</div>";
+            } else {
+                echo "<div class='alert alert-danger' style='position:fixed; top:20px; right:20px; z-index:9999;'>Failed to send: {$res['message']}</div>";
+            }
+        } else {
+             echo "<div class='alert alert-warning' style='position:fixed; top:20px; right:20px; z-index:9999;'>Patient has no registered device for notifications.</div>";
+        }
+    }
+}
+
 // Fetch Appointments
 $todays_appts = db_select("SELECT a.*, p.first_name, p.last_name, p.id as patient_id, r.room_number,
                            (SELECT profile_image FROM users u WHERE u.id = p.user_id) as p_image
@@ -31,8 +85,13 @@ $todays_appts = db_select("SELECT a.*, p.first_name, p.last_name, p.id as patien
                            WHERE a.doctor_id = $1 
                              AND a.appointment_time >= '$today_start' 
                              AND a.appointment_time <= '$today_end'
-                             AND a.status = 'scheduled' 
-                           ORDER BY a.appointment_time ASC", [$doctor_id]);
+                             AND a.status IN ('scheduled', 'waiting', 'ready', 'consulting') 
+                           ORDER BY 
+                             CASE WHEN a.status = 'consulting' THEN 0 
+                                  WHEN a.status = 'ready' THEN 1 
+                                  WHEN a.status = 'waiting' THEN 2 
+                                  ELSE 3 END,
+                             a.appointment_time ASC", [$doctor_id]);
 
 $appt_count = count($todays_appts);
 
@@ -64,7 +123,7 @@ $v_child = $visitor_stats['child'] ?? 0;
     /* Dashboard Specific Styles */
     .dashboard-layout {
         display: grid;
-        grid-template-columns: 3fr 1fr;
+        grid-template-columns: 4fr 1fr;
         gap: 30px;
         margin-top: 20px;
     }
@@ -113,7 +172,7 @@ $v_child = $visitor_stats['child'] ?? 0;
     /* Stats Grid (3 Columns) */
     .stats-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 7fr 9fr 4fr;
         gap: 30px;
         margin-bottom: 30px;
     }
@@ -138,7 +197,7 @@ $v_child = $visitor_stats['child'] ?? 0;
     /* Heart Card */
     .heart-card {
         background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-        min-height: 300px;
+        min-height: 280px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -427,7 +486,7 @@ if ($active_patient) {
             </div>
 
             <!-- 2. Schedule Card (Moved) -->
-            <div class="glass-card schedule-card" style="padding: 15px; overflow-y: auto; max-height: 300px;">
+            <div class="glass-card schedule-card" style="padding: 15px; overflow-y: auto; height: 280px;">
                 <div class="card-header" style="border: none; padding-bottom: 5px; display: flex; justify-content: space-between;">
                     <span><i class="far fa-calendar-alt text-warning"></i> Schedule</span>
                     <i class="fas fa-ellipsis-v text-muted"></i>
@@ -457,14 +516,81 @@ if ($active_patient) {
                     <?php if (empty($todays_appts)): ?>
                         <p class="text-muted text-center py-2" style="font-size: 0.9em;">No appointments.</p>
                     <?php else: ?>
-                        <?php foreach ($todays_appts as $appt): ?>
-                            <div class="appt-item" style="padding: 10px 0;">
-                                <img src="<?php echo $appt['p_image'] ?: 'https://ui-avatars.com/api/?name='.urlencode($appt['first_name']); ?>" class="appt-img" style="width: 35px; height: 35px;">
-                                <div class="appt-info">
-                                    <span class="appt-name" style="font-size: 0.85em;"><?php echo htmlspecialchars($appt['first_name'] . ' ' . $appt['last_name']); ?></span>
-                                    <span class="appt-role" style="font-size: 0.75em;"><?php echo date('h:i A', strtotime($appt['appointment_time'])); ?></span>
+                        <?php foreach ($todays_appts as $appt): 
+                            $status = $appt['status'];
+                            $timer_html = '';
+                            $badge_color = 'secondary';
+                            
+                            // Calculate Wait Time
+                            if (($status == 'waiting' || $status == 'ready') && !empty($appt['checked_in_at'])) {
+                                $start = strtotime($appt['checked_in_at']);
+                                $diff = round((time() - $start) / 60);
+                                
+                                $timer_color = 'green';
+                                if ($diff >= 10 && $diff <= 20) $timer_color = '#d97706'; // Yellow/Orange
+                                if ($diff > 20) $timer_color = '#dc2626'; // Red
+                                
+                                $timer_html = "<span style='color: $timer_color; font-weight: bold; font-size: 0.9em; margin-right: 10px;'><i class='fas fa-stopwatch'></i> {$diff}m</span>";
+                            } elseif ($status == 'consulting') {
+                                $timer_html = "<span style='color: #2563eb; font-weight: bold; font-size: 0.9em; margin-right: 10px;'>In Progress</span>";
+                            }
+                            
+                            // Badge Color
+                            switch($status) {
+                                case 'ready': $badge_color = 'success'; break;
+                                case 'waiting': $badge_color = 'warning'; break;
+                                case 'consulting': $badge_color = 'primary'; break;
+                                case 'scheduled': $badge_color = 'info'; break;
+                            }
+                        ?>
+                            <div class="appt-item" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f3f4f6; <?php echo $status=='consulting' ? 'background:#eff6ff; border-radius:10px; padding:12px; border-bottom:none;' : ''; ?>">
+                                <!-- Left: Avatar -->
+                                <div style="flex-shrink: 0;">
+                                    <img src="<?php echo $appt['p_image'] ?: 'https://ui-avatars.com/api/?name='.urlencode($appt['first_name']); ?>" class="appt-img" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                 </div>
-                                <a href="/modules/ehr/visit_notes.php?appointment_id=<?php echo $appt['id']; ?>" class="btn-sm btn-light" style="padding: 2px 5px;"><i class="fas fa-chevron-right" style="font-size: 0.8em;"></i></a>
+                                
+                                <!-- Middle: Name & Status -->
+                                <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+                                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;">
+                                        <span class="appt-name" style="font-size: 0.9em; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+                                            <?php echo htmlspecialchars($appt['first_name'] . ' ' . $appt['last_name']); ?>
+                                        </span>
+                                        <span class="badge badge-<?php echo $badge_color; ?>" style="font-size: 0.65em; padding: 3px 6px; border-radius: 4px;"><?php echo strtoupper($status); ?></span>
+                                    </div>
+                                    <span class="appt-role" style="font-size: 0.75em; color: #888; margin-top: 2px;">
+                                        <i class="far fa-clock"></i> <?php echo date('h:i A', strtotime($appt['appointment_time'])); ?>
+                                    </span>
+                                </div>
+
+                                <!-- Right: Timer & Actions -->
+                                <div style="flex-shrink: 0; display: flex; align-items: center; gap: 8px;">
+                                    <?php echo $timer_html; ?>
+                                    
+                                    <?php if ($status == 'ready' || $status == 'waiting'): ?>
+                                        <form method="POST" style="margin:0; display:inline-block;">
+                                            <input type="hidden" name="appt_id" value="<?php echo $appt['id']; ?>">
+                                            <?php if($status == 'waiting'): ?>
+                                                <button type="submit" name="notify_patient" class="btn btn-sm btn-info shadow-sm" style="padding: 4px 12px; font-size: 0.8em; border-radius: 6px; margin-right: 5px; color: white;">
+                                                    <i class="fas fa-bell"></i> Notify
+                                                </button>
+                                            <?php endif; ?>
+                                            <button type="submit" name="start_consult" class="btn btn-sm btn-success shadow-sm" style="padding: 4px 12px; font-size: 0.8em; border-radius: 6px;">
+                                                <i class="fas fa-play"></i> Start
+                                            </button>
+                                        </form>
+                                    <?php elseif ($status == 'consulting'): ?>
+                                        <form method="POST" style="margin:0;">
+                                            <input type="hidden" name="appt_id" value="<?php echo $appt['id']; ?>">
+                                            <button type="submit" name="end_consult" class="btn btn-sm btn-danger shadow-sm" style="padding: 4px 12px; font-size: 0.8em; border-radius: 6px;">
+                                                <i class="fas fa-stop"></i> End
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <a href="/modules/ehr/visit_notes.php?appointment_id=<?php echo $appt['id']; ?>" class="btn btn-sm btn-light" style="padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 6px;">
+                                            <i class="fas fa-chevron-right" style="color: #666;"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -474,7 +600,7 @@ if ($active_patient) {
                 <div class="card-header" style="border: none; padding-bottom: 0;">
                     <span>Total Visitors</span>
                 </div>
-                <div style="position: relative; height: 200px; display: flex; justify-content: center; align-items: center;">
+                <div style="position: relative; height: 180px; display: flex; justify-content: center; align-items: center;">
                     <canvas id="visitorChart"></canvas>
                     <div style="position: absolute; text-align: center;">
                         <strong style="font-size: 1.5em; display: block; color: #333;"><?php echo number_format($v_total); ?></strong>
@@ -485,34 +611,16 @@ if ($active_patient) {
         </div>
     </div>
 
-    <!-- Sidebar Column -->
     <div class="sidebar-col">
-
-
-        <div class="issue-card">
-            <div class="card-header" style="border: none;">
-                <span>Patient Medical History <i class="fas fa-info-circle text-info"></i></span>
-            </div>
-            <div style="padding: 10px;">
-                <?php 
-                if ($active_patient):
-                    $pat_data = db_select_one("SELECT medical_history FROM patients WHERE id = $1", [$active_patient['patient_id']]);
-                    if ($pat_data && $pat_data['medical_history']):
-                        $m_tags = explode(',', $pat_data['medical_history']);
-                        foreach (array_slice($m_tags, 0, 5) as $mtag):
-                ?>
-                    <span class="issue-tag" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;"><?php echo htmlspecialchars(trim($mtag)); ?></span>
-                <?php endforeach; else: ?>
-                    <p style="font-size: 0.8em; color: #888; font-style: italic;">No medical history recorded for this patient.</p>
-                <?php endif; else: ?>
-                    <p style="font-size: 0.8em; color: #888;">Select a patient to view history.</p>
-                <?php endif; ?>
-            </div>
-        </div>
+        <!-- Messages Card Removed as per user request -->
     </div>
 </div>
 
 <script>
+// Messaging System Removed
+// Only Charts Remain
+
+
 
 
     // Donut Chart

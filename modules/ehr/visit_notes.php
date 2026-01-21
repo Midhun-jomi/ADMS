@@ -39,6 +39,33 @@ if (!$appt) {
 
 $patient_id = $appt['patient_id'];
 
+// 0. Handle AJAX Call Patient
+if (isset($_POST['call_patient_ajax'])) {
+    $role = get_user_role();
+    if ($role === 'doctor') {
+        $doc_id = get_user_id();
+        $staff = db_select_one("SELECT id, primary_room_id FROM staff WHERE user_id = $1", [$doc_id]);
+        
+        $final_room = 'OPD'; // Default
+        if (!empty($staff['primary_room_id'])) {
+            $room_info = db_select_one("SELECT room_number FROM rooms WHERE id = $1", [$staff['primary_room_id']]);
+            if ($room_info) {
+                $final_room = $room_info['room_number'];
+            }
+        }
+
+        // Log to public queue
+        db_insert('public_queue', [
+            'patient_name' => $appt['first_name'] . ' ' . $appt['last_name'],
+            'room_number' => $final_room,
+            'status' => 'calling'
+        ]);
+
+        echo json_encode(['status' => 'success', 'room' => $final_room]);
+        exit;
+    }
+}
+
 // --- SMART ASSISTANT LOGIC (AI Sum-up) ---
 $past_visits = db_select("SELECT reason, updated_at FROM appointments WHERE patient_id = $1 AND status = 'completed' AND id != $2 ORDER BY updated_at DESC", [$patient_id, $appointment_id]);
 
@@ -382,17 +409,35 @@ include '../../includes/header.php';
 ?>
 
 <style>
-    .visit-grid { display: grid; grid-template-columns: 350px 1fr; gap: 25px; }
-    .profile-card { background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 25px; text-align: center; border: 1px solid #eee; }
+    /* Updated Grid for Fit-to-Page */
+    .visit-grid { 
+        display: grid; 
+        grid-template-columns: 350px 1fr; 
+        gap: 20px; 
+        height: calc(100vh - 140px); /* Adjusted for header/footer margins */
+        overflow: hidden; 
+        padding-bottom: 20px;
+    }
+    
+    /* Scrollable Columns */
+    .visit-col-scroll {
+        height: 100%;
+        overflow-y: auto;
+        padding-right: 5px; /* Space for scrollbar */
+        padding-bottom: 20px;
+    }
+
+    .profile-card { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); padding: 20px; text-align: center; border: 1px solid #eee; margin-bottom: 20px; }
+    
     .profile-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 4px solid #f0f2f5; }
     .info-label { font-size: 0.85em; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 10px; display: block; }
     .vitals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
     .vital-box { background: #f8f9fa; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #e9ecef; }
     .vital-val { font-size: 1.2em; font-weight: 700; color: #21a9af; }
     .vital-unit { font-size: 0.7em; color: #666; }
-    .main-panel { background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 30px; border: 1px solid #eee; }
+    /* .main-panel no longer needs max-height/overflow since parent handles it */
+    .main-panel { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); padding: 25px; border: 1px solid #eee; }
     .section-title { font-size: 1.1em; font-weight: 700; color: #344767; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-    
     /* Lab Modal & Med Modal Styles */
     .lab-modal, .med-modal {
         display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);
@@ -414,15 +459,59 @@ include '../../includes/header.php';
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 </style>
 
+<script>
+function callPatient() {
+    const btn = document.getElementById('callBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calling...';
+
+    const formData = new FormData();
+    formData.append('call_patient_ajax', '1');
+
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            btn.innerHTML = '<i class="fas fa-check"></i> Called';
+            btn.style.background = '#10b981'; // Green
+            btn.style.borderColor = '#10b981';
+            btn.style.color = 'white';
+            
+            // Show toast/banner
+            const banner = document.getElementById('pagingBanner');
+            banner.style.display = 'block';
+            banner.innerHTML = '<i class="fas fa-satellite-dish"></i> Paging System: Patient has been called to ' + data.room + '.';
+        } else {
+            alert('Error calling patient');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+</script>
+
 <?php if (!$is_embedded): ?>
-<div class="header-actions" style="margin-bottom: 20px;">
-    <a href="appointments.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Schedule</a>
+<div class="header-actions" style="margin-bottom: 10px;">
+    <a href="appointments.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to Schedule</a>
 </div>
 <?php endif; ?>
 
 <?php if (isset($success)): ?>
     <div class="alert alert-success"><?php echo $success; ?></div>
 <?php endif; ?>
+
+<!-- Hidden Paging Banner -->
+<div id="pagingBanner" class="alert alert-info animate-pulse" style="display:none; background: #e6fffa; border: 1px solid #b2f5ea; color: #2c7a7b; margin-bottom: 20px; border-radius: 12px; font-weight: 600;"></div>
 
 <?php if ($is_embedded): ?>
     <!-- QUICK ACTIONS TOOLBAR (EMBEDDED ONLY) -->
@@ -441,7 +530,7 @@ include '../../includes/header.php';
 
 <div class="visit-grid">
     <!-- Left Sidebar -->
-    <div style="display: flex; flex-direction: column; gap: 20px;">
+    <div class="visit-col-scroll">
         <div class="profile-card">
             <?php $img_src = $appt['profile_image'] ?: "https://ui-avatars.com/api/?name=" . urlencode($appt['first_name'].' '.$appt['last_name']); ?>
             <img src="<?php echo $img_src; ?>" class="profile-img">
@@ -527,18 +616,15 @@ include '../../includes/header.php';
     </div>
 
     <!-- Main Content -->
-    <div style="display: flex; flex-direction: column; gap: 20px;">
+    <div class="visit-col-scroll">
         <div class="main-panel">
             <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
                 <span><i class="fas fa-user-md"></i> Clinical Notes & Consultation</span>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <?php if ($appt['status'] !== 'completed'): ?>
-                        <form method="POST" style="margin: 0;">
-                            <input type="hidden" name="call_patient_now" value="1">
-                            <button type="submit" class="btn btn-sm" style="background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; font-weight: 700; height: 32px; padding: 0 15px;">
-                                <i class="fas fa-bullhorn"></i> Call Patient
-                            </button>
-                        </form>
+                        <button id="callBtn" type="button" class="btn btn-sm" onclick="callPatient()" style="background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; font-weight: 700; height: 32px; padding: 0 15px;">
+                            <i class="fas fa-bullhorn"></i> Call Patient
+                        </button>
                     <?php endif; ?>
                     <span class="badge <?php echo $appt['status'] == 'completed' ? 'badge-success' : 'badge-warning'; ?>"><?php echo ucfirst($appt['status']); ?></span>
                 </div>
@@ -548,22 +634,7 @@ include '../../includes/header.php';
                 <!-- QUICK ACTIONS TOOLBAR MOVED TO TOP STICKY HEADER -->
             <?php endif; ?>
 
-            <?php if (isset($_POST['call_patient_now'])): 
-                // Display room info if available
-                $room_info = db_select_one("SELECT r.room_number FROM staff s JOIN rooms r ON s.primary_room_id = r.id WHERE s.id = $1", [$staff['id'] ?? 0]);
-                $final_room = $room_info['room_number'] ?? 'OPD';
-                
-                // Log to public queue
-                db_insert('public_queue', [
-                    'patient_name' => $appt['first_name'] . ' ' . $appt['last_name'],
-                    'room_number' => $final_room,
-                    'status' => 'calling'
-                ]);
-            ?>
-                <div class="alert alert-info animate-pulse" style="background: #e6fffa; border: 1px solid #b2f5ea; color: #2c7a7b; margin-bottom: 20px; border-radius: 12px; font-weight: 600;">
-                    <i class="fas fa-satellite-dish"></i> Paging System: Patient has been called to Room <?php echo $final_room; ?>.
-                </div>
-            <?php endif; ?>
+            <!-- Original Paging Banner Removed (Handled by JS now) -->
 
             <!-- Read-Only Visit History -->
             <label style="font-weight: 600; color: #555;">Previous Notes / HPI:</label>
@@ -639,35 +710,98 @@ include '../../includes/header.php';
                     <textarea name="notes" class="form-control" rows="6" placeholder="Enter clinical observations, diagnosis, and treatment plan..." style="border: 2px solid #e0e0e0;" required></textarea>
                 </div>
 
-                <div class="form-row" style="display: flex; gap: 15px; align-items: center; justify-content: space-between; margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 10px;">
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <div style="display: flex; flex-direction: column;">
-                            <label style="font-size: 0.8em; color: #666; font-weight: 600;">Schedule Follow-up</label>
-                            <input type="date" name="follow_up_date" class="form-control" style="width: 170px;" min="<?php echo date('Y-m-d', strtotime('+1 day')); ?>">
-                        </div>
-                        <div style="display: flex; gap: 10px; margin-top: 20px;">
-                            <button type="submit" name="save_note" value="1" class="btn btn-info"><i class="fas fa-save"></i> Save Progress</button>
-                            <button type="submit" name="complete_visit" value="1" class="btn btn-success" onclick="return confirm('Mark visit as completed and generate bill?');"><i class="fas fa-check-circle"></i> Complete Visit</button>
-                        </div>
-                    </div>
+                <!-- Uniform Action Grid -->
+                <style>
+                    .action-grid {
+                        display: grid;
+                        grid-template-columns: repeat(7, 1fr); /* 7 items equal width */
+                        gap: 10px;
+                        margin-top: 20px;
+                        background: #f8f9fa;
+                        padding: 15px;
+                        border-radius: 12px;
+                    }
+                    .action-tile {
+                        height: 90px; /* Fixed height for uniformity */
+                        width: 100%;
+                        border-radius: 10px;
+                        border: 1px solid #e0e0e0;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        font-size: 0.8em;
+                        font-weight: 600;
+                        padding: 5px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+                    .action-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+                    .action-tile i { font-size: 1.4em; margin-bottom: 5px; display: block; }
                     
-                    <div style="display: flex; gap: 5px;">
-                        <!-- Lab Button Triggers Modal -->
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openLabModal()">
-                            <i class="fas fa-flask"></i> Order Lab
-                        </button>
+                    /* Specific Colors */
+                    .tile-save { background: #e0f2f1; color: #00695c; border-color: #b2dfdb; }
+                    .tile-complete { background: #e8f5e9; color: #1b5e20; border-color: #c8e6c9; }
+                    .tile-lab { background: #e3f2fd; color: #0d47a1; border-color: #bbdefb; }
+                    .tile-rad { background: #fff3e0; color: #e65100; border-color: #ffe0b2; }
+                    .tile-meds { background: #f3e5f5; color: #4a148c; border-color: #e1bee7; }
+                    .tile-view { background: #eceff1; color: #37474f; border-color: #cfd8dc; }
+                    
+                    /* Input Tile Override */
+                    .tile-input {
+                        background: #fff;
+                        align-items: flex-start; /* Align text left */
+                        padding: 10px;
+                        cursor: default;
+                    }
+                    .tile-input label { margin: 0; font-size: 0.8em; color: #666; width: 100%; text-align: left; }
+                    .tile-input input { 
+                        width: 100%; 
+                        border: 1px solid #ddd; 
+                        padding: 4px; 
+                        border-radius: 5px; 
+                        margin-top: 5px; 
+                        font-size: 0.9em;
+                    }
+                </style>
 
-                        <!-- Radiology Button -->
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openRadModal()">
-                            <i class="fas fa-x-ray"></i> Order Radiology
-                        </button>
-                        
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openViewLabModal()">
-                            <i class="fas fa-vial"></i> View Lab Results
-                        </button>
-                        
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openMedModal()"><i class="fas fa-pills"></i> Meds</button>
+                <div class="action-grid">
+                    <!-- 1. Follow Up Date -->
+                    <div class="action-tile tile-input">
+                        <label>Schedule Follow-up</label>
+                        <input type="date" name="follow_up_date" min="<?php echo date('Y-m-d', strtotime('+1 day')); ?>">
                     </div>
+
+                    <!-- 2. Save -->
+                    <button type="submit" name="save_note" value="1" class="action-tile tile-save">
+                        <i class="fas fa-save"></i> Save Progress
+                    </button>
+
+                    <!-- 3. Complete -->
+                    <button type="submit" name="complete_visit" value="1" class="action-tile tile-complete" onclick="return confirm('Mark visit as completed and generate bill?');">
+                        <i class="fas fa-check-circle"></i> Complete Visit
+                    </button>
+
+                    <!-- 4. Order Lab -->
+                    <button type="button" class="action-tile tile-lab" onclick="openLabModal()">
+                        <i class="fas fa-flask"></i> Order Lab
+                    </button>
+
+                    <!-- 5. Order Rad -->
+                    <button type="button" class="action-tile tile-rad" onclick="openRadModal()">
+                        <i class="fas fa-x-ray"></i> Order Radiology
+                    </button>
+
+                    <!-- 6. View Results -->
+                    <button type="button" class="action-tile tile-view" onclick="openViewLabModal()">
+                        <i class="fas fa-vial"></i> View Results
+                    </button>
+
+                    <!-- 7. Meds -->
+                    <button type="button" class="action-tile tile-meds" onclick="openMedModal()">
+                        <i class="fas fa-pills"></i> Meds
+                    </button>
                 </div>
             </form>
 

@@ -21,6 +21,13 @@ $revenue_today = 0;
 // $rev = db_select("SELECT SUM(amount) as s FROM invoices WHERE created_at >= CURRENT_DATE");
 // if ($rev) $revenue_today = $rev[0]['s'];
 
+// Fetch Waiting Stats
+$doc_stats = db_select("SELECT s.first_name, s.last_name, ds.avg_consult_time 
+                        FROM doctor_stats ds 
+                        JOIN staff s ON ds.doctor_id = s.id 
+                        ORDER BY ds.avg_consult_time DESC");
+
+
 ?>
 
 <style>
@@ -142,6 +149,53 @@ $revenue_today = 0;
                 </a>
             </div>
         </div>
+    </div>
+
+    <!-- Bottleneck Alerts -->
+    <div class="card bg-white mt-4">
+        <div class="card-header border-0">
+            <h4 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle"></i> Bottleneck Alerts</h4>
+        </div>
+        <div class="card-body pt-0">
+             <?php 
+             $has_bottleneck = false;
+             foreach ($doc_stats as $ds): 
+                if ($ds['avg_consult_time'] > 20):
+                    $has_bottleneck = true;
+             ?>
+                <div class="alert alert-warning mb-2" style="font-size: 0.9em; padding: 10px;">
+                    <strong style="color: #c0392b;">High Wait Time:</strong> Dr. <?php echo htmlspecialchars($ds['last_name']); ?> 
+                    <br>Avg: <?php echo $ds['avg_consult_time']; ?> min/patient
+                </div>
+             <?php endif; endforeach; ?>
+             
+             <?php if (!$has_bottleneck): ?>
+                <p class="text-success small mb-0"><i class="fas fa-check-circle"></i> No process bottlenecks detected.</p>
+             <?php endif; ?>
+        </div>
+    </div>
+    
+    <!-- Doctor Avg Time -->
+    <div class="card bg-white mt-4">
+        <div class="card-header border-0">
+            <h4 class="mb-0">Average Consult Times</h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush table-sm">
+                <tbody>
+                    <?php foreach ($doc_stats as $ds): ?>
+                    <tr>
+                        <td>Dr. <?php echo htmlspecialchars($ds['last_name']); ?></td>
+                        <td class="text-right font-weight-bold"><?php echo $ds['avg_consult_time']; ?> min</td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php if (empty($doc_stats)): ?>
+                        <tr><td colspan="2" class="text-muted text-center">No data yet.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
     </div>
 
     <!-- Security / Logs Preview -->

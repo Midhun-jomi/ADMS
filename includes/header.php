@@ -15,6 +15,8 @@ $user_role = $_SESSION['role'] ?? 'Guest';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="<?php echo BASE_URL; ?>/assets/js/main.js" defer></script>
+    <!-- FCM Client Script -->
+    <script type="module" src="<?php echo BASE_URL; ?>/assets/js/fcm_init.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -57,6 +59,26 @@ $user_role = $_SESSION['role'] ?? 'Guest';
                         $unread_count = $unread['c'] ?? 0;
                     }
                     ?>
+                    <!-- Messages Link -->
+                    <?php
+                    $msg_unread = 0;
+                    if (isset($_SESSION['user_id'])) {
+                        // Check if messages table exists to avoid crash
+                        $tbl_check = db_select("SELECT to_regclass('public.messages') as exists");
+                        if (!empty($tbl_check) && $tbl_check[0]['exists']) {
+                            $uid = $_SESSION['user_id'];
+                            $mu = db_select_one("SELECT COUNT(*) as c FROM messages WHERE recipient_id = $1 AND is_read = FALSE", [$uid]);
+                            $msg_unread = $mu['c'] ?? 0;
+                        }
+                    }
+                    ?>
+                    <a href="<?php echo ($user_role == 'doctor' ? BASE_URL.'/dashboards/doctor_dashboard.php' : BASE_URL.'/dashboards/patient_dashboard.php'); ?>" class="icon-btn" style="position: relative; text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center; margin-right: 5px;">
+                        <i class="far fa-envelope"></i>
+                        <?php if ($msg_unread > 0): ?>
+                            <span style="position: absolute; top: 0; right: -2px; width: 10px; height: 10px; background: #2563eb; border-radius: 50%; border: 2px solid white;"></span>
+                        <?php endif; ?>
+                    </a>
+
                     <div class="dropdown" style="position: relative; display: inline-block;">
                         <button id="notif-btn" class="icon-btn" style="position: relative;">
                             <i class="far fa-bell"></i>
