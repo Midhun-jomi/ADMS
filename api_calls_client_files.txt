@@ -1,0 +1,6 @@
+./dashboards/patient_dashboard.php
+./modules/patient_management/nursing_station.php
+./modules/patient_management/patient_care.php
+./modules/ehr/visit_notes.php
+./modules/ehr/book_appointment.php
+./assets/js/fcm_init.js

@@ -39,7 +39,11 @@ $pending_bills_count = db_select_one("SELECT COUNT(*) as c FROM billing WHERE pa
 // Prepare Top Bar Wait Time
 $wait_banner = "";
 if ($next_appt) {
-    $mins = get_estimated_wait_time($next_appt['id']);
+    // Updated Logic using get_queue_details
+    $queue_data = get_queue_details($next_appt['id']);
+    $mins = $queue_data['wait_time'];
+    $token = $queue_data['token'];
+    $ahead = $queue_data['patients_ahead'];
     
     // Calculate total delay (Time already passed + Future wait)
     $appt_time = strtotime($next_appt['appointment_time']);
@@ -91,25 +95,39 @@ if ($next_appt) {
     }
 
     $wait_banner = "
-    <div style='background: $bg_color; border-left: 5px solid $icon_color; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'>
-        <div style='display: flex; align-items: center; gap: 15px;'>
-            <div style='background: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: $icon_color; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
-                <i class='fas fa-hourglass-half'></i>
+    <div style='background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);'>
+        <div style='display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f3f4f6;'>
+            <div style='display: flex; align-items: center; gap: 12px;'>
+                <div style='width: 10px; height: 10px; background: $icon_color; border-radius: 50%; box-shadow: 0 0 0 4px $bg_color;'></div>
+                <h3 style='margin: 0; font-size: 1.1rem; color: #111827; font-weight: 600;'>Live Queue Status</h3>
             </div>
-            <div>
-                <h4 style='margin: 0; color: $text_color; font-size: 1.1rem;'>Estimated Wait Time</h4>
-                <p style='margin: 5px 0 0;'>
-                    <span style='background: white; padding: 4px 12px; border-radius: 20px; color: {$text_color}; font-size: 0.9em; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: inline-block;'>
-                        <i class='fas {$status_icon}' style='margin-right:5px;'></i> {$status_detail}
-                    </span>
-                </p>
+            <span style='background: $bg_color; color: $text_color; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>
+                $msg
+            </span>
+        </div>
+        
+        <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;'>
+            <!-- Token -->
+            <div style='background: #f9fafb; padding: 15px; border-radius: 12px;'>
+                <p style='margin: 0 0 5px; font-size: 0.85rem; color: #6b7280; font-weight: 500;'>Your Token</p>
+                <div style='font-size: 1.8rem; font-weight: 700; color: #111827;'>#{$token}</div>
+            </div>
+            
+            <!-- Patients Ahead -->
+            <div style='background: #f9fafb; padding: 15px; border-radius: 12px;'>
+                <p style='margin: 0 0 5px; font-size: 0.85rem; color: #6b7280; font-weight: 500;'>Patients Ahead</p>
+                <div style='font-size: 1.8rem; font-weight: 700; color: #4b5563;'>{$ahead}</div>
+            </div>
+            
+            <!-- Est Time -->
+            <div style='background: $bg_color; padding: 15px; border-radius: 12px;'>
+                <p style='margin: 0 0 5px; font-size: 0.85rem; color: $text_color; font-weight: 500;'>Est. Wait</p>
+                <div style='font-size: 1.8rem; font-weight: 700; color: $text_color;'>{$mins}<span style='font-size: 1rem;'>m</span></div>
             </div>
         </div>
-        <div style='text-align: right;'>
-            <div style='font-size: 2rem; font-weight: 800; color: $icon_color; line-height: 1;'>
-                {$mins} <span style='font-size: 1rem; font-weight: 600;'>min</span>
-            </div>
-            <span style='background: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: 700; color: $icon_color; text-transform: uppercase; letter-spacing: 0.5px;'>$msg</span>
+        
+        <div style='margin-top: 15px; text-align: center; font-size: 0.9rem; color: #6b7280;'>
+            <i class='fas $status_icon' style='margin-right: 6px;'></i> $status_detail
         </div>
     </div>
     ";

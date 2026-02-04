@@ -1,0 +1,65 @@
+./fix_appointments_schema.php:function check_and_add_column($table, $column, $type) {
+./help_center.php:function fetchFAQs() {
+./help_center.php:function renderFAQs(data) {
+./includes/sms_service.php:    public static function send($to_number, $message) {
+./includes/sms_service.php:    private static function sendTwilio($to, $body) {
+./includes/auth_session.php:function check_auth() {
+./includes/auth_session.php:function check_role($allowed_roles) {
+./includes/auth_session.php:function get_user_id() {
+./includes/auth_session.php:function get_user_role() {
+./includes/auth_session.php:function is_logged_in() {
+./includes/fcm_service.php:    public static function send($token, $title, $body, $data = []) {
+./includes/fcm_service.php:    private static function getAccessToken() {
+./includes/fcm_service.php:    private static function getProjectId() {
+./includes/fcm_service.php:    private static function sendLegacy($token, $title, $body, $data) {
+./includes/db.php:function db_query($sql, $params = []) {
+./includes/db.php:function db_select($sql, $params = []) {
+./includes/db.php:function db_select_one($sql, $params = []) {
+./includes/db.php:function db_insert($table, $data) {
+./includes/db.php:function db_update($table, $data, $conditions) {
+./includes/db.php:function db_delete($table, $conditions) {
+./includes/db.php:function log_audit($user_id, $action, $details = null) {
+./includes/queue_logic.php:function get_estimated_wait_time($appointment_id) {
+./includes/queue_logic.php:function update_appointment_status($id, $new_status) {
+./includes/queue_logic.php:function recalculate_doctor_avg($doctor_id) {
+./includes/specializations.php:function get_specializations() {
+./dashboards/patient_dashboard.php:function openDoctorChat() {
+./dashboards/patient_dashboard.php:function setupChat(userId, name) {
+./dashboards/patient_dashboard.php:function loadThread(userId) {
+./dashboards/patient_dashboard.php:function sendMessage(e) {
+./modules/patient_management/nursing_station.php:function debouncedSearch() {
+./modules/patient_management/nursing_station.php:async function searchAndRecordVitals() {
+./modules/patient_management/nursing_station.php:    function openVitalsModalFromElement(btn) {
+./modules/patient_management/nursing_station.php:    function openVitalsModal(pid, pname, apptId) {
+./modules/patient_management/nursing_station.php:    function closeVitalsModal() {
+./modules/patient_management/patient_care.php:function toggleTask(taskId, el) {
+./modules/emergency/dispatch.php:function openDispatchModal(id) {
+./modules/ehr/visit_notes.php:function callPatient() {
+./modules/ehr/visit_notes.php:    function openViewLabModal() {
+./modules/ehr/visit_notes.php:    function closeViewLabModal() {
+./modules/ehr/visit_notes.php:    function openLabModal() {
+./modules/ehr/visit_notes.php:    function closeLabModal() {
+./modules/ehr/visit_notes.php:    function openRadModal() {
+./modules/ehr/visit_notes.php:    function closeRadModal() {
+./modules/ehr/visit_notes.php:    function submitLabOrder() {
+./modules/ehr/visit_notes.php:    function openMedModal() {
+./modules/ehr/visit_notes.php:    function closeMedModal() {
+./modules/ehr/visit_notes.php:    function calculateQty() {
+./modules/ehr/visit_notes.php:    function checkAllergy(medName) {
+./modules/ehr/visit_notes.php:    function submitMedication(e) {
+./modules/ehr/book_appointment.php:function filterDoctors() {
+./modules/ehr/book_appointment.php:function fetchSlots() {
+./modules/ehr/book_appointment.php:function renderSlots(bookedSlots) {
+./modules/ehr/book_appointment.php:function selectSlot(element, time) {
+./modules/ehr/book_appointment.php:function updateDateGrid() {
+./modules/ehr/book_appointment.php:function renderDates(month, year) {
+./modules/ehr/book_appointment.php:function selectDate(element, dateStr) {
+./modules/ehr/appointments.php:function getDateSortSQL($alias = 'a') {
+./modules/blood_bank/inventory.php:function openTab(evt, tabName) {
+./modules/blood_bank/inventory.php:function showModal(id) { document.getElementById(id).style.display = 'block'; }
+./modules/blood_bank/inventory.php:function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+./modules/queue/board.php:        function startTime() {
+./modules/queue/board.php:        function checkTime(i) {
+./modules/ot/schedule.php:function showModal(id) { document.getElementById(id).style.display = 'block'; }
+./modules/ot/schedule.php:function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+./assets/js/fcm_init.js:function saveTokenToServer(token) {

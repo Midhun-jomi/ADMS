@@ -398,7 +398,7 @@ function renderSlots(bookedSlots) {
     const endHour = 17;
     
     for (let h = startHour; h < endHour; h++) {
-        for (let m = 0; m < 60; m += 30) {
+        for (let m = 0; m < 60; m += 15) {
             const timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
             // DB returns HH:MM, so we compare directly
             const isBooked = bookedSlots.includes(timeString); 
