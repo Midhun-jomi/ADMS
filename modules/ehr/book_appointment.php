@@ -54,7 +54,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Notify Doctor
                     $pat_name = $patient['first_name'] . ' ' . $patient['last_name'];
                     // Get Doctor User ID to notify
-                    $doc_user = db_select_one("SELECT user_id FROM staff WHERE id = $1", [$doctor_id]);
+                    $doc_user = db_select_one("SELECT user_id, last_name FROM staff WHERE id = $1", [$doctor_id]);
+                    $doc_name = $doc_user['last_name'] ?? 'Doctor';
                     if ($doc_user) {
                         $msg = "New appointment booked by $pat_name for " . date('M d, h:i A', strtotime($appointment_time));
                         db_insert('notifications', [

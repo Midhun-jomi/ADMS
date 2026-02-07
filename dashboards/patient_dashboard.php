@@ -276,12 +276,39 @@ if ($next_appt) {
     </a>
     </div>
 
+<?php
+// Fetch recent AI Triage Result
+$latest_triage = db_select_one("SELECT * FROM triage_analysis WHERE patient_id = $1 ORDER BY created_at DESC LIMIT 1", [$patient_id]);
+?>
+
+<?php if ($latest_triage): ?>
+    <div class="card" style="margin-bottom: 30px; border-left: 5px solid #8e44ad;">
+        <div class="card-header" style="background: linear-gradient(to right, #f3e5f5, #fff);">
+            <h5 style="margin:0; color: #8e44ad;"><i class="fas fa-robot"></i> Recent AI Health Analysis</h5>
+        </div>
+        <div class="card-body">
+            <p><strong><i class="fas fa-stethoscope"></i> AI Finding:</strong> <?php echo nl2br(htmlspecialchars($latest_triage['ai_findings'] ?? 'No findings available.')); ?></p>
+            <div style="margin-top: 10px;">
+                <span class="badge badge-<?php echo ($latest_triage['severity_score'] >= 7) ? 'danger' : (($latest_triage['severity_score'] >= 4) ? 'warning' : 'success'); ?>">
+                    Severity Score: <?php echo $latest_triage['severity_score']; ?>/10
+                </span>
+                <small class="text-muted ml-2">Analyzed on <?php echo date('M d, Y h:i A', strtotime($latest_triage['created_at'])); ?></small>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div class="card">
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         My Health Overview
-        <a href="/modules/ehr/edit_profile.php" class="btn-sm btn-primary" style="text-decoration: none;">
-            <i class="fas fa-user-edit"></i> Edit Profile
-        </a>
+        <div>
+            <a href="/modules/ai/triage_form.php" class="btn-sm btn-info" style="text-decoration: none; margin-right: 10px; color: white;">
+                <i class="fas fa-notes-medical"></i> Symptom Checker
+            </a>
+            <a href="/modules/ehr/edit_profile.php" class="btn-sm btn-primary" style="text-decoration: none;">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </a>
+        </div>
     </div>
     <div class="card-body">
         <p>Welcome to your health dashboard. Use the quick actions below to manage your care.</p>

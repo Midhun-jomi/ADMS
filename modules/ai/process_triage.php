@@ -17,20 +17,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     ];
     $symptoms_json = json_encode($symptoms_data);
 
-    // --- MOCK AI ANALYSIS ---
-    // In a real app, this would call an OpenAI/Gemini API
-    $mock_conditions = ['Common Cold', 'Flu', 'Migraine', 'Gastritis', 'Anxiety'];
-    $predicted_condition = $mock_conditions[array_rand($mock_conditions)];
+    // --- IMPROVED AI ANALYSIS (Keyword Logic) ---
+    $text = strtolower($symptoms_data['chief_complaint'] . " " . $symptoms_data['notes'] . " " . implode(" ", $symptoms_data['associated_symptoms']));
+    $severity_input = (int)$_POST['severity'];
     
-    $severity_score = (int)$_POST['severity'];
-    if (in_array('Shortness of Breath', $symptoms_data['associated_symptoms'])) {
-        $severity_score += 2;
+    // Keyword Dictionary
+    $keywords = [
+        'critical' => ['chest pain', 'breath', 'unconscious', 'stroke', 'heart attack', 'bleeding', 'seizure'],
+        'high' => ['fever', 'fracture', 'burn', 'vomiting', 'pain', 'migraine'],
+        'moderate' => ['cough', 'cold', 'rash', 'stomach', 'nausea'],
+        'low' => ['itch', 'fatigue', 'mild', 'checkup']
+    ];
+    
+    $predicted_urgency = 'Low';
+    $predicted_condition = 'General Checkup';
+    $action_rec = 'Schedule a routine appointment.';
+    $base_score = $severity_input;
+
+    // Detect Urgency
+    foreach ($keywords['critical'] as $k) {
+        if (strpos($text, $k) !== false) {
+            $predicted_urgency = 'Critical';
+            $predicted_condition = 'Potential Emergency (e.g., Cardiac or Respiratory Issue)';
+            $action_rec = 'Go to the Emergency Room (ER) immediately.';
+            $base_score += 5; // boost severity
+            break; 
+        }
+    }
+    if ($predicted_urgency === 'Low') {
+        foreach ($keywords['high'] as $k) {
+            if (strpos($text, $k) !== false) {
+                $predicted_urgency = 'High';
+                $predicted_condition = 'Acute Illness (e.g., Infection, Injury)';
+                $action_rec = 'See a doctor within 24 hours.';
+                $base_score += 2;
+                break;
+            }
+        }
     }
     
-    $ai_findings = "Based on the reported symptoms (" . $symptoms_data['chief_complaint'] . "), " .
-                   "the AI suggests a potential case of **$predicted_condition**.\n" .
-                   "Recommended Action: " . ($severity_score > 7 ? "Visit ER immediately." : "Schedule an appointment.");
-    // ------------------------
+    // Final score cap
+    $severity_score = min(10, $base_score);
+
+    $ai_findings = "Based on your symptoms, the AI assesses this as **$predicted_urgency** priority.\n" . 
+                   "Possible Condition: **$predicted_condition**.\n" . 
+                   "**Recommendation**: $action_rec";
+    // --------------------------------------------
 
     // Save to database
     $data = [

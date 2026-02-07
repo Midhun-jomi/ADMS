@@ -175,9 +175,39 @@ function get_queue_details($appointment_id) {
     }
 
     // 2. Calculate Patients Ahead & Wait Time
-    // Reuse existing logic principles but return explicit count
-    $stats = db_select_one("SELECT avg_consult_time FROM doctor_stats WHERE doctor_id = $1", [$doctor_id]);
-    $avg_time = $stats['avg_consult_time'] ?? 10;
+    // --- SMART PREDICTIVE LOGIC ---
+    // Calculate today's actual pace
+    $today_completed = db_select("SELECT consultation_start, consultation_end FROM appointments 
+                                  WHERE doctor_id = $1 
+                                  AND appointment_time >= '$date_start' AND appointment_time <= '$date_end'
+                                  AND status = 'completed'
+                                  AND consultation_start IS NOT NULL AND consultation_end IS NOT NULL", [$doctor_id]);
+
+    $historical_stats = db_select_one("SELECT avg_consult_time FROM doctor_stats WHERE doctor_id = $1", [$doctor_id]);
+    $historical_avg = $historical_stats['avg_consult_time'] ?? 10;
+    
+    $current_avg = $historical_avg;
+    
+    // If we have data from today, use a weighted average
+    // Weight: 70% Today's Pace, 30% Historical
+    // This adapts to the doctor being slow/fast *today*
+    $today_minutes = 0;
+    $today_count = 0;
+    foreach ($today_completed as $tc) {
+        $start = strtotime($tc['consultation_start']);
+        $end = strtotime($tc['consultation_end']);
+        $dur = ($end - $start) / 60;
+        if ($dur > 1 && $dur < 120) {
+            $today_minutes += $dur;
+            $today_count++;
+        }
+    }
+    
+    if ($today_count >= 2) { // Need at least 2 samples to trust today's data
+        $today_avg_calculated = $today_minutes / $today_count;
+        $current_avg = round(($today_avg_calculated * 0.7) + ($historical_avg * 0.3));
+    }
+    // -----------------------------
 
     $sql = "SELECT id, priority, appointment_time FROM appointments 
             WHERE doctor_id = $1 
@@ -207,7 +237,7 @@ function get_queue_details($appointment_id) {
     }
 
     $nurse_prep_time = ($appt['status'] === 'waiting' || $appt['status'] === 'scheduled') ? 5 : 0;
-    $est_wait = ($ahead_count * $avg_time) + $nurse_prep_time;
+    $est_wait = ($ahead_count * $current_avg) + $nurse_prep_time;
 
     return [
         'wait_time' => $est_wait,
