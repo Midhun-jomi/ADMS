@@ -210,9 +210,114 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <!-- Reason -->
         <div class="form-group">
-            <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">Reason for Visit</label>
-            <textarea name="reason" class="form-control" rows="4" required style="border-radius: 8px; border: 1px solid #ddd; padding: 10px;"></textarea>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label style="font-weight: 500; color: #555; margin-bottom: 0;">Reason for Visit</label>
+                <button type="button" onclick="getAIRecommendation()" class="btn-ai-recommend">
+                    <i class="fas fa-robot"></i> Ask AI for Recommendation
+                </button>
+            </div>
+            
+            <!-- AI Recommendation Result -->
+            <div id="ai-recommendation-result" style="display: none; background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #90caf9; color: #0d47a1;">
+                <strong><i class="fas fa-stethoscope"></i> AI Suggestion:</strong> <span id="ai-msg">Loading...</span>
+            </div>
+            <textarea name="reason" id="reason" class="form-control" rows="4" required style="border-radius: 8px; border: 1px solid #ddd; padding: 10px;"></textarea>
+            
+            <!-- Quick Keywords -->
+            <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="font-size: 0.85em; color: #777; align-self: center; margin-right: 5px;">Quick Add:</span>
+                <?php 
+                $keywords = [
+                    "Fever", "Cough", "Headache", "Stomach Pain", 
+                    "General Checkup", "Follow-up", "Cold/Flu", 
+                    "Body Pain", "Nausea", "Dizziness", "Fatigue", 
+                    "Skin Rash", "Sore Throat", "Chest Pain", "Breathing Issue"
+                ];
+                foreach($keywords as $k): 
+                ?>
+                    <button type="button" onclick="addKeyword('<?php echo $k; ?>')" 
+                            style="background: #e2e8f0; border: none; padding: 5px 10px; border-radius: 15px; font-size: 0.85em; color: #4a5568; cursor: pointer; transition: background 0.2s;">
+                        <?php echo $k; ?>
+                    </button>
+                <?php endforeach; ?>
+            </div>
         </div>
+
+        <script>
+        function addKeyword(keyword) {
+            const textarea = document.getElementById('reason');
+            if (textarea.value.trim() !== "") {
+                textarea.value += ", " + keyword;
+            } else {
+                textarea.value = keyword;
+            }
+        }
+        
+        function getAIRecommendation() {
+            const reason = document.getElementById('reason').value;
+            const resultDiv = document.getElementById('ai-recommendation-result');
+            const msgSpan = document.getElementById('ai-msg');
+            const btn = document.querySelector('.btn-ai-recommend');
+            
+            if (!reason.trim()) {
+                alert("Please enter a reason for your visit first.");
+                return;
+            }
+            
+            // UI Loading State
+            resultDiv.style.display = 'block';
+            msgSpan.textContent = "Analyzing symptoms...";
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+            
+            fetch('get_ai_recommendation.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-robot"></i> Ask AI for Recommendation';
+                
+                if (data.error) {
+                    msgSpan.textContent = "Error: " + data.error;
+                    return;
+                }
+                
+                const disease = data.disease || "Unknown";
+                const specialization = data.specialization || "General Medicine";
+                const urgency = data.urgency || "Low";
+                
+                msgSpan.innerHTML = `Likely condition: <strong>${disease}</strong>. Recommended Specialist: <strong>${specialization}</strong>`;
+                
+                // Auto-select specialization
+                const specSelect = document.getElementById('specialization');
+                let found = false;
+                for (let i = 0; i < specSelect.options.length; i++) {
+                    if (specSelect.options[i].value === specialization) {
+                        specSelect.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (found) {
+                    filterDoctors(); // Trigger doctor filter
+                } else {
+                    msgSpan.innerHTML += " (Specialist not found, showing all)";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                msgSpan.textContent = "Error connecting to AI service.";
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-robot"></i> Ask AI for Recommendation';
+            });
+        }
+        </script>
 
         <!-- Submit Button -->
         <button type="submit" class="btn" style="background-color: #333; color: white; padding: 12px 25px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer;">
@@ -397,18 +502,52 @@ function renderSlots(bookedSlots) {
     
     const startHour = 9;
     const endHour = 17;
+
+    // Get selected date and current time for comparison
+    const selectedDateVal = document.getElementById('appointment_date').value;
+    const now = new Date();
+    // Format selected date to YYYY-MM-DD for comparison logic
+    // But we need to compare apples to apples. 
+    // Let's create a date object for the selected date.
+    // Note: selectedDateVal is YYYY-MM-DD from the hidden input
+    
+    // Check if selected date is today
+    const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    const isToday = (selectedDateVal === todayStr);
+    
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
     
     for (let h = startHour; h < endHour; h++) {
         for (let m = 0; m < 60; m += 15) {
             const timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
             // DB returns HH:MM, so we compare directly
-            const isBooked = bookedSlots.includes(timeString); 
+            const isBooked = bookedSlots && bookedSlots.includes(timeString); 
+            
+            // Check past time
+            let isPast = false;
+            if (isToday) {
+                if (h < currentHour || (h === currentHour && m < currentMin)) {
+                    isPast = true;
+                }
+            }
             
             const slot = document.createElement('div');
-            slot.className = `time-slot ${isBooked ? 'booked' : 'available'}`;
+            let className = 'time-slot';
+            
+            if (isBooked) {
+                className += ' booked';
+            } else if (isPast) {
+                className += ' booked'; // Reuse booked style (red/disabled)
+                slot.title = "Time passed";
+            } else {
+                className += ' available';
+            }
+            
+            slot.className = className;
             slot.textContent = timeString;
             
-            if (!isBooked) {
+            if (!isBooked && !isPast) {
                 slot.onclick = () => selectSlot(slot, timeString);
             }
             
@@ -453,20 +592,18 @@ function renderDates(month, year) {
         const fullDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         const isPast = date < today;
         
+        // Skip past dates entirely so Today is at the top
+        if (isPast) {
+            date.setDate(date.getDate() + 1);
+            continue;
+        }
+
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
         const dayNum = date.getDate();
         const monthName = date.toLocaleDateString('en-US', { month: 'short' });
         
         const card = document.createElement('div');
         card.className = 'date-card';
-        if (isPast) {
-            card.classList.add('disabled');
-        }
-        
-        // Auto-select if it matches current hidden input value (and not past)
-        if (!isPast && document.getElementById('appointment_date').value === fullDate) {
-            card.classList.add('selected');
-        }
         
         card.innerHTML = `
             <div class="day">${dayName}</div>
@@ -474,9 +611,7 @@ function renderDates(month, year) {
             <div class="month">${monthName}</div>
         `;
         
-        if (!isPast) {
-            card.onclick = () => selectDate(card, fullDate);
-        }
+        card.onclick = () => selectDate(card, fullDate);
         
         container.appendChild(card);
         

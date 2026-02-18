@@ -80,15 +80,30 @@ def train_model():
 # --- Rule-Based Disease Prediction ---
 def predict_disease_rule_based(symptoms):
     s = symptoms.lower()
-    if "chest pain" in s: return "Heart Disease/Attack"
-    if "severe headache" in s or "blurred vision" in s: return "Neurological Issue"
-    if "thirst" in s and "urination" in s: return "Diabetes"
-    if "cough" in s and "night sweats" in s: return "Tuberculosis"
-    if "wheezing" in s: return "Asthma"
-    if "headache" in s: return "Migraine"
-    if "fever" in s: return "Viral Infection/Flu"
-    if "cut" in s or "bleeding" in s: return "Trauma/Injury"
-    return "General Illness"
+    
+    # Map to existing specializations: 
+    # General Medicine, Diagnostic Medicine, General Practice, Cardiology
+    
+    if "chest pain" in s: 
+        return "Heart Disease/Attack", "Cardiology"
+    if "severe headache" in s or "blurred vision" in s: 
+        return "Neurological Issue", "General Medicine" # Or refer to specialist if available
+    if "thirst" in s and "urination" in s: 
+        return "Diabetes", "General Medicine"
+    if "cough" in s and "night sweats" in s: 
+        return "Tuberculosis", "General Medicine"
+    if "wheezing" in s: 
+        return "Asthma", "General Medicine"
+    if "headache" in s: 
+        return "Migraine", "General Medicine"
+    if "fever" in s: 
+        return "Viral Infection/Flu", "General Medicine"
+    if "cut" in s or "bleeding" in s: 
+        return "Trauma/Injury", "General Practice"
+    if "stomach" in s or "pain" in s:
+        return "Gastric Issue", "General Medicine"
+        
+    return "General Illness", "General Practice"
 
 # --- API Endpoints ---
 @app.route('/status', methods=['GET'])
@@ -116,16 +131,17 @@ def predict():
     urgency = model.predict(text_vec)[0]
 
     # Predict Disease (Rule-Based + placeholder)
-    disease = predict_disease_rule_based(symptoms)
+    disease, specialization = predict_disease_rule_based(symptoms)
 
     return jsonify({
         "urgency": urgency,
         "disease": disease,
+        "specialization": specialization,
         "raw_input": text
     })
 
 # --- Main Entry ---
 if __name__ == '__main__':
     train_model()
-    # Run on port 5000
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Run on port 5001
+    app.run(host='0.0.0.0', port=5001, debug=True)
