@@ -144,9 +144,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="fas fa-robot"></i> AI Assist
         </a></li>
         <?php endif; ?>
-        <li><a href="<?php echo BASE_URL; ?>/modules/queue/display.php" target="_blank">
-            <i class="fas fa-tv"></i> Queue Board
-        </a></li>
+
         <li><a href="<?php echo BASE_URL; ?>/modules/feedback/survey.php">
             <i class="fas fa-poll"></i> Feedback
         </a></li>

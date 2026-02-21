@@ -16,6 +16,7 @@ if (!$appointment_id) {
         include '../../includes/header.php';
     } else {
         echo '<link rel="stylesheet" href="../../assets/css/style.css">';
+        echo '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
     }
     echo "<div class='alert alert-danger'>Appointment ID required.</div>";
     if (!$is_embedded) include '../../includes/footer.php';
@@ -38,6 +39,9 @@ if (!$appt) {
 }
 
 $patient_id = $appt['patient_id'];
+
+// Fetch Latest AI Triage Data
+$triage_data = db_select_one("SELECT * FROM triage_analysis WHERE patient_id = $1 ORDER BY id DESC LIMIT 1", [$patient_id]);
 
 // 0. Handle AJAX Call Patient
 if (isset($_POST['call_patient_ajax'])) {
@@ -135,11 +139,77 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
     $staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$doc_id]);
     
     // 1. Save Notes & History
-    if (isset($_POST['save_note']) || isset($_POST['complete_visit'])) {
-        $notes = $_POST['notes'];
+    if (isset($_POST['save_note']) || isset($_POST['complete_visit']) || isset($_POST['finalize_meds'])) {
+        $notes = $_POST['notes'] ?? '';
         $history = $_POST['medical_history'] ?? '';
         $is_completion = isset($_POST['complete_visit']);
         
+        // --- ADMIN ALERT: Deviation Check ---
+        if (isset($_POST['finalize_meds'])) {
+             $prescribed_json = $_POST['medication_list_json'] ?? '[]';
+             $ai_suggested_json = $_POST['ai_suggested_json'] ?? '[]';
+             
+             $prescribed_meds_arr = json_decode($prescribed_json, true) ?? [];
+             $ai_meds_arr = json_decode($ai_suggested_json, true) ?? [];
+             
+             // Extract names implies normalization
+             $p_names = array_map(function($m){ return strtolower($m['name']); }, $prescribed_meds_arr);
+             $ai_names = array_map('strtolower', $ai_meds_arr);
+             
+             // Check if ANY prescribed med is in AI list
+             $match_found = false;
+             if (empty($ai_names)) {
+                 $match_found = true; // AI had no suggestions, so no deviation
+             } else {
+                 foreach ($p_names as $p) {
+                     foreach ($ai_names as $ai) {
+                         if (strpos($ai, $p) !== false || strpos($p, $ai) !== false) {
+                             $match_found = true; 
+                             break;
+                         }
+                     }
+                 }
+             }
+             
+             if (!$match_found && !empty($prescribed_meds_arr)) {
+                 // Deviation Detected: Doctor prescribed things that DO NOT match AI suggestions
+                 db_insert('admin_alerts', [
+                     'alert_type' => 'AI_DEVIATION',
+                     'severity' => 'High',
+                     'message' => "Doctor " . $staff['first_name'] . " ignored AI suggestions for Patient " . $appt['first_name'] . ". AI Suggested: " . implode(", ", $ai_names) . ". Prescribed: " . implode(", ", $p_names),
+                     'reference_id' => $appointment_id,
+                     'created_at' => date('Y-m-d H:i:s')
+                 ]);
+             }
+        }
+        
+        // --- CONTINUOUS LEARNING FEEDBACK ---
+        if ($is_completion && !empty($_POST['final_diagnosis']) && !empty($_POST['urgency_rating'])) {
+            // Trigger background AI learning
+            $learning_data = [
+                'history' => $appt['medical_history'],
+                'symptoms' => $appt['reason'] . " " . $notes,
+                'diagnosis' => $_POST['final_diagnosis'],
+                'urgency' => $_POST['urgency_rating']
+            ];
+            
+            // Log for debug
+            error_log("Sending AI Feedback: " . json_encode($learning_data));
+            
+            $url = 'http://localhost:5001/learn';
+            // Simple fire-and-forget logic using stream context with small timeout
+            $options = [
+                'http' => [
+                    'header'  => "Content-type: application/json\r\n",
+                    'method'  => 'POST',
+                    'content' => json_encode($learning_data),
+                    'timeout' => 0.5 // Non-blocking-ish
+                ]
+            ];
+            $context  = stream_context_create($options);
+            @file_get_contents($url, false, $context);
+        }
+
         // Append new note timestamped
         $timestamp = date('M d, Y h:i A');
         $updated_reason = $appt['reason'] . "\n\n[" . $timestamp . "]: " . $notes;
@@ -376,6 +446,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
                            JOIN patients p ON a.patient_id = p.id 
                            JOIN users u ON p.user_id = u.id 
                            WHERE a.id = $1", [$appointment_id]);
+    // 4. Handle Vitals Submission (Doctor Entry)
+    if (isset($_POST['record_vitals'])) {
+        $metrics = [
+            'heart_rate' => ['val' => $_POST['heart_rate'], 'unit' => 'bpm'],
+            'bp_systolic' => ['val' => $_POST['bp_systolic'], 'unit' => 'mmHg'],
+            'bp_diastolic' => ['val' => $_POST['bp_diastolic'], 'unit' => 'mmHg'],
+            'temperature' => ['val' => $_POST['temperature'] ?? 0, 'unit' => '°F'],
+            'oxygen_saturation' => ['val' => $_POST['oxygen_saturation'] ?? 0, 'unit' => '%'],
+            'weight' => ['val' => $_POST['weight'] ?? 0, 'unit' => 'kg'],
+            'glucose' => ['val' => $_POST['glucose'] ?? 0, 'unit' => 'mg/dL']
+        ];
+
+        foreach ($metrics as $type => $data) {
+            if ($data['val'] !== '') {
+                $json_val = json_encode(['value' => $data['val'], 'unit' => $data['unit']]);
+                db_insert('patient_health_metrics', [
+                    'patient_id' => $patient_id,
+                    'appointment_id' => $appointment_id,
+                    'metric_type' => $type,
+                    'metric_value' => $json_val,
+                    'recorded_by' => get_user_id()
+                ]);
+            }
+        }
+        
+        // Refresh Vitals Data immediately for the view below
+        $vitals_raw = db_select("SELECT metric_type, metric_value, recorded_at FROM patient_health_metrics WHERE appointment_id = $1 ORDER BY recorded_at DESC", [$appointment_id]);
+        $latest_vitals = [];
+        if (!empty($vitals_raw)) {
+            $vitals_taken = true;
+            foreach ($vitals_raw as $v) {
+                if (!isset($latest_vitals[$v['metric_type']])) {
+                    $latest_vitals[$v['metric_type']] = json_decode($v['metric_value'], true);
+                }
+            }
+        }
+
+        $success = "Vitals recorded successfully. You may now proceed with the consultation.";
+    }
 }
 
 // Fetch Vitals (Strictly for this Visit)
@@ -634,6 +743,61 @@ function callPatient() {
                 <!-- QUICK ACTIONS TOOLBAR MOVED TO TOP STICKY HEADER -->
             <?php endif; ?>
 
+            <?php 
+            // Check if vitals are missing and the user is a doctor trying to consult
+            $vitals_missing = empty($latest_vitals);
+            if ($vitals_missing && $role === 'doctor' && $appt['status'] !== 'completed'): 
+            ?>
+                <!-- MANDATORY VITALS FORM -->
+                <div class="alert alert-warning" style="border-left: 5px solid #ff9800; background-color: #fff3e0; color: #e65100;">
+                    <h4 style="margin-top:0;"><i class="fas fa-exclamation-triangle"></i> Mandatory Action: Record Vitals</h4>
+                    <p style="margin-bottom:0;">Nurse has not recorded vitals for this visit. You <strong>must</strong> enter them before utilizing AI tools or prescribing medication.</p>
+                </div>
+
+                <div style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #ffe0b2; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <form method="POST">
+                        <input type="hidden" name="record_vitals" value="1">
+                        <h5 style="color: #555; margin-bottom: 20px;">Enter Patient Vitals</h5>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label style="font-size: 0.9em; font-weight: 600;">Heart Rate (bpm)</label>
+                                <input type="number" name="heart_rate" class="form-control" required placeholder="e.g. 72">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label style="font-size: 0.9em; font-weight: 600;">BP Systolic (mmHg)</label>
+                                <input type="number" name="bp_systolic" class="form-control" required placeholder="e.g. 120">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label style="font-size: 0.9em; font-weight: 600;">BP Diastolic (mmHg)</label>
+                                <input type="number" name="bp_diastolic" class="form-control" required placeholder="e.g. 80">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label style="font-size: 0.9em; font-weight: 600;">Temperature (°F)</label>
+                                <input type="number" name="temperature" class="form-control" step="0.1" required placeholder="e.g. 98.6">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label style="font-size: 0.9em; font-weight: 600;">O2 Saturation (%)</label>
+                                <input type="number" name="oxygen_saturation" class="form-control" max="100" placeholder="e.g. 98">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label style="font-size: 0.9em; font-weight: 600;">Weight (kg)</label>
+                                <input type="number" name="weight" class="form-control" step="0.1" placeholder="e.g. 70">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label style="font-size: 0.9em; font-weight: 600;">Random Glucose (mg/dL)</label>
+                                <input type="number" name="glucose" class="form-control" placeholder="e.g. 100">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-warning btn-block" style="font-weight: bold; color: #333; margin-top: 10px;">
+                            <i class="fas fa-save"></i> Save Vitals & Unlock Consultation
+                        </button>
+                    </form>
+                </div>
+
+            <?php else: ?>
+                <!-- ACTUAL CONSULTATION CONTENT (Only visible if Vitals exist or User is Patient/Admin view) -->
+
+
             <!-- Original Paging Banner Removed (Handled by JS now) -->
 
             <!-- Read-Only Visit History -->
@@ -706,8 +870,13 @@ function callPatient() {
 
                 <!-- Current Visit Note -->
                 <div class="form-group">
-                    <label style="font-weight: 600; color: #2c3e50;">Add New Clinical Note / Diagnosis</label>
-                    <textarea name="notes" class="form-control" rows="6" placeholder="Enter clinical observations, diagnosis, and treatment plan..." style="border: 2px solid #e0e0e0;" required></textarea>
+                    <label style="font-weight: 600; color: #2c3e50; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Add New Clinical Note / Diagnosis</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary" style="border-radius: 20px;" onclick="getAIInsights()">
+                            <i class="fas fa-magic"></i> AI Assist
+                        </button>
+                    </label>
+                    <textarea name="notes" id="clinicalNotes" class="form-control" rows="6" placeholder="Enter clinical observations, symptoms, diagnosis..." style="border: 2px solid #e0e0e0; font-family: 'Inter', sans-serif;" required></textarea>
                 </div>
 
                 <!-- Uniform Action Grid -->
@@ -778,10 +947,12 @@ function callPatient() {
                         <i class="fas fa-save"></i> Save Progress
                     </button>
 
-                    <!-- 3. Complete -->
-                    <button type="submit" name="complete_visit" value="1" class="action-tile tile-complete" onclick="return confirm('Mark visit as completed and generate bill?');">
+                    <!-- 3. Complete (with Diagnosis) -->
+                    <button type="button" class="action-tile tile-complete" onclick="openCompleteModal()">
                         <i class="fas fa-check-circle"></i> Complete Visit
                     </button>
+                    <!-- Actual hidden submit button triggered by JS -->
+                    <button type="submit" id="realCompleteBtn" name="complete_visit" value="1" style="display:none;"></button>
 
                     <!-- 4. Order Lab -->
                     <button type="button" class="action-tile tile-lab" onclick="openLabModal()">
@@ -826,10 +997,178 @@ function callPatient() {
                     <?php endforeach; endif; ?>
                 </div>
             </div>
+            
+            <!-- AUTOMATIC AI DIAGNOSIS PANEL (Runs if Vitals exist) -->
+            <?php if (!$vitals_missing && $role === 'doctor' && $appt['status'] !== 'completed'): ?>
+                <div id="auto-ai-panel" style="margin-top: 20px; background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%); border: 1px solid #cce3ff; border-radius: 12px; padding: 15px; display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h5 style="color: #004085; margin:0;"><i class="fas fa-robot"></i> AI Predictive Diagnosis</h5>
+                        <span class="badge badge-primary">Beta</span>
+                    </div>
+                    <div id="ai-loading-state" style="color:#666; font-style:italic;">
+                        <i class="fas fa-circle-notch fa-spin"></i> Analyzing vitals and patient history...
+                    </div>
+                    <div id="ai-results-content" style="display:none;">
+                        <!-- JS populates this -->
+                    </div>
+                </div>
+                
+                <!-- Script to trigger AI on load -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Prepare data for AI
+                        const history = <?php echo json_encode($appt['medical_history'] ?? ''); ?>;
+                        const vitals = {
+                            'heart_rate': <?php echo $latest_vitals['heart_rate']['value'] ?? 0; ?>,
+                            'bp_systolic': <?php echo $latest_vitals['bp_systolic']['value'] ?? 0; ?>,
+                            'temperature': <?php echo $latest_vitals['temperature']['value'] ?? 0; ?>,
+                            'glucose': <?php echo $latest_vitals['glucose']['value'] ?? 0; ?>
+                        };
+                        
+                        const aiPanel = document.getElementById('auto-ai-panel');
+                        aiPanel.style.display = 'block';
+                        
+                        fetch('get_ai_recommendation.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ reason: '', history: history, vitals: JSON.stringify(vitals) })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.error) {
+                                document.getElementById('ai-loading-state').innerHTML = `<span style="color:red"><i class="fas fa-exclamation-triangle"></i> ${data.error}</span>`;
+                                return;
+                            }
+                            
+                            document.getElementById('ai-loading-state').style.display = 'none';
+                            const content = document.getElementById('ai-results-content');
+                            content.style.display = 'block';
+                            
+                            let html = `<div class="row">`;
+                            
+                            // 1. Probabilities
+                            html += `<div class="col-md-7">
+                                <h6 style="font-size: 0.9em; text-transform:uppercase; color:#888;">Probable Conditions</h6>`;
+                            
+                            if (data.probabilities && data.probabilities.length > 0) {
+                                let max = data.probabilities[0].probability;
+                                data.probabilities.forEach(p => {
+                                    let color = p.probability > 70 ? '#e74a3b' : (p.probability > 40 ? '#f6c23e' : '#36b9cc');
+                                    let width = p.probability + '%';
+                                    html += `
+                                    <div style="margin-bottom: 8px;">
+                                        <div style="display:flex; justify-content:space-between; font-size:0.9em; font-weight:600; margin-bottom:2px;">
+                                            <span>${p.condition}</span>
+                                            <span>${p.probability}%</span>
+                                        </div>
+                                        <div style="background:#e9ecef; height:6px; border-radius:3px; overflow:hidden;">
+                                            <div style="background:${color}; width:${width}; height:100%;"></div>
+                                        </div>
+                                    </div>`;
+                                });
+                            } else {
+                                html += `<p style="color:#666; font-size:0.9em;">No strong patterns detected yet.</p>`;
+                            }
+                            html += `</div>`;
+                            
+                            // 2. Vitals Analysis & Urgency
+                            html += `<div class="col-md-5" style="border-left:1px solid #eee; padding-left:15px;">
+                                <h6 style="font-size: 0.9em; text-transform:uppercase; color:#888;">Analysis</h6>
+                                <div style="margin-bottom:10px;">
+                                    <strong>Urgency:</strong> 
+                                    <span class="badge badge-${(data.urgency === 'Critical' || data.urgency === 'High') ? 'danger' : 'success'}">${data.urgency || 'Unknown'}</span>
+                                </div>`;
+                                
+                            if (data.vitals_analysis && data.vitals_analysis.length > 0) {
+                                html += `<ul style="font-size:0.85em; color:#e74a3b; padding-left:15px; margin-bottom:0;">`;
+                                data.vitals_analysis.forEach(v => {
+                                    html += `<li>${v}</li>`;
+                                });
+                                html += `</ul>`;
+                            } else {
+                                html += `<div style="font-size:0.85em; color:#1cc88a;"><i class="fas fa-check"></i> Vitals within normal range</div>`;
+                            }
+                            
+                            html += `</div></div>`; // End row
+                            
+                            content.innerHTML = html;
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            document.getElementById('ai-loading-state').innerHTML = '<span style="color:red">AI Service Unreachable</span>';
+                        });
+                    });
+                </script>
             <?php endif; ?>
+            
+            <?php endif; // End else block for vitals check ?>
+            <?php endif; // End role check ?> 
         </div>
     </div>
 </div>
+
+<!-- Modal for Final Diagnosis (AI Feedback Loop) -->
+<div id="completeModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5);">
+    <div style="background-color:#fefefe; margin:10% auto; padding:20px; border:1px solid #888; width:500px; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <h4 style="margin-top:0; color:#2c3e50;">Confirm Diagnosis & Complete</h4>
+        <p style="font-size:0.9em; color:#666;">Please confirm the final diagnosis. This helps the AI system learn.</p>
+        
+        <div class="form-group">
+            <label style="font-weight:600;">Final Diagnosis</label>
+            <input type="text" id="finalDiag" class="form-control" placeholder="e.g. Viral Fever..." list="diag_list">
+            <datalist id="diag_list">
+                 <option value="Viral Fever">
+                 <option value="Migraine">
+                 <option value="Hypertension">
+                 <option value="Diabetes Type 2">
+                 <option value="Acute Bronchitis">
+            </datalist>
+        </div>
+        
+        <div class="form-group">
+            <label style="font-weight:600;">Urgency / Severity</label>
+            <select id="finalUrgency" class="form-control">
+                <option value="Low">Low (Routine)</option>
+                <option value="Medium" selected>Medium (Urgent)</option>
+                <option value="High">High (Immediate)</option>
+                <option value="Critical">Critical (Life Threatening)</option>
+            </select>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('completeModal').style.display='none'">Cancel</button>
+            <button type="button" class="btn btn-success" onclick="submitValidCompletion()">Confirm & Finish</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openCompleteModal() {
+    document.getElementById('completeModal').style.display = 'block';
+}
+
+function submitValidCompletion() {
+    const diag = document.getElementById('finalDiag').value;
+    const urgency = document.getElementById('finalUrgency').value;
+    
+    if(!diag.trim()) {
+        alert("Please enter a final diagnosis.");
+        return;
+    }
+    
+    // Inject hidden inputs into main form
+    const form = document.getElementById('mainForm');
+    
+    const i1 = document.createElement('input'); i1.type='hidden'; i1.name='final_diagnosis'; i1.value=diag;
+    const i2 = document.createElement('input'); i2.type='hidden'; i2.name='urgency_rating'; i2.value=urgency;
+    
+    form.appendChild(i1);
+    form.appendChild(i2);
+    
+    // Submit
+    document.getElementById('realCompleteBtn').click();
+}
+</script>
 
 <!-- Lab Order Modal -->
 <div id="labModal" class="lab-modal">
@@ -865,6 +1204,15 @@ function callPatient() {
         <div id="aiMedSuggestions" style="background: #f0f7ff; border: 1px solid #cce3ff; border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.85em;">
             <div style="font-weight: 700; color: #0056b3; margin-bottom: 5px;"><i class="fas fa-magic"></i> Smart Recommendations</div>
             <div id="aiSuggestionContent">
+                <?php if ($triage_data): ?>
+                    <div style="background: #e0f7fa; border-left: 4px solid #00bcd4; padding: 8px; margin-bottom: 10px; border-radius: 4px;">
+                        <strong style="color: #006064;"><i class="fas fa-notes-medical"></i> Initial Triage Assessment:</strong><br>
+                        <?php echo nl2br(htmlspecialchars($triage_data['ai_findings'] ?? '')); ?>
+                        <div style="margin-top: 5px; font-weight: 600; font-size: 0.9em; color: #00838f;">
+                            Severity Score: <?php echo $triage_data['severity_score']; ?>/10
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <?php
                     $suggestions = [];
                     $hist_lower = strtolower($appt['medical_history'] ?? '');
@@ -1183,6 +1531,93 @@ function callPatient() {
         if (event.target == labModal) closeLabModal();
         if (event.target == medModal) closeMedModal();
         if (event.target == viewLabModal) closeViewLabModal();
+    }
+    function getAIInsights() {
+        const notes = document.getElementById('clinicalNotes').value;
+        if (!notes.trim()) {
+            alert('Please enter some clinical notes or symptoms first (e.g., "Severe headache and fever").');
+            return;
+        }
+
+        const btn = document.querySelector('button[onclick="getAIInsights()"]');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+        btn.disabled = true;
+
+        fetch('get_ai_recommendation.php', { // Ensure this file exists in the same directory
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason: notes })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("AI Response:", data);
+            
+            if (data.error) {
+                alert('AI Error: ' + data.error);
+                return;
+            }
+
+            // 1. Update Medication Modal Suggestions
+            const suggestionBox = document.getElementById('aiSuggestionContent');
+            if (suggestionBox) {
+                let html = `<div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+                    <strong style="color: #0d47a1;"><i class="fas fa-robot"></i> AI Analysis Result:</strong><br>
+                    <strong>Condition:</strong> ${data.disease || 'Unknown'} <br>
+                    <strong>Urgency:</strong> <span class="badge badge-${data.urgency === 'High' || data.urgency === 'Critical' ? 'danger' : 'info'}">${data.urgency}</span><br>
+                    <strong>Suggested Specialist:</strong> ${data.specialization}
+                </div>`;
+                
+                // Add Medication Suggestions List
+                if (data.suggested_medication && data.suggested_medication.length > 0) {
+                     // Store for tracking
+                     const storage = document.getElementById('ai_suggested_storage');
+                     if(storage) storage.value = JSON.stringify(data.suggested_medication);
+                     
+                     html += `<div style="margin-top:10px;">
+                        <strong style="color:#2c3e50;">Suggested Medications:</strong>
+                        <ul style="list-style:none; padding:0; margin-top:5px;">`;
+                     
+                     data.suggested_medication.forEach(med => {
+                         // Simple parser to guess dose
+                         let parts = med.split(' ');
+                         let name = parts[0];
+                         let strength = parts.slice(1).join(' ');
+                         
+                         html += `<li style="display:flex; justify-content:space-between; align-items:center; background:white; padding:5px 8px; border:1px solid #eee; margin-bottom:4px; border-radius:4px;">
+                                    <span>${med}</span>
+                                    <button type="button" class="btn btn-xs btn-outline-success" onclick="addMedFromAI('${name}', '${strength}')"><i class="fas fa-plus"></i> Use</button>
+                                  </li>`;
+                     });
+                     html += `</ul></div>`;
+                }
+
+                html += `<div style="font-size: 0.9em; color: #555; margin-top:5px;">Based on symptoms: "${data.raw_input || notes}"</div>`;
+                
+                suggestionBox.innerHTML = html;
+            }
+
+            // 2. Show a quick toast/alert near the button
+            const resultId = 'ai-quick-result';
+            const old = document.getElementById(resultId);
+            if(old) old.remove();
+
+            const toast = document.createElement('div');
+            toast.id = resultId;
+            toast.innerHTML = `<i class="fas fa-check-circle"></i> AI: ${data.disease} (${data.urgency})`;
+            toast.style.cssText = "position:fixed; bottom:20px; right:20px; background:#333; color:white; padding:10px 20px; border-radius:5px; z-index:9999; animation: slideUp 0.3s ease-out;";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error communicating with AI service. Check console.');
+        })
+        .finally(() => {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        });
     }
 </script>
 

@@ -4,6 +4,19 @@ require_once '../../includes/db.php';
 require_once '../../includes/auth_session.php';
 check_auth();
 
+// Robust Sanitizer for JSON content
+function sanitize_for_json($input) {
+    if (is_string($input)) {
+        // Normalize line endings to \n (Unix style) to avoid 0x0D errors
+        $input = str_replace(["\r\n", "\r"], "\n", $input);
+        // Replace tabs with spaces
+        $input = str_replace("\t", "    ", $input);
+        // Remove other control characters (keeping \n which is 0x0A)
+        return preg_replace('/[\x00-\x09\x0B-\x1F\x7F]/', '', $input);
+    }
+    return $input;
+}
+
 $role = get_user_role();
 $page_title = "Lab Results";
 include '../../includes/header.php';
@@ -61,18 +74,53 @@ if (!$test) {
 
 // Handle Result Upload (Lab Tech/Admin)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && ($role === 'lab_tech' || $role === 'admin')) {
-    $result_text = $_POST['result_text'];
+    $findings = sanitize_for_json($_POST['findings'] ?? '');
+    $normal_range = sanitize_for_json($_POST['normal_range'] ?? '');
+    $comments = sanitize_for_json($_POST['comments'] ?? '');
     
-    // Create a simple JSON structure for the result
-    $result_json = json_encode(['summary' => $result_text, 'date' => date('Y-m-d')]);
+    // Process Structured Metrics
+    $details = [];
+    if (isset($_POST['metric_name'])) {
+        $names = $_POST['metric_name'];
+        $values = $_POST['metric_value'];
+        $units = $_POST['metric_unit'];
+        $ranges = $_POST['metric_range'];
+        
+        for ($i = 0; $i < count($names); $i++) {
+            if (!empty($names[$i])) {
+                $details[] = [
+                    'name' => sanitize_for_json($names[$i]),
+                    'value' => sanitize_for_json($values[$i]),
+                    'unit' => sanitize_for_json($units[$i]),
+                    'range' => sanitize_for_json($ranges[$i])
+                ];
+            }
+        }
+    }
     
-    db_update('laboratory_tests', 
-              ['result_data' => $result_json, 'status' => 'completed'], 
-              ['id' => $test_id]);
-              
-    echo "<div class='alert alert-success'>Results uploaded successfully.</div>";
-    // Refresh
-    $test = db_select_one("SELECT l.*, p.first_name, p.last_name FROM laboratory_tests l JOIN patients p ON l.patient_id = p.id WHERE l.id = $1", [$test_id]);
+    // Create a structured JSON for the result
+    $result_array = [
+        'summary' => $findings, 
+        'findings' => $findings,
+        'normal_range' => $normal_range,
+        'comments' => $comments,
+        'details' => $details,
+        'date' => date('Y-m-d')
+    ];
+    
+    $result_json = json_encode($result_array, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT);
+    
+    if ($result_json === false) {
+        echo "<div class='alert alert-danger'>Error encoding results: " . json_last_error_msg() . "</div>";
+    } else {
+        // Use parameterized query instead of db_update to safely handle JSON characters
+        db_query("UPDATE laboratory_tests SET result_data = $1, status = 'completed', updated_at = NOW() WHERE id = $2", 
+                 [$result_json, $test_id]);
+                  
+        echo "<div class='alert alert-success'>Results uploaded successfully.</div>";
+        // Refresh
+        $test = db_select_one("SELECT l.*, p.first_name, p.last_name FROM laboratory_tests l JOIN patients p ON l.patient_id = p.id WHERE l.id = $1", [$test_id]);
+    }
 }
 
 $result_data = json_decode($test['result_data'] ?? '{}', true);
@@ -291,8 +339,19 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
             <div class="results-section">
                 <h3>Clinical Findings</h3>
                 <div class="results-content">
-                    <?php echo nl2br(htmlspecialchars($result_data['summary'] ?? 'No findings recorded.')); ?>
+                    <?php echo nl2br(htmlspecialchars($result_data['findings'] ?? $result_data['summary'] ?? 'No findings recorded.')); ?>
                 </div>
+
+                <!-- Normal Range Block Removed as per request -->
+
+                <?php if (!empty($result_data['comments'])): ?>
+                <div style="margin-top: 20px;">
+                    <strong style="color: #4a5568; text-transform: uppercase; font-size: 0.85em;">Pathologist Comments</strong>
+                    <p style="margin-top: 5px;">
+                        <?php echo nl2br(htmlspecialchars($result_data['comments'])); ?>
+                    </p>
+                </div>
+                <?php endif; ?>
             </div>
             
             <?php if (!empty($result_data['details'])): ?>
@@ -355,14 +414,66 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
             <div class="card-body">
                 <form method="POST" action="">
                     <div class="form-group">
-                        <label for="result_text">Enter Clinical Findings</label>
-                        <textarea id="result_text" name="result_text" class="form-control" rows="5" required placeholder="Enter detailed findings here..."></textarea>
+                        <label>Clinical Findings / Results</label>
+                        <textarea name="findings" class="form-control" rows="6" required placeholder="Enter the main test findings here..."></textarea>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                             <div class="form-group">
+                                 <label>Normal/Reference Range (Summary)</label>
+                                 <textarea name="normal_range" class="form-control" rows="3" placeholder="e.g. 70-110 mg/dL"></textarea>
+                             </div>
+                        </div>
+                        <div class="col-md-6">
+                             <div class="form-group">
+                                 <label>Comments / Notes</label>
+                                 <textarea name="comments" class="form-control" rows="3" placeholder="Optional comments..."></textarea>
+                             </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    <h5 class="mb-3">Detailed Metrics Table</h5>
+                    <table class="table table-bordered table-sm" id="metricsTable">
+                        <thead>
+                            <tr>
+                                <th>Test / Parameter Name</th>
+                                <th>Result Value</th>
+                                <th>Unit</th>
+                                <th>Ref Range</th>
+                                <th style="width:50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="metricsBody">
+                            <!-- Rows will be added here -->
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-secondary btn-sm mb-3" onclick="addMetricRow()"><i class="fas fa-plus"></i> Add Row</button>
+                    <br>
+                    
                     <button type="submit" class="btn btn-primary">Submit & Finalize</button>
                 </form>
             </div>
         </div>
     </div>
+    
+    <script>
+    function addMetricRow() {
+        const tbody = document.getElementById('metricsBody');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="text" name="metric_name[]" class="form-control form-control-sm" placeholder="e.g. Hemoglobin"></td>
+            <td><input type="text" name="metric_value[]" class="form-control form-control-sm" placeholder="e.g. 13.5"></td>
+            <td><input type="text" name="metric_unit[]" class="form-control form-control-sm" placeholder="e.g. g/dL"></td>
+            <td><input type="text" name="metric_range[]" class="form-control form-control-sm" placeholder="e.g. 12-16"></td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+        `;
+        tbody.appendChild(row);
+    }
+    // Add one empty row by default
+    document.addEventListener('DOMContentLoaded', addMetricRow);
+    </script>
 <?php endif; ?>
 
 <?php include '../../includes/footer.php'; ?>

@@ -41,10 +41,6 @@ $user_role = $_SESSION['role'] ?? 'Guest';
                         <a href="<?php echo BASE_URL; ?>/modules/ehr/book_appointment.php" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.9em; text-decoration: none;">
                             <i class="far fa-calendar-plus"></i> Book Appointment
                         </a>
-                    <?php else: ?>
-                        <button class="btn btn-primary" style="padding: 8px 15px; font-size: 0.9em;">
-                            <i class="fas fa-plus"></i> Add New
-                        </button>
                     <?php endif; ?>
                     
                     <!-- Notification Dropdown -->
@@ -59,62 +55,119 @@ $user_role = $_SESSION['role'] ?? 'Guest';
                         $unread_count = $unread['c'] ?? 0;
                     }
                     ?>
-                    <!-- Messages Link -->
-                    <?php
-                    $msg_unread = 0;
-                    if (isset($_SESSION['user_id'])) {
-                        // Check if messages table exists to avoid crash
-                        $tbl_check = db_select("SELECT to_regclass('public.messages') as exists");
-                        if (!empty($tbl_check) && $tbl_check[0]['exists']) {
-                            $uid = $_SESSION['user_id'];
-                            $mu = db_select_one("SELECT COUNT(*) as c FROM messages WHERE recipient_id = $1 AND is_read = FALSE", [$uid]);
-                            $msg_unread = $mu['c'] ?? 0;
-                        }
-                    }
-                    ?>
-                    <a href="<?php echo ($user_role == 'doctor' ? BASE_URL.'/dashboards/doctor_dashboard.php' : BASE_URL.'/dashboards/patient_dashboard.php'); ?>" class="icon-btn" style="position: relative; text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center; margin-right: 5px;">
-                        <i class="far fa-envelope"></i>
-                        <?php if ($msg_unread > 0): ?>
-                            <span style="position: absolute; top: 0; right: -2px; width: 10px; height: 10px; background: #2563eb; border-radius: 50%; border: 2px solid white;"></span>
-                        <?php endif; ?>
-                    </a>
+
 
                     <div class="dropdown" style="position: relative; display: inline-block;">
                         <button id="notif-btn" class="icon-btn" style="position: relative;">
                             <i class="far fa-bell"></i>
-                            <?php if ($unread_count > 0): ?>
-                                <span style="position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white;"></span>
-                            <?php endif; ?>
+                            <span id="notif-badge" style="position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white; <?php echo $unread_count > 0 ? '' : 'display:none;'; ?>"></span>
                         </button>
-                        <div id="notif-dropdown" class="dropdown-content" style="display: none; position: absolute; right: 0; background: white; min-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; border-radius: 12px; overflow: hidden; border: 1px solid #f3f4f6;">
-                            <div style="padding: 15px; background: #fff; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                        <div id="notif-dropdown" class="dropdown-content" style="display: none; position: absolute; right: 0; background: white; min-width: 340px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); z-index: 1000; border-radius: 12px; overflow: hidden; border: 1px solid #f3f4f6;">
+                            <!-- Header -->
+                            <div style="padding: 14px 16px; background: #fff; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
                                 <span>Notifications</span>
-                                <?php if ($unread_count > 0): ?>
-                                    <span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 99px; font-size: 0.75em;"><?php echo $unread_count; ?> New</span>
-                                <?php endif; ?>
+                                <span id="notif-count-badge" style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 99px; font-size: 0.75em; <?php echo $unread_count > 0 ? '' : 'display:none;'; ?>"><?php echo $unread_count; ?> New</span>
                             </div>
-                            <div style="max-height: 350px; overflow-y: auto;">
+                            <!-- List -->
+                            <div id="notif-list" style="max-height: 350px; overflow-y: auto;">
                                 <?php if (empty($notifs)): ?>
-                                    <div style="padding: 30px; text-align: center; color: #9ca3af;">
+                                    <div id="notif-empty" style="padding: 30px; text-align: center; color: #9ca3af;">
                                         <i class="far fa-bell-slash" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
                                         <p style="margin: 0; font-size: 0.9em;">No notifications yet.</p>
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($notifs as $n): ?>
-                                        <div style="padding: 15px; border-bottom: 1px solid #f3f4f6; transition: background 0.2s; <?php echo !$n['is_read'] ? 'background: #fdfafa;' : ''; ?>">
-                                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                                <strong style="font-size: 0.9em; color: #111827;"><?php echo htmlspecialchars($n['title']); ?></strong>
-                                                <small style="color: #9ca3af; font-size: 0.75em;"><?php echo date('M d, h:i A', strtotime($n['created_at'])); ?></small>
+                                        <div class="notif-item" id="notif-<?php echo $n['id']; ?>" style="padding: 12px 16px; border-bottom: 1px solid #f3f4f6; transition: background 0.2s; <?php echo !$n['is_read'] ? 'background: #eff6ff;' : ''; ?>">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px; align-items: flex-start; gap: 8px;">
+                                                <strong style="font-size: 0.88em; color: #111827; flex: 1;"><?php echo htmlspecialchars($n['title']); ?></strong>
+                                                <small style="color: #9ca3af; font-size: 0.74em; white-space: nowrap;"><?php echo date('M d, h:i A', strtotime($n['created_at'])); ?></small>
                                             </div>
-                                            <div style="font-size: 0.85em; color: #4b5563; line-height: 1.4;">
+                                            <div style="font-size: 0.84em; color: #4b5563; line-height: 1.4; margin-bottom: 6px;">
                                                 <?php echo htmlspecialchars($n['message']); ?>
                                             </div>
+                                            <?php if (!$n['is_read']): ?>
+                                                <button class="notif-read-btn" onclick="notifMarkRead(<?php echo $n['id']; ?>, this)" style="background: none; border: none; font-size: 0.78em; color: #2563eb; cursor: pointer; padding: 0; font-weight: 600;">
+                                                    <i class="fas fa-check"></i> Mark as read
+                                                </button>
+                                            <?php else: ?>
+                                                <span style="font-size: 0.78em; color: #9ca3af;"><i class="fas fa-check-double"></i> Read</span>
+                                            <?php endif; ?>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
+                            <!-- Footer Actions -->
+                            <div style="padding: 10px 16px; border-top: 1px solid #f3f4f6; display: flex; gap: 8px; background: #fafafa;">
+                                <button onclick="notifMarkAllRead()" style="flex: 1; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; padding: 7px 10px; border-radius: 7px; font-size: 0.82em; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                    <i class="fas fa-check-double"></i> Mark All as Read
+                                </button>
+                                <button onclick="notifClearAll()" style="flex: 1; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 7px 10px; border-radius: 7px; font-size: 0.82em; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                    <i class="fas fa-trash-alt"></i> Clear All
+                                </button>
+                            </div>
                         </div>
                     </div>
+
+                    <script>
+                    const _NOTIF_API = '<?php echo BASE_URL; ?>/api/notifications_action.php';
+
+                    function _notifPost(action, id) {
+                        const body = { action };
+                        if (id) body.id = id;
+                        return fetch(_NOTIF_API, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(body)
+                        }).then(r => r.json());
+                    }
+
+                    function notifMarkRead(id, btn) {
+                        _notifPost('mark_read', id).then(res => {
+                            if (!res.success) return;
+                            const item = document.getElementById('notif-' + id);
+                            if (item) {
+                                item.style.background = '';
+                                btn.outerHTML = '<span style="font-size:0.78em;color:#9ca3af;"><i class="fas fa-check-double"></i> Read</span>';
+                            }
+                            _notifDecrementBadge();
+                        });
+                    }
+
+                    function notifMarkAllRead() {
+                        _notifPost('mark_all_read').then(res => {
+                            if (!res.success) return;
+                            document.querySelectorAll('.notif-item').forEach(el => {
+                                el.style.background = '';
+                                const btn = el.querySelector('.notif-read-btn');
+                                if (btn) btn.outerHTML = '<span style="font-size:0.78em;color:#9ca3af;"><i class="fas fa-check-double"></i> Read</span>';
+                            });
+                            _notifHideBadge();
+                        });
+                    }
+
+                    function notifClearAll() {
+                        if (!confirm('Clear all notifications?')) return;
+                        _notifPost('clear_all').then(res => {
+                            if (!res.success) return;
+                            document.getElementById('notif-list').innerHTML =
+                                '<div style="padding:30px;text-align:center;color:#9ca3af;"><i class="far fa-bell-slash" style="font-size:2em;margin-bottom:10px;opacity:0.5;"></i><p style="margin:0;font-size:0.9em;">No notifications yet.</p></div>';
+                            _notifHideBadge();
+                        });
+                    }
+
+                    function _notifDecrementBadge() {
+                        const badge = document.getElementById('notif-count-badge');
+                        let n = parseInt(badge.textContent) || 0;
+                        n = Math.max(0, n - 1);
+                        if (n === 0) { _notifHideBadge(); } 
+                        else { badge.textContent = n + ' New'; }
+                    }
+
+                    function _notifHideBadge() {
+                        document.getElementById('notif-badge').style.display = 'none';
+                        document.getElementById('notif-count-badge').style.display = 'none';
+                    }
+                    </script>
 
                     <a href="<?php echo BASE_URL; ?>/settings.php" class="icon-btn" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-cog"></i>

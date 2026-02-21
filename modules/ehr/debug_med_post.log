@@ -1,0 +1,36 @@
+Array
+(
+    [add_medication] => 1
+    [med_name] => Dolo 
+    [med_frequency] => 1-0-1
+    [med_days] => 5
+    [med_timing] => After Food
+    [med_note] => 
+)
+Array
+(
+    [add_medication] => 1
+    [med_name] => Cetirizine
+    [med_frequency] => 1-0-1
+    [med_days] => 5
+    [med_timing] => After Food
+    [med_note] => 
+)
+Array
+(
+    [add_medication] => 1
+    [med_name] => Cefixime
+    [med_frequency] => 1-0-1
+    [med_days] => 5
+    [med_timing] => After Food
+    [med_note] => 
+)
+Array
+(
+    [add_medication] => 1
+    [med_name] => Amlodipine
+    [med_frequency] => 1-0-1
+    [med_days] => 5
+    [med_timing] => After Food
+    [med_note] => 
+)

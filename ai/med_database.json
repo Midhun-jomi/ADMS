@@ -1,0 +1,178 @@
+[
+    {
+        "name": "Paracetamol",
+        "brand_names": [
+            "Crocin",
+            "Dolo-650",
+            "Calpol",
+            "Tylenol"
+        ],
+        "active_ingredients": [
+            "Paracetamol"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "500mg, 650mg",
+        "category": "Analgesic/Antipyretic",
+        "uses": "Fever, Mild Pain"
+    },
+    {
+        "name": "Ibuprofen",
+        "brand_names": [
+            "Brufen",
+            "Advil",
+            "Ibugesic"
+        ],
+        "active_ingredients": [
+            "Ibuprofen"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "200mg, 400mg",
+        "category": "NSAID",
+        "uses": "Pain, Inflammation, Fever"
+    },
+    {
+        "name": "Amoxicillin",
+        "brand_names": [
+            "Mox",
+            "Amoxil"
+        ],
+        "active_ingredients": [
+            "Amoxicillin"
+        ],
+        "dosage_form": "Capsule",
+        "strength": "250mg, 500mg",
+        "category": "Antibiotic (Penicillin)",
+        "uses": "Bacterial Infections"
+    },
+    {
+        "name": "Amoxicillin + Clavulanate",
+        "brand_names": [
+            "Augmentin",
+            "Clavam",
+            "Moxclav"
+        ],
+        "active_ingredients": [
+            "Amoxicillin",
+            "Clavulanic Acid"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "625mg",
+        "category": "Antibiotic",
+        "uses": "Resistant Bacterial Infections"
+    },
+    {
+        "name": "Cetirizine",
+        "brand_names": [
+            "Cetzine",
+            "Zyrtec",
+            "Okacet"
+        ],
+        "active_ingredients": [
+            "Cetirizine"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "10mg",
+        "category": "Antihistamine",
+        "uses": "Allergies, Runny Nose"
+    },
+    {
+        "name": "Levocetirizine",
+        "brand_names": [
+            "Levaz",
+            "Xyzal",
+            "Teczine"
+        ],
+        "active_ingredients": [
+            "Levocetirizine"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "5mg",
+        "category": "Antihistamine",
+        "uses": "Allergies (Less Sedative)"
+    },
+    {
+        "name": "Pantoprazole",
+        "brand_names": [
+            "Pan-40",
+            "Pantocid",
+            "Protonix"
+        ],
+        "active_ingredients": [
+            "Pantoprazole"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "40mg",
+        "category": "Proton Pump Inhibitor (PPI)",
+        "uses": "Acidity, GERD"
+    },
+    {
+        "name": "Omeprazole",
+        "brand_names": [
+            "Omez",
+            "Prilosec"
+        ],
+        "active_ingredients": [
+            "Omeprazole"
+        ],
+        "dosage_form": "Capsule",
+        "strength": "20mg",
+        "category": "Proton Pump Inhibitor (PPI)",
+        "uses": "Acidity, Ulcers"
+    },
+    {
+        "name": "Metformin",
+        "brand_names": [
+            "Glycomet",
+            "Glucophage"
+        ],
+        "active_ingredients": [
+            "Metformin"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "500mg, 850mg, 1000mg",
+        "category": "Antidiabetic",
+        "uses": "Type 2 Diabetes"
+    },
+    {
+        "name": "Atorvastatin",
+        "brand_names": [
+            "Atorva",
+            "Lipitor"
+        ],
+        "active_ingredients": [
+            "Atorvastatin"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "10mg, 20mg",
+        "category": "Statin",
+        "uses": "High Cholesterol"
+    },
+    {
+        "name": "Amlodipine",
+        "brand_names": [
+            "Amlong",
+            "Norvasc"
+        ],
+        "active_ingredients": [
+            "Amlodipine"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "5mg, 10mg",
+        "category": "Calcium Channel Blocker",
+        "uses": "Hypertension"
+    },
+    {
+        "name": "Azithromycin",
+        "brand_names": [
+            "Azithral",
+            "Zithromax"
+        ],
+        "active_ingredients": [
+            "Azithromycin"
+        ],
+        "dosage_form": "Tablet",
+        "strength": "250mg, 500mg",
+        "category": "Antibiotic (Macrolide)",
+        "uses": "Throat Infections, Pneumonia"
+    }
+]

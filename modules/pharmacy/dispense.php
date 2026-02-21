@@ -75,13 +75,34 @@ $prescriptions = db_select("SELECT pr.*, p.first_name, p.last_name
         // Fetch medications for dropdown
         $medications = db_select("SELECT medication_name, quantity FROM pharmacy_inventory ORDER BY medication_name");
         $pre_patient_id = $_GET['patient_id'] ?? '';
+        
+        // Fetch latest triage result for this patient
+        $triage_info = null;
+        if ($pre_patient_id) {
+            $triage_info = db_select_one("SELECT * FROM triage_analysis WHERE patient_id = $1 ORDER BY id DESC LIMIT 1", [$pre_patient_id]);
+        }
     ?>
         <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+            <?php if ($triage_info): ?>
+                <div class="alert alert-info" style="border-left: 5px solid #17a2b8;">
+                    <h6 style="color: #0c5460; font-weight: bold;"><i class="fas fa-user-md"></i> AI Triage Insights</h6>
+                    <div style="font-size: 0.95em; line-height: 1.5;">
+                        <?php echo nl2br(htmlspecialchars($triage_info['ai_findings'])); ?>
+                    </div>
+                    <div style="margin-top: 5px; font-weight: bold; color: #555;">
+                        Severity Score: <?php echo $triage_info['severity_score']; ?>/10
+                    </div>
+                    <small class="text-muted">Analysis Date: <?php echo date('M d, Y H:i', strtotime($triage_info['created_at'] ?? 'now')); ?></small>
+                </div>
+            <?php elseif ($pre_patient_id): ?>
+                <div class="alert alert-secondary">No AI triage data found for this patient.</div>
+            <?php endif; ?>
+
             <h5>Prescribe Medication</h5>
             <form method="POST" action="" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
                 <div style="flex: 1; min-width: 200px;">
                     <label>Patient</label>
-                    <select name="patient_id" class="form-control" required>
+                    <select name="patient_id" class="form-control" required onchange="window.location.search = '?patient_id=' + this.value">
                         <option value="">-- Select Patient --</option>
                         <?php foreach ($patients as $p): ?>
                             <option value="<?php echo $p['id']; ?>" <?php echo ($p['id'] == $pre_patient_id) ? 'selected' : ''; ?>>
