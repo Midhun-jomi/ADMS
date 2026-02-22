@@ -82,10 +82,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="fas fa-users-cog"></i> HR & Payroll
         </a></li>
         
-        <div class="menu-category">Emergency Services</div>
-        <li><a href="<?php echo BASE_URL; ?>/modules/emergency/dashboard.php" class="<?php echo strpos($current_page, '/emergency/') !== false ? 'active' : ''; ?>">
-            <i class="fas fa-ambulance"></i> Ambulance/Emergency
-        </a></li>
+
 
         <div class="menu-category">Infrastructure</div>
         <li><a href="<?php echo BASE_URL; ?>/modules/inventory/assets.php" class="<?php echo strpos($current_page, '/inventory/') !== false ? 'active' : ''; ?>">
@@ -117,9 +114,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <li><a href="<?php echo BASE_URL; ?>/modules/dietary/planner.php" class="<?php echo strpos($current_page, 'dietary') !== false ? 'active' : ''; ?>">
             <i class="fas fa-utensils"></i> Dietary/Meals
         </a></li>
-        <li><a href="<?php echo BASE_URL; ?>/modules/housekeeping/dashboard.php" class="<?php echo strpos($current_page, 'housekeeping') !== false ? 'active' : ''; ?>">
-            <i class="fas fa-broom"></i> Housekeeping
-        </a></li>
+
         <?php endif; ?>
 
         <div class="menu-category">Finance & Others</div>

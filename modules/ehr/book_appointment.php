@@ -18,12 +18,15 @@ $specializations = array_unique(array_column($doctors, 'specialization'));
 sort($specializations);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $doctor_id = $_POST['doctor_id'];
-    $date = $_POST['appointment_date'];
-    $time = $_POST['appointment_time'];
-    $reason = $_POST['reason'];
+    $doctor_id = $_POST['doctor_id'] ?? null;
+    $date = $_POST['appointment_date'] ?? '';
+    $time = $_POST['appointment_time'] ?? '';
+    $reason = $_POST['reason'] ?? '';
     
-    $appointment_time = $date . ' ' . $time;
+    if (!$doctor_id || !$date || !$time) {
+        $error = "Please fill in all required fields (Doctor, Date, Time).";
+    } else {
+        $appointment_time = $date . ' ' . $time;
     
     // Get patient ID
     $user_id = $_SESSION['user_id'];
@@ -99,6 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $error = "Patient profile not found.";
     }
+  } // End of required fields check
 }
 ?>
 

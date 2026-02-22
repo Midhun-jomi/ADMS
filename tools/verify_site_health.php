@@ -13,17 +13,16 @@ $files = [
     'modules/patient_management/manage_beds.php',
     'modules/patient_management/nursing_station.php',
     'modules/hr/dashboard.php',
-    'modules/emergency/dashboard.php',
     'modules/inventory/assets.php',
     'modules/blood_bank/dashboard.php',
     'modules/ot/schedule.php',
     'modules/telemedicine/dashboard.php',
     'modules/dietary/planner.php',
-    'modules/housekeeping/dashboard.php',
+
     'modules/billing/invoices.php',
     'modules/pharmacy/inventory.php',
     'modules/ai/diagnosis_assist.php',
-    'modules/queue/display.php',
+
     'modules/feedback/survey.php',
     'help_center.php'
 ];

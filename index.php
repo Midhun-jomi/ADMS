@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <form method="POST" action="">
                 <div class="login-form-group">
                     <label for="email" class="login-label">Username or E-mail</label>
-                    <input type="email" id="email" name="email" class="login-input <?php echo $error ? 'login-input-error' : ''; ?>" placeholder="name@email.com" required>
+                    <input type="email" id="email" name="email" class="login-input <?php echo $error ? 'login-input-error' : ''; ?>" placeholder="name@email.com" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required>
                 </div>
 
                 <div class="login-form-group">
