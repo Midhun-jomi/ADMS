@@ -1,0 +1,416 @@
+[Sat Feb 28 18:59:53 2026] PHP 8.4.13 Development Server (http://localhost:8000) started
+[Sat Feb 28 19:01:45 2026] 127.0.0.1:54830 Accepted
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54830 [200]: GET /
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54830 Closing
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54833 Accepted
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54833 [200]: GET /assets/css/login_style.css
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54834 Accepted
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54833 Closing
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54834 [200]: GET /assets/images/doctor_3d.png
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54834 Closing
+[Sat Feb 28 19:01:49 2026] 127.0.0.1:54835 Accepted
+[Sat Feb 28 19:01:50 2026] 127.0.0.1:54835 [200]: GET /favicon.ico
+[Sat Feb 28 19:01:50 2026] 127.0.0.1:54835 Closing
+[Sat Feb 28 19:01:50 2026] 127.0.0.1:54837 Accepted
+[Sat Feb 28 19:01:52 2026] 127.0.0.1:54837 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:01:52 2026] 127.0.0.1:54837 Closing
+[Sat Feb 28 19:01:52 2026] 127.0.0.1:54840 Accepted
+[Sat Feb 28 19:01:53 2026] 127.0.0.1:54840 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:01:53 2026] 127.0.0.1:54840 Closing
+[Sat Feb 28 19:01:53 2026] 127.0.0.1:54843 Accepted
+[Sat Feb 28 19:01:54 2026] 127.0.0.1:54843 [200]: GET /favicon.ico
+[Sat Feb 28 19:01:54 2026] 127.0.0.1:54843 Closing
+[Sat Feb 28 19:02:20 2026] 127.0.0.1:54872 Accepted
+[Sat Feb 28 19:02:22 2026] 127.0.0.1:54872 [302]: POST /
+[Sat Feb 28 19:02:22 2026] 127.0.0.1:54872 Closing
+[Sat Feb 28 19:02:22 2026] 127.0.0.1:54874 Accepted
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54874 [200]: GET /dashboards/doctor_dashboard.php
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54874 Closing
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54877 Accepted
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54878 Accepted
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54877 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54879 Accepted
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54878 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54879 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54877 Closing
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54878 Closing
+[Sat Feb 28 19:02:26 2026] 127.0.0.1:54879 Closing
+[Sat Feb 28 19:02:27 2026] 127.0.0.1:54880 Accepted
+[Sat Feb 28 19:02:28 2026] 127.0.0.1:54880 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:02:28 2026] 127.0.0.1:54880 Closing
+[Sat Feb 28 19:02:28 2026] 127.0.0.1:54883 Accepted
+[Sat Feb 28 19:02:29 2026] 127.0.0.1:54883 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:02:29 2026] 127.0.0.1:54883 Closing
+[Sat Feb 28 19:02:29 2026] 127.0.0.1:54890 Accepted
+[Sat Feb 28 19:02:30 2026] 127.0.0.1:54890 [200]: GET /favicon.ico
+[Sat Feb 28 19:02:30 2026] 127.0.0.1:54890 Closing
+[Sat Feb 28 19:04:28 2026] 127.0.0.1:54984 Accepted
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54984 [200]: GET /dashboards/doctor_dashboard.php
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54984 Closing
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54987 Accepted
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54988 Accepted
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54987 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54989 Accepted
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54988 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54989 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54987 Closing
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54988 Closing
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54989 Closing
+[Sat Feb 28 19:04:32 2026] 127.0.0.1:54992 Accepted
+[Sat Feb 28 19:04:34 2026] 127.0.0.1:54992 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:04:34 2026] 127.0.0.1:54992 Closing
+[Sat Feb 28 19:04:34 2026] 127.0.0.1:54995 Accepted
+[Sat Feb 28 19:04:35 2026] 127.0.0.1:54995 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:04:35 2026] 127.0.0.1:54995 Closing
+[Sat Feb 28 19:04:35 2026] 127.0.0.1:54999 Accepted
+[Sat Feb 28 19:04:37 2026] 127.0.0.1:54999 [200]: GET /favicon.ico
+[Sat Feb 28 19:04:37 2026] 127.0.0.1:54999 Closing
+[Sat Feb 28 19:06:32 2026] 127.0.0.1:55029 Accepted
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55029 [200]: GET /modules/ai/diagnosis_assist.php
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55029 Closing
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55032 Accepted
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55033 Accepted
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55032 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55034 Accepted
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55033 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55034 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55032 Closing
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55033 Closing
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55034 Closing
+[Sat Feb 28 19:06:35 2026] 127.0.0.1:55035 Accepted
+[Sat Feb 28 19:06:36 2026] 127.0.0.1:55035 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:06:36 2026] 127.0.0.1:55035 Closing
+[Sat Feb 28 19:06:36 2026] 127.0.0.1:55039 Accepted
+[Sat Feb 28 19:06:38 2026] 127.0.0.1:55039 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:06:38 2026] 127.0.0.1:55039 Closing
+[Sat Feb 28 19:06:38 2026] 127.0.0.1:55041 Accepted
+[Sat Feb 28 19:06:39 2026] 127.0.0.1:55041 [200]: GET /favicon.ico
+[Sat Feb 28 19:06:39 2026] 127.0.0.1:55041 Closing
+[Sat Feb 28 19:06:39 2026] 127.0.0.1:55043 Accepted
+[Sat Feb 28 19:06:40 2026] 127.0.0.1:55043 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Sat Feb 28 19:06:40 2026] 127.0.0.1:55043 Closing
+[Sat Feb 28 19:06:57 2026] 127.0.0.1:55063 Accepted
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55063 [200]: GET /modules/ehr/patients.php
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55063 Closing
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55068 Accepted
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55069 Accepted
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55068 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55070 Accepted
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55069 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55070 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55068 Closing
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55069 Closing
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55070 Closing
+[Sat Feb 28 19:07:00 2026] 127.0.0.1:55071 Accepted
+[Sat Feb 28 19:07:01 2026] 127.0.0.1:55071 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:07:01 2026] 127.0.0.1:55071 Closing
+[Sat Feb 28 19:07:01 2026] 127.0.0.1:55073 Accepted
+[Sat Feb 28 19:07:02 2026] 127.0.0.1:55073 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:07:02 2026] 127.0.0.1:55073 Closing
+[Sat Feb 28 19:07:02 2026] 127.0.0.1:55075 Accepted
+[Sat Feb 28 19:07:06 2026] 127.0.0.1:55075 [200]: GET /modules/ehr/history.php?patient_id=87de8fa0-5887-41dd-bef8-9ac8849b284a
+[Sat Feb 28 19:07:06 2026] 127.0.0.1:55075 Closing
+[Sat Feb 28 19:07:06 2026] 127.0.0.1:55077 Accepted
+[Sat Feb 28 19:07:06 2026] 127.0.0.1:55078 Accepted
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55077 [200]: GET /favicon.ico
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55077 Closing
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55079 Accepted
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55078 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55080 Accepted
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55079 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55080 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55078 Closing
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55079 Closing
+[Sat Feb 28 19:07:07 2026] 127.0.0.1:55080 Closing
+[Sat Feb 28 19:07:35 2026] 127.0.0.1:55128 Accepted
+[Sat Feb 28 19:07:35 2026] 127.0.0.1:55128 [404]: GET /modules/prescriptions/create.php?patient_id=87de8fa0-5887-41dd-bef8-9ac8849b284a - No such file or directory
+[Sat Feb 28 19:07:35 2026] 127.0.0.1:55128 Closing
+[Sat Feb 28 19:07:35 2026] 127.0.0.1:55129 Accepted
+[Sat Feb 28 19:07:36 2026] 127.0.0.1:55129 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:07:36 2026] 127.0.0.1:55129 Closing
+[Sat Feb 28 19:07:36 2026] 127.0.0.1:55131 Accepted
+[Sat Feb 28 19:07:37 2026] 127.0.0.1:55131 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:07:37 2026] 127.0.0.1:55131 Closing
+[Sat Feb 28 19:07:37 2026] 127.0.0.1:55135 Accepted
+[Sat Feb 28 19:07:39 2026] 127.0.0.1:55135 [200]: GET /favicon.ico
+[Sat Feb 28 19:07:39 2026] 127.0.0.1:55135 Closing
+[Sat Feb 28 19:07:39 2026] 127.0.0.1:55137 Accepted
+[Sat Feb 28 19:07:40 2026] 127.0.0.1:55137 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:07:40 2026] 127.0.0.1:55137 Closing
+[Sat Feb 28 19:07:40 2026] 127.0.0.1:55139 Accepted
+[Sat Feb 28 19:07:42 2026] 127.0.0.1:55139 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:07:42 2026] 127.0.0.1:55139 Closing
+[Sat Feb 28 19:07:42 2026] 127.0.0.1:55141 Accepted
+[Sat Feb 28 19:07:43 2026] 127.0.0.1:55141 [200]: GET /favicon.ico
+[Sat Feb 28 19:07:43 2026] 127.0.0.1:55141 Closing
+[Sat Feb 28 19:07:47 2026] 127.0.0.1:55145 Accepted
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55145 [200]: GET /modules/patient_management/admit_patient.php?patient_id=87de8fa0-5887-41dd-bef8-9ac8849b284a
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55145 Closing
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55147 Accepted
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55148 Accepted
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55147 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55149 Accepted
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55148 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55149 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55147 Closing
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55148 Closing
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55149 Closing
+[Sat Feb 28 19:07:50 2026] 127.0.0.1:55150 Accepted
+[Sat Feb 28 19:07:51 2026] 127.0.0.1:55150 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:07:51 2026] 127.0.0.1:55150 Closing
+[Sat Feb 28 19:07:51 2026] 127.0.0.1:55152 Accepted
+[Sat Feb 28 19:07:53 2026] 127.0.0.1:55152 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:07:53 2026] 127.0.0.1:55152 Closing
+[Sat Feb 28 19:07:53 2026] 127.0.0.1:55154 Accepted
+[Sat Feb 28 19:07:55 2026] 127.0.0.1:55154 [200]: GET /favicon.ico
+[Sat Feb 28 19:07:55 2026] 127.0.0.1:55154 Closing
+[Sat Feb 28 19:08:18 2026] 127.0.0.1:55157 Accepted
+[Sat Feb 28 19:08:19 2026] 127.0.0.1:55157 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:08:19 2026] 127.0.0.1:55157 Closing
+[Sat Feb 28 19:08:19 2026] 127.0.0.1:55158 Accepted
+[Sat Feb 28 19:08:19 2026] 127.0.0.1:55159 Accepted
+[Sat Feb 28 19:08:20 2026] 127.0.0.1:55158 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:08:20 2026] 127.0.0.1:55158 Closing
+[Sat Feb 28 19:08:21 2026] 127.0.0.1:55159 [200]: GET /favicon.ico
+[Sat Feb 28 19:08:21 2026] 127.0.0.1:55159 Closing
+[Sat Feb 28 19:08:26 2026] 127.0.0.1:55165 Accepted
+[Sat Feb 28 19:09:00 2026] 127.0.0.1:55165 Closed without sending a request; it was probably just an unused speculative preconnection
+[Sat Feb 28 19:09:00 2026] 127.0.0.1:55165 Closing
+[Sat Feb 28 19:10:50 2026] 127.0.0.1:55258 Accepted
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55258 [200]: GET /modules/ehr/history.php?patient_id=87de8fa0-5887-41dd-bef8-9ac8849b284a
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55258 Closing
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55260 Accepted
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55261 Accepted
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55260 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55262 Accepted
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55261 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55262 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55260 Closing
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55261 Closing
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55262 Closing
+[Sat Feb 28 19:10:54 2026] 127.0.0.1:55263 Accepted
+[Sat Feb 28 19:10:55 2026] 127.0.0.1:55263 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:10:55 2026] 127.0.0.1:55263 Closing
+[Sat Feb 28 19:10:55 2026] 127.0.0.1:55265 Accepted
+[Sat Feb 28 19:10:56 2026] 127.0.0.1:55265 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:10:56 2026] 127.0.0.1:55265 Closing
+[Sat Feb 28 19:10:56 2026] 127.0.0.1:55267 Accepted
+[Sat Feb 28 19:10:57 2026] 127.0.0.1:55267 [200]: GET /favicon.ico
+[Sat Feb 28 19:10:57 2026] 127.0.0.1:55267 Closing
+[Sat Feb 28 19:11:01 2026] 127.0.0.1:55270 Accepted
+[Sat Feb 28 19:11:02 2026] 127.0.0.1:55270 [302]: GET /modules/feedback/survey.php
+[Sat Feb 28 19:11:02 2026] 127.0.0.1:55270 Closing
+[Sat Feb 28 19:11:02 2026] 127.0.0.1:55272 Accepted
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55272 [200]: GET /index.php
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55272 Closing
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55274 Accepted
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55274 [200]: GET /assets/css/login_style.css
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55275 Accepted
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55274 Closing
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55275 [200]: GET /assets/images/doctor_3d.png
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55275 Closing
+[Sat Feb 28 19:11:03 2026] 127.0.0.1:55276 Accepted
+[Sat Feb 28 19:11:04 2026] 127.0.0.1:55276 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:11:04 2026] 127.0.0.1:55276 Closing
+[Sat Feb 28 19:11:04 2026] 127.0.0.1:55278 Accepted
+[Sat Feb 28 19:11:06 2026] 127.0.0.1:55278 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:11:06 2026] 127.0.0.1:55278 Closing
+[Sat Feb 28 19:11:06 2026] 127.0.0.1:55280 Accepted
+[Sat Feb 28 19:11:07 2026] 127.0.0.1:55280 [200]: GET /favicon.ico
+[Sat Feb 28 19:11:07 2026] 127.0.0.1:55280 Closing
+[Sat Feb 28 19:13:03 2026] 127.0.0.1:55321 Accepted
+[Sat Feb 28 19:13:06 2026] 127.0.0.1:55321 [302]: POST /index.php
+[Sat Feb 28 19:13:06 2026] 127.0.0.1:55321 Closing
+[Sat Feb 28 19:13:06 2026] 127.0.0.1:55323 Accepted
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55323 [200]: GET /dashboards/doctor_dashboard.php
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55323 Closing
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55325 Accepted
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55326 Accepted
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55325 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55327 Accepted
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55326 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55327 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55325 Closing
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55326 Closing
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55327 Closing
+[Sat Feb 28 19:13:10 2026] 127.0.0.1:55329 Accepted
+[Sat Feb 28 19:13:11 2026] 127.0.0.1:55329 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:13:11 2026] 127.0.0.1:55329 Closing
+[Sat Feb 28 19:13:12 2026] 127.0.0.1:55332 Accepted
+[Sat Feb 28 19:13:13 2026] 127.0.0.1:55332 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:13:13 2026] 127.0.0.1:55332 Closing
+[Sat Feb 28 19:13:13 2026] 127.0.0.1:55334 Accepted
+[Sat Feb 28 19:13:14 2026] 127.0.0.1:55334 [200]: GET /favicon.ico
+[Sat Feb 28 19:13:14 2026] 127.0.0.1:55334 Closing
+[Sat Feb 28 19:13:15 2026] 127.0.0.1:55336 Accepted
+[Sat Feb 28 19:13:16 2026] 127.0.0.1:55336 [302]: GET /modules/feedback/survey.php
+[Sat Feb 28 19:13:16 2026] 127.0.0.1:55336 Closing
+[Sat Feb 28 19:13:16 2026] 127.0.0.1:55338 Accepted
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55338 [200]: GET /index.php
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55338 Closing
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55340 Accepted
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55340 [200]: GET /assets/css/login_style.css
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55340 Closing
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55341 Accepted
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55341 [200]: GET /assets/images/doctor_3d.png
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55341 Closing
+[Sat Feb 28 19:13:17 2026] 127.0.0.1:55342 Accepted
+[Sat Feb 28 19:13:19 2026] 127.0.0.1:55342 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:13:19 2026] 127.0.0.1:55342 Closing
+[Sat Feb 28 19:13:19 2026] 127.0.0.1:55344 Accepted
+[Sat Feb 28 19:13:20 2026] 127.0.0.1:55344 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:13:20 2026] 127.0.0.1:55344 Closing
+[Sat Feb 28 19:13:20 2026] 127.0.0.1:55347 Accepted
+[Sat Feb 28 19:13:21 2026] 127.0.0.1:55347 [200]: GET /favicon.ico
+[Sat Feb 28 19:13:21 2026] 127.0.0.1:55347 Closing
+[Sat Feb 28 19:13:41 2026] 127.0.0.1:55353 Accepted
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55353 [200]: POST /index.php
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55353 Closing
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55355 Accepted
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55355 [200]: GET /assets/css/login_style.css
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55356 Accepted
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55355 Closing
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55356 [200]: GET /assets/images/doctor_3d.png
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55356 Closing
+[Sat Feb 28 19:13:43 2026] 127.0.0.1:55357 Accepted
+[Sat Feb 28 19:13:44 2026] 127.0.0.1:55357 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:13:44 2026] 127.0.0.1:55357 Closing
+[Sat Feb 28 19:13:45 2026] 127.0.0.1:55360 Accepted
+[Sat Feb 28 19:13:46 2026] 127.0.0.1:55360 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:13:46 2026] 127.0.0.1:55360 Closing
+[Sat Feb 28 19:13:46 2026] 127.0.0.1:55362 Accepted
+[Sat Feb 28 19:13:47 2026] 127.0.0.1:55362 [200]: GET /favicon.ico
+[Sat Feb 28 19:13:47 2026] 127.0.0.1:55362 Closing
+[Sat Feb 28 19:13:52 2026] 127.0.0.1:55367 Accepted
+[Sat Feb 28 19:13:55 2026] 127.0.0.1:55367 [302]: POST /index.php
+[Sat Feb 28 19:13:55 2026] 127.0.0.1:55367 Closing
+[Sat Feb 28 19:13:55 2026] 127.0.0.1:55370 Accepted
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55370 [200]: GET /dashboards/doctor_dashboard.php
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55370 Closing
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55372 Accepted
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55373 Accepted
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55372 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55374 Accepted
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55373 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55374 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55372 Closing
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55373 Closing
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55374 Closing
+[Sat Feb 28 19:13:59 2026] 127.0.0.1:55375 Accepted
+[Sat Feb 28 19:14:00 2026] 127.0.0.1:55375 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:14:00 2026] 127.0.0.1:55375 Closing
+[Sat Feb 28 19:14:00 2026] 127.0.0.1:55377 Accepted
+[Sat Feb 28 19:14:02 2026] 127.0.0.1:55377 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:14:02 2026] 127.0.0.1:55377 Closing
+[Sat Feb 28 19:14:02 2026] 127.0.0.1:55379 Accepted
+[Sat Feb 28 19:14:03 2026] 127.0.0.1:55379 [200]: GET /favicon.ico
+[Sat Feb 28 19:14:03 2026] 127.0.0.1:55379 Closing
+[Sat Feb 28 19:16:56 2026] 127.0.0.1:55477 Accepted
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55477 [200]: GET /dashboards/doctor_dashboard.php
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55477 Closing
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55480 Accepted
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55481 Accepted
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55480 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55482 Accepted
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55481 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55482 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55480 Closing
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55481 Closing
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55482 Closing
+[Sat Feb 28 19:17:00 2026] 127.0.0.1:55483 Accepted
+[Sat Feb 28 19:17:02 2026] 127.0.0.1:55483 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:17:02 2026] 127.0.0.1:55483 Closing
+[Sat Feb 28 19:17:02 2026] 127.0.0.1:55485 Accepted
+[Sat Feb 28 19:17:03 2026] 127.0.0.1:55485 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:17:03 2026] 127.0.0.1:55485 Closing
+[Sat Feb 28 19:17:04 2026] 127.0.0.1:55487 Accepted
+[Sat Feb 28 19:17:05 2026] 127.0.0.1:55487 [200]: GET /favicon.ico
+[Sat Feb 28 19:17:05 2026] 127.0.0.1:55487 Closing
+[Sat Feb 28 19:22:00 2026] 127.0.0.1:55572 Accepted
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55572 [200]: GET /dashboards/doctor_dashboard.php
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55572 Closing
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55574 Accepted
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55575 Accepted
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55574 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55576 Accepted
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55575 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55576 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55574 Closing
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55575 Closing
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55576 Closing
+[Sat Feb 28 19:22:04 2026] 127.0.0.1:55577 Accepted
+[Sat Feb 28 19:22:05 2026] 127.0.0.1:55577 [200]: GET /apple-touch-icon-precomposed.png
+[Sat Feb 28 19:22:05 2026] 127.0.0.1:55577 Closing
+[Sat Feb 28 19:22:06 2026] 127.0.0.1:55579 Accepted
+[Sat Feb 28 19:22:07 2026] 127.0.0.1:55579 [200]: GET /apple-touch-icon.png
+[Sat Feb 28 19:22:07 2026] 127.0.0.1:55579 Closing
+[Sat Feb 28 19:22:07 2026] 127.0.0.1:55581 Accepted
+[Sat Feb 28 19:22:11 2026] 127.0.0.1:55581 [200]: GET /modules/ai/diagnosis_assist.php
+[Sat Feb 28 19:22:11 2026] 127.0.0.1:55581 Closing
+[Sat Feb 28 19:22:11 2026] 127.0.0.1:55583 Accepted
+[Sat Feb 28 19:22:11 2026] 127.0.0.1:55584 Accepted
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55583 [200]: GET /favicon.ico
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55583 Closing
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55585 Accepted
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55584 [200]: GET /assets/css/style.css
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55586 Accepted
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55585 [200]: GET /assets/js/main.js
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55586 [200]: GET /assets/js/fcm_init.js
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55584 Closing
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55585 Closing
+[Sat Feb 28 19:22:12 2026] 127.0.0.1:55586 Closing
+[Sat Feb 28 19:22:15 2026] 127.0.0.1:55588 Accepted
+[Sat Feb 28 19:22:16 2026] 127.0.0.1:55588 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Sat Feb 28 19:22:16 2026] 127.0.0.1:55588 Closing
+[Sat Feb 28 19:22:21 2026] 127.0.0.1:55592 Accepted
+[Sat Feb 28 19:22:22 2026] 127.0.0.1:55592 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Sat Feb 28 19:22:22 2026] 127.0.0.1:55592 Closing
+[Sat Feb 28 19:22:30 2026] 127.0.0.1:55598 Accepted
+[Sat Feb 28 19:22:31 2026] 127.0.0.1:55598 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Sat Feb 28 19:22:31 2026] 127.0.0.1:55598 Closing
+[Sat Feb 28 19:22:35 2026] 127.0.0.1:55601 Accepted
+[Sat Feb 28 19:22:37 2026] 127.0.0.1:55601 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Sat Feb 28 19:22:37 2026] 127.0.0.1:55601 Closing
+[Sat Feb 28 19:22:50 2026] 127.0.0.1:55611 Accepted
+[Sat Feb 28 19:22:51 2026] 127.0.0.1:55611 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Sat Feb 28 19:22:51 2026] 127.0.0.1:55611 Closing
+[Sat Feb 28 19:22:59 2026] 127.0.0.1:55614 Accepted
+[Sat Feb 28 19:23:00 2026] 127.0.0.1:55614 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Sat Feb 28 19:23:00 2026] 127.0.0.1:55614 Closing
+[Sat Feb 28 19:44:40 2026] 127.0.0.1:55940 Accepted
+[Sat Feb 28 19:44:40 2026] PHP Warning:  pg_connect(): Unable to connect to PostgreSQL server: could not translate host name &quot;aws-1-ap-southeast-2.pooler.supabase.com&quot; to address: nodename nor servname provided, or not known in /Users/mj/Downloads/Project_Main/ADMS/ADMS/includes/db.php on line 15
+[Sat Feb 28 19:44:40 2026] 127.0.0.1:55940 [200]: GET /modules/patient_management/nursing_station.php
+[Sat Feb 28 19:44:40 2026] 127.0.0.1:55940 Closing
+[Sat Feb 28 19:44:41 2026] 127.0.0.1:55942 Accepted
+[Sat Feb 28 19:44:41 2026] 127.0.0.1:55942 [200]: GET /firebase-messaging-sw.js
+[Sat Feb 28 19:44:41 2026] 127.0.0.1:55942 Closing
+[Sun Mar  1 08:51:59 2026] 127.0.0.1:59020 Accepted
+[Sun Mar  1 08:52:02 2026] 127.0.0.1:59020 [302]: GET /modules/patient_management/nursing_station.php
+[Sun Mar  1 08:52:02 2026] 127.0.0.1:59020 Closing
+[Sun Mar  1 08:52:02 2026] 127.0.0.1:59022 Accepted
+[Sun Mar  1 08:52:02 2026] 127.0.0.1:59022 [200]: GET /firebase-messaging-sw.js
+[Sun Mar  1 08:52:02 2026] 127.0.0.1:59022 Closing
+[Sun Mar  1 08:52:02 2026] 127.0.0.1:59025 Accepted
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59025 [200]: GET /index.php
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59025 Closing
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59027 Accepted
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59027 [200]: GET /firebase-messaging-sw.js
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59027 Closing
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59029 Accepted
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59029 [200]: GET /assets/css/login_style.css
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59029 Closing
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59030 Accepted
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59030 [200]: GET /assets/images/doctor_3d.png
+[Sun Mar  1 08:52:03 2026] 127.0.0.1:59030 Closing
+[Sun Mar  1 08:52:06 2026] 127.0.0.1:59032 Accepted
+[Sun Mar  1 08:52:09 2026] 127.0.0.1:59032 [200]: GET /apple-touch-icon-precomposed.png
+[Sun Mar  1 08:52:09 2026] 127.0.0.1:59032 Closing
+[Sun Mar  1 08:52:09 2026] 127.0.0.1:59033 Accepted
+[Sun Mar  1 08:52:09 2026] 127.0.0.1:59034 Accepted
+[Sun Mar  1 08:52:12 2026] 127.0.0.1:59033 [200]: GET /apple-touch-icon.png
+[Sun Mar  1 08:52:12 2026] 127.0.0.1:59033 Closing
+[Sun Mar  1 08:52:12 2026] 127.0.0.1:59035 Accepted
+[Sun Mar  1 08:52:14 2026] 127.0.0.1:59034 [200]: GET /favicon.ico
+[Sun Mar  1 08:52:14 2026] 127.0.0.1:59034 Closing
+[Sun Mar  1 08:52:14 2026] 127.0.0.1:59035 [200]: GET /assets/images/doctor_3d.png
+[Sun Mar  1 08:52:14 2026] 127.0.0.1:59035 Closing

@@ -140,9 +140,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </a></li>
         <?php endif; ?>
 
-        <li><a href="<?php echo BASE_URL; ?>/modules/feedback/survey.php">
-            <i class="fas fa-poll"></i> Feedback
-        </a></li>
 
         <div class="menu-category">Help</div>
         <li><a href="<?php echo BASE_URL; ?>/help_center.php">

@@ -244,12 +244,76 @@ def predict():
     # Returns unique meds
     suggested_meds = list(set(suggested_meds))
 
+    # --- Specialization Recommendation Logic ---
+    specialization_knowledge = {
+        "Fever": "General Medicine",
+        "Pain": "General Medicine",
+        "Headache": "Neurology",
+        "Migraine": "Neurology",
+        "Infection": "General Medicine",
+        "Hypertension": "Cardiology",
+        "Diabetes": "Endocrinology",
+        "Asthma": "Pulmonology",
+        "Respiratory Distress": "Pulmonology",
+        "Pneumonia": "Pulmonology",
+        "Acidity": "Gastroenterology",
+        "Myocardial Infarction": "Cardiology",
+        "Tension Headache": "Neurology",
+        "Myocardial Infarction Risk": "Cardiology",
+        "Stroke Risk": "Neurology",
+        "Laceration": "General Surgery",
+        "Tuberculosis": "Pulmonology",
+        "Hypertensive Crisis": "Cardiology",
+        "Severe Infection / Sepsis Risk": "Infectious Disease",
+        "Viral Fever": "General Medicine",
+        "Diabetic Ketoacidosis Risk": "Endocrinology"
+    }
+
+    recommended_specialization = "General Medicine" # Default
+    
+    # Check if the exact or partial string matches any known condition
+    for condition, spec in specialization_knowledge.items():
+        if condition.lower() in primary_prediction.lower():
+            recommended_specialization = spec
+            break
+
+    # Additional generic keyword fallbacks
+    if recommended_specialization == "General Medicine":
+        s_lower = symptoms.lower()
+        history_lower = history.lower()
+        combined_text = s_lower + " " + history_lower
+        
+        if "heart" in combined_text or "chest" in combined_text or "blood pressure" in combined_text or bp_sys > 140 or hr > 110:
+            recommended_specialization = "Cardiology"
+        elif "sugar" in combined_text or "diabetes" in combined_text or "glucose" in combined_text or glucose > 200:
+            recommended_specialization = "Endocrinology"
+        elif "breath" in combined_text or "lungs" in combined_text or "cough" in combined_text or "wheeze" in combined_text:
+            recommended_specialization = "Pulmonology"
+        elif "stomach" in combined_text or "digest" in combined_text or "vomit" in combined_text or "nausea" in combined_text:
+            recommended_specialization = "Gastroenterology"
+        elif "headache" in combined_text or "dizzy" in combined_text or "brain" in combined_text:
+            recommended_specialization = "Neurology"
+        elif "bone" in combined_text or "joint" in combined_text or "muscle" in combined_text or "fracture" in combined_text:
+            recommended_specialization = "Orthopedics"
+        elif "skin" in combined_text or "rash" in combined_text or "itch" in combined_text:
+            recommended_specialization = "Dermatology"
+        elif "eye" in combined_text or "vision" in combined_text:
+            recommended_specialization = "Ophthalmology"
+        elif "ear" in combined_text or "nose" in combined_text or "throat" in combined_text:
+            recommended_specialization = "ENT"
+        elif "child" in combined_text or "baby" in combined_text or "pediatric" in combined_text:
+            recommended_specialization = "Pediatrics"
+        elif "women" in combined_text or "pregnancy" in combined_text or "period" in combined_text:
+            recommended_specialization = "Gynecology"
+        elif "cut" in combined_text or "bleed" in combined_text or "wound" in combined_text:
+            recommended_specialization = "General Surgery"
+
     return jsonify({
         "disease": primary_prediction,
         "urgency": urgency,
         "probabilities": top_3,
         "vitals_analysis": pre_diagnosis,
-        "specialization": "General Medicine",
+        "specialization": recommended_specialization,
         "suggested_medication": suggested_meds
     })
 

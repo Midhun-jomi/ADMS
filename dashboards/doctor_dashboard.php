@@ -114,6 +114,9 @@ $v_total = $visitor_stats['total'] ?? 0;
 $v_male = $visitor_stats['male'] ?? 0;
 $v_female = $visitor_stats['female'] ?? 0;
 $v_child = $visitor_stats['child'] ?? 0;
+
+// Fetch all patients for Vitals dropdown, ordered by first_name
+$all_patients = db_select("SELECT id, first_name, last_name FROM patients ORDER BY first_name ASC");
 ?>
 
 <!-- Chart.js -->
@@ -395,9 +398,7 @@ if ($active_patient) {
         </p>
     </div>
     <div class="date-controls">
-        <button class="control-pill active" onclick="document.getElementById('vitalsModal').style.display='block'">
-            <i class="fas fa-plus"></i> Add Vitals
-        </button>
+        
         <div class="control-pill"><i class="far fa-calendar"></i> <?php echo date('d M Y'); ?></div>
     </div>
 </div>
@@ -413,9 +414,10 @@ if ($active_patient) {
             <div class="form-group" style="margin-bottom: 15px;">
                 <label>Select Patient</label>
                 <select name="v_patient_id" class="form-control" required>
-                    <?php foreach ($todays_appts as $appt): ?>
-                        <option value="<?php echo $appt['patient_id']; ?>">
-                            <?php echo htmlspecialchars($appt['first_name'] . ' ' . $appt['last_name']); ?>
+                    <option value="">-- Select Patient --</option>
+                    <?php foreach ($all_patients as $patient): ?>
+                        <option value="<?php echo $patient['id']; ?>">
+                            <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

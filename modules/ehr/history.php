@@ -173,18 +173,7 @@ $lab_results = db_select("
             </div>
         </div>
         
-        <?php if ($role === 'doctor' || $role === 'admin'): ?>
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                Actions
-            </div>
-            <div class="list-group list-group-flush">
-                <a href="../prescriptions/create.php?patient_id=<?php echo $patient['id']; ?>" class="list-group-item list-group-item-action"><i class="fas fa-prescription"></i> Write Prescription</a>
-                <a href="../appointments/book_appointment.php?patient_id=<?php echo $patient['id']; ?>" class="list-group-item list-group-item-action"><i class="fas fa-calendar-plus"></i> Book Follow-up</a>
-                <a href="../patient_management/admit_patient.php?patient_id=<?php echo $patient['id']; ?>" class="list-group-item list-group-item-action"><i class="fas fa-procedures"></i> Admit Patient</a>
-            </div>
-        </div>
-        <?php endif; ?>
+
     </div>
 
     <div class="col-md-9">
