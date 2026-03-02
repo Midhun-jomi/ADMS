@@ -302,8 +302,8 @@ $latest_triage = db_select_one("SELECT * FROM triage_analysis WHERE patient_id =
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         My Health Overview
         <div>
-            <a href="/modules/ai/triage_form.php" class="btn-sm btn-info" style="text-decoration: none; margin-right: 10px; color: white;">
-                <i class="fas fa-notes-medical"></i> Symptom Checker
+            <a href="/modules/patient_management/symptom_checker.php" class="btn-sm btn-info" style="text-decoration: none; margin-right: 10px; color: white; background-color: #0284c7; border: none;">
+                <i class="fas fa-robot"></i> AI Symptom Checker
             </a>
             <a href="/modules/ehr/edit_profile.php" class="btn-sm btn-primary" style="text-decoration: none;">
                 <i class="fas fa-user-edit"></i> Edit Profile

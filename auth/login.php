@@ -176,7 +176,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
 
         <p style="margin-top: 20px; font-size: 0.9em; color: #718096;">
-            New to Hospital+? <a href="signup.php">Create Patient Account</a>
+            New to Hospital+? <a href="../index.php">Create Patient Account</a>
         </p>
     </div>
 </body>

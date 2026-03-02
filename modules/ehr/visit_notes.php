@@ -446,8 +446,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
                            JOIN patients p ON a.patient_id = p.id 
                            JOIN users u ON p.user_id = u.id 
                            WHERE a.id = $1", [$appointment_id]);
-    // 4. Handle Vitals Submission (Doctor Entry)
-    if (isset($_POST['record_vitals'])) {
+    // 4. Handle Vitals Submission (Doctor/Nurse Entry)
+    if (isset($_POST['record_vitals']) || isset($_POST['edit_vitals'])) {
         $metrics = [
             'heart_rate' => ['val' => $_POST['heart_rate'], 'unit' => 'bpm'],
             'bp_systolic' => ['val' => $_POST['bp_systolic'], 'unit' => 'mmHg'],
@@ -461,6 +461,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
         foreach ($metrics as $type => $data) {
             if ($data['val'] !== '') {
                 $json_val = json_encode(['value' => $data['val'], 'unit' => $data['unit']]);
+                
+                if (isset($_POST['edit_vitals'])) {
+                    $exists = db_select_one("SELECT id FROM patient_health_metrics WHERE appointment_id = $1 AND metric_type = $2", [$appointment_id, $type]);
+                    if ($exists) {
+                        db_query("UPDATE patient_health_metrics SET metric_value = $1, recorded_by = $2 WHERE id = $3", [$json_val, get_user_id(), $exists['id']]);
+                        continue;
+                    }
+                }
+                
                 db_insert('patient_health_metrics', [
                     'patient_id' => $patient_id,
                     'appointment_id' => $appointment_id,
@@ -483,7 +492,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
             }
         }
 
-        $success = "Vitals recorded successfully. You may now proceed with the consultation.";
+        $success = isset($_POST['edit_vitals']) ? "Vitals updated successfully." : "Vitals recorded successfully. You may now proceed with the consultation.";
     }
 }
 
@@ -659,7 +668,17 @@ function callPatient() {
         </div>
 
         <div class="profile-card" style="text-align: left;">
-            <div class="section-title" style="margin-bottom: 15px;"><i class="fas fa-heartbeat" style="color: #e91e63;"></i> Visit Vitals</div>
+            <div class="section-title" style="margin-bottom: 15px;">
+                <i class="fas fa-heartbeat" style="color: #e91e63;"></i>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <?php if ($role === 'doctor' && $appt['status'] !== 'completed' && !empty($latest_vitals)): ?>
+                        <button type="button" class="btn btn-sm btn-outline-primary" style="padding: 2px 10px; font-size: 0.8em; border-radius: 15px;" onclick="openEditVitalsModal()" title="Edit Vitals">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    <?php endif; ?>
+                    <span>Visit Vitals</span>
+                </div>
+            </div>
             <?php if (empty($latest_vitals)): ?>
                 <div style="text-align: center; padding: 15px; background: #fffcf0; border: 1px dashed #f6ad55; border-radius: 10px;">
                     <i class="fas fa-user-nurse" style="font-size: 1.5rem; color: #f6ad55; margin-bottom: 10px; display: block;"></i>
@@ -1310,6 +1329,51 @@ function submitValidCompletion() {
     </div>
 </div>
 
+<!-- Edit Vitals Modal -->
+<div id="editVitalsModal" class="lab-modal">
+    <div class="lab-modal-content">
+        <h4 style="margin-top: 0; color: #21a9af; margin-bottom: 20px;"><i class="fas fa-heartbeat"></i> Edit Patient Vitals</h4>
+        
+        <form method="POST">
+            <input type="hidden" name="edit_vitals" value="1">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label style="font-size: 0.9em; font-weight: 600;">Heart Rate (bpm)</label>
+                    <input type="number" name="heart_rate" class="form-control" placeholder="e.g. 72" value="<?php echo htmlspecialchars($latest_vitals['heart_rate']['value'] ?? ''); ?>" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label style="font-size: 0.9em; font-weight: 600;">BP Systolic (mmHg)</label>
+                    <input type="number" name="bp_systolic" class="form-control" placeholder="e.g. 120" value="<?php echo htmlspecialchars($latest_vitals['bp_systolic']['value'] ?? ''); ?>" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label style="font-size: 0.9em; font-weight: 600;">BP Diastolic (mmHg)</label>
+                    <input type="number" name="bp_diastolic" class="form-control" placeholder="e.g. 80" value="<?php echo htmlspecialchars($latest_vitals['bp_diastolic']['value'] ?? ''); ?>" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label style="font-size: 0.9em; font-weight: 600;">Temperature (°F)</label>
+                    <input type="number" name="temperature" class="form-control" step="0.1" placeholder="e.g. 98.6" value="<?php echo htmlspecialchars($latest_vitals['temperature']['value'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label style="font-size: 0.9em; font-weight: 600;">O2 Saturation (%)</label>
+                    <input type="number" name="oxygen_saturation" class="form-control" max="100" placeholder="e.g. 98" value="<?php echo htmlspecialchars($latest_vitals['oxygen_saturation']['value'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label style="font-size: 0.9em; font-weight: 600;">Weight (kg)</label>
+                    <input type="number" name="weight" class="form-control" step="0.1" placeholder="e.g. 70" value="<?php echo htmlspecialchars($latest_vitals['weight']['value'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label style="font-size: 0.9em; font-weight: 600;">Random Glucose (mg/dL)</label>
+                    <input type="number" name="glucose" class="form-control" placeholder="e.g. 100" value="<?php echo htmlspecialchars($latest_vitals['glucose']['value'] ?? ''); ?>">
+                </div>
+            </div>
+            <div class="modal-actions" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-secondary" onclick="closeEditVitalsModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="background: #21a9af; border: none;">Update Vitals</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Radiology Modal -->
 <div id="radModal" class="lab-modal">
     <div class="lab-modal-content">
@@ -1523,14 +1587,24 @@ function submitValidCompletion() {
     calculateQty();
 
 
+    function openEditVitalsModal() {
+        document.getElementById('editVitalsModal').style.display = 'flex';
+    }
+    function closeEditVitalsModal() {
+        document.getElementById('editVitalsModal').style.display = 'none';
+    }
+
     // Close modal if clicked outside
     window.onclick = function(event) {
         const labModal = document.getElementById('labModal');
         const medModal = document.getElementById('medModal');
         const viewLabModal = document.getElementById('viewLabModal');
+        const editVitalsModal = document.getElementById('editVitalsModal');
+        
         if (event.target == labModal) closeLabModal();
         if (event.target == medModal) closeMedModal();
         if (event.target == viewLabModal) closeViewLabModal();
+        if (event.target == editVitalsModal) closeEditVitalsModal();
     }
     function getAIInsights() {
         const notes = document.getElementById('clinicalNotes').value;

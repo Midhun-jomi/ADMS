@@ -1,0 +1,37 @@
+Loaded 12 medicines from database.
+Training model on 200 records...
+Model training complete.
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.141.242.146:5001
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [02/Mar/2026 12:21:02] "POST /predict HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:21:21] "POST /predict HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:22:57] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:22:57] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:23:01] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:23:10] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:23:10] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:26:19] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:26:19] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:26:30] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:26:30] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:26:52] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:26:52] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:26:56] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:27:01] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:27:01] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:30:56] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:30:56] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:30:57] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:37:42] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:37:42] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:37:43] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:53:18] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:53:18] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:53:23] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:53:27] "OPTIONS /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Mar/2026 12:53:27] "POST /symptom_chat HTTP/1.1" 200 -

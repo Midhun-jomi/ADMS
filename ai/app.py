@@ -409,7 +409,174 @@ def suggest_alternative():
             "dosage": "N/A"
         })
 
+# --- 7. Interactive Symptom Checker (Rule-Based Chatbot) ---
+@app.route('/symptom_chat', methods=['POST'])
+def symptom_chat():
+    data = request.json
+    if not data or 'messages' not in data:
+        return jsonify({"error": "No message history provided"}), 400
+        
+    messages = data['messages'] # List of dicts: {'role': 'user'|'assistant', 'content': '...'}
+    
+    # 1. First user message (Extract primary symptom)
+    first_user_msg = ""
+    for m in messages:
+        if m['role'] == 'user':
+            first_user_msg = m['content'].lower()
+            break
+            
+    # 2. Latest user message
+    latest_user_msg = messages[-1]['content'].lower() if messages[-1]['role'] == 'user' else ""
+    
+    # 3. Determine turn count (pairs of user/assistant)
+    turn_count = len([m for m in messages if m['role'] == 'user'])
+    
+    # --- HARDCODED DECISION TREES ---
+    
+    # --- Tree: HEADACHE ---
+    if "head" in first_user_msg or "migraine" in first_user_msg:
+        if turn_count == 1:
+            return jsonify({
+                "reply": "I see you have a headache. Which side of your head hurts the most? (e.g., Left, Right, Both, Front, Back)",
+                "finished": False
+            })
+        elif turn_count == 2:
+            if "one" in latest_user_msg or "left" in latest_user_msg or "right" in latest_user_msg:
+                return jsonify({
+                    "reply": "Do you also feel nauseous or have sensitivity to light?",
+                    "finished": False
+                })
+            else:
+                return jsonify({
+                    "reply": "Does it feel like a tight band wrapped around your head?",
+                    "finished": False
+                })
+        elif turn_count >= 3:
+            # Final Diagnosis for Headache branch
+            if "yes" in latest_user_msg or "nausea" in latest_user_msg or "light" in latest_user_msg:
+                return jsonify({
+                    "reply": "Based on your symptoms (one-sided headache, nausea/light sensitivity), you might be experiencing a **Migraine**. Please consult a Neurologist or General Physician for proper medication.",
+                    "diagnosis": "Migraine",
+                    "urgency": "Medium",
+                    "finished": True
+                })
+            else:
+                return jsonify({
+                    "reply": "This sounds like a standard **Tension Headache**. Resting, drinking water, and over-the-counter pain relievers (like Paracetamol) usually help. If it persists, see a doctor.",
+                    "diagnosis": "Tension Headache",
+                    "urgency": "Low",
+                    "finished": True
+                })
+
+    # --- Tree: CHEST / HEART ---
+    elif "chest" in first_user_msg or "heart" in first_user_msg or "breath" in first_user_msg:
+        if turn_count == 1:
+            return jsonify({
+                "reply": "Chest symptoms can be serious. Is the pain radiating to your left arm, jaw, or back, OR are you having severe shortness of breath?",
+                "finished": False
+            })
+        elif turn_count >= 2:
+            if "yes" in latest_user_msg or "severe" in latest_user_msg or "arm" in latest_user_msg:
+                # Immediate red flag
+                return jsonify({
+                    "reply": "⚠️ **CRITICAL ALERT:** Your symptoms (chest pain radiating, severe shortness of breath) strongly suggest a cardiac event (Heart Attack). **Seek emergency medical care immediately.** Do not wait.",
+                    "diagnosis": "Myocardial Infarction / Cardiac Arrest Risk",
+                    "urgency": "Critical",
+                    "finished": True
+                })
+            else:
+                return jsonify({
+                    "reply": "Since there is no severe radiation or shortness of breath, it might be muscle strain or acidity, but **chest pain should always be evaluated by a doctor**. Please visit the OPD today.",
+                    "diagnosis": "Unspecified Chest Pain",
+                    "urgency": "High",
+                    "finished": True
+                })
+
+    # --- Tree: STOMACH / ABDOMEN ---
+    elif "stomach" in first_user_msg or "belly" in first_user_msg or "abdom" in first_user_msg or "vomit" in first_user_msg or "pain" in first_user_msg:
+        if turn_count == 1:
+            return jsonify({
+                "reply": "Where exactly is the stomach pain located? (e.g., Upper, Lower, Right side, Left side, All over)",
+                "finished": False
+            })
+        elif turn_count == 2:
+            if "right" in latest_user_msg and "lower" in latest_user_msg:
+                return jsonify({
+                    "reply": "Do you also have a fever, or does the pain get worse with movement?",
+                    "finished": False
+                })
+            elif "upper" in latest_user_msg or "burn" in latest_user_msg:
+                return jsonify({
+                    "reply": "Does it feel like a burning sensation, especially after eating?",
+                    "finished": False
+                })
+            else:
+                return jsonify({
+                    "reply": "Are you experiencing any nausea, vomiting, or diarrhea?",
+                    "finished": False
+                })
+        elif turn_count >= 3:
+            # Final abdomen diagnosis
+            if "right" in [m['content'].lower() for m in messages] and "yes" in latest_user_msg:
+                 return jsonify({
+                    "reply": "⚠️ **HIGH PRIORITY:** Pain in the lower right abdomen along with fever/worsening pain could indicate **Appendicitis**. Please visit the Emergency Room immediately.",
+                    "diagnosis": "Possible Appendicitis",
+                    "urgency": "Critical",
+                    "finished": True
+                })
+            elif "burn" in [m['content'].lower() for m in messages] or "yes" in latest_user_msg:
+                return jsonify({
+                    "reply": "This sounds like **Gastritis or Acid Reflux** (Acidity). Try to avoid spicy food and consider an antacid. Consult a General Physician if it persists.",
+                    "diagnosis": "Gastritis/Acidity",
+                    "urgency": "Low",
+                    "finished": True
+                })
+            else:
+                return jsonify({
+                    "reply": "You might have a mild gastrointestinal infection or food poisoning. Stay hydrated! See a doctor if symptoms worsen.",
+                    "diagnosis": "Gastroenteritis",
+                    "urgency": "Medium",
+                    "finished": True
+                })
+    
+    # --- Generic Fallback ---
+    else:
+        if turn_count == 1:
+            return jsonify({
+                "reply": "Could you provide a few more details? How long have you been experiencing this, and are there any other symptoms?",
+                "finished": False
+            })
+        elif turn_count >= 2:
+            # Use the existing ML predict model locally!
+            try:
+                # Compile all user messages into one symptom string
+                all_symptoms = " ".join([m['content'] for m in messages if m['role'] == 'user'])
+                
+                # Mock a request to the predict function internally
+                text_input = f"{all_symptoms}"
+                text_vec = vectorizer.transform([text_input])
+                probs = model.predict_proba(text_vec)[0]
+                classes = model.classes_
+                sorted_probs = sorted(zip(classes, probs), key=lambda x: x[1], reverse=True)
+                
+                prediction = sorted_probs[0][0] if sorted_probs else "General Malaise"
+                
+                return jsonify({
+                    "reply": f"Based on our model analysis of all your symptoms, this aligns with **{prediction}**. Please consult a doctor for a professional diagnosis.",
+                    "diagnosis": prediction,
+                    "urgency": "Medium",
+                    "finished": True
+                })
+            except Exception as e:
+                return jsonify({
+                    "reply": "Thank you for the information. Please consult a doctor for a proper diagnosis.",
+                    "diagnosis": "General symptoms",
+                    "urgency": "Medium",
+                    "finished": True
+                })
+
 if __name__ == '__main__':
     load_med_db()
     train_model()
     app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
+
