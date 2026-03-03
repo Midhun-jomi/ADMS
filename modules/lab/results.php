@@ -98,6 +98,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($role === 'lab_tech' || $role === '
         }
     }
     
+    // Handle optional Scan File Upload
+    $scan_file_path = '';
+    if (isset($_FILES['scan_report']) && $_FILES['scan_report']['error'] == 0) {
+        $upload_dir = __DIR__ . '/../../assets/uploads/scans/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        $ext = strtolower(pathinfo($_FILES['scan_report']['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
+        if (in_array($ext, $allowed)) {
+            $filename = "scan_" . $test_id . "_" . time() . "." . $ext;
+            $target_file = $upload_dir . $filename;
+            if (move_uploaded_file($_FILES['scan_report']['tmp_name'], $target_file)) {
+                $scan_file_path = "/assets/uploads/scans/" . $filename;
+            }
+        }
+    }
+
     // Create a structured JSON for the result
     $result_array = [
         'summary' => $findings, 
@@ -105,7 +123,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($role === 'lab_tech' || $role === '
         'normal_range' => $normal_range,
         'comments' => $comments,
         'details' => $details,
-        'date' => date('Y-m-d')
+        'date' => date('Y-m-d'),
+        'scan_file' => $scan_file_path
     ];
     
     $result_json = json_encode($result_array, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT);
@@ -124,6 +143,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($role === 'lab_tech' || $role === '
 }
 
 $result_data = json_decode($test['result_data'] ?? '{}', true);
+
+// Check if this is a CBC test
+$is_cbc = false;
+$is_lipid = false;
+$tname = strtolower($test['test_type']);
+if (strpos($tname, 'cbc') !== false || strpos($tname, 'complete blood count') !== false) {
+    $is_cbc = true;
+}
+if (strpos($tname, 'lipid') !== false) {
+    $is_lipid = true;
+}
+$is_lft = false;
+if (strpos($tname, 'lft') !== false || strpos($tname, 'liver function') !== false) {
+    $is_lft = true;
+}
+$is_sugar = false;
+if (strpos($tname, 'sugar') !== false || strpos($tname, 'glucose') !== false) {
+    $is_sugar = true;
+}
+$is_thyroid = false;
+if (strpos($tname, 'thyroid') !== false || strpos($tname, 'tft') !== false) {
+    $is_thyroid = true;
+}
+$is_electro = false;
+if (strpos($tname, 'electrolyte') !== false) {
+    $is_electro = true;
+}
+$is_scan = false;
+$scan_keywords = ['x-ray', 'mri', 'ct scan', 'ultrasound', 'ecg', 'scan'];
+foreach ($scan_keywords as $kw) {
+    if (strpos($tname, $kw) !== false) {
+        $is_scan = true;
+        break;
+    }
+}
+
+// Function to determine if a value is out of its reference range
+function get_range_status($value, $range) {
+    if (empty($value) || empty($range)) return '';
+    // Basic extraction (e.g. "13.0 - 17.0" or "4000-11000")
+    if (preg_match('/([\d\.]+)\s*-\s*([\d\.]+)/', $range, $matches)) {
+        $min = (float)$matches[1];
+        $max = (float)$matches[2];
+        $val = (float)$value;
+        if ($val < $min) return 'Low';
+        if ($val > $max) return 'High';
+    }
+    return '';
+}
 ?>
 
 <style>
@@ -144,9 +212,24 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
         padding: 40px 50px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         color: var(--text-primary);
-        font-family: 'Times New Roman', Times, serif; /* Formal serif for reports */
+        font-family: 'Helvetica', 'Arial', sans-serif;
         position: relative;
     }
+
+    /* CBC Specific Styling */
+    .cbc-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11pt; }
+    .cbc-table th { border-top: 2px solid var(--text-primary); border-bottom: 1px solid var(--border-color); padding: 8px 5px; text-transform: uppercase; font-size: 10pt; }
+    .cbc-table td { padding: 6px 5px; border-bottom: none; }
+    .cbc-group-header { font-weight: bold; text-transform: uppercase; padding-top: 15px !important; }
+    .val-low { color: #2b6cb0; font-weight: bold; }
+    .val-high { color: #e53e3e; font-weight: bold; }
+    .val-flag { font-size: 9pt; margin-left: 10px; font-weight: bold; }
+    .flag-low { color: #2b6cb0; }
+    .flag-high { color: #e53e3e; }
+    .flag-borderline { color: #dd6b20; }
+    
+    .cbc-title-container { border-bottom: 2px solid var(--text-primary); margin-bottom: 15px; padding-bottom: 5px; text-align: center; }
+    .cbc-title { font-size: 16pt; font-weight: bold; }
 
     .report-header {
         border-bottom: 2px solid var(--accent-color);
@@ -213,10 +296,22 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
         text-align: center;
         font-size: 9pt;
         color: #718096;
-        position: absolute;
-        bottom: 40px;
-        width: calc(100% - 100px);
+        padding-bottom: 40px; /* Instead of absolute positioning to allow dynamic height */
     }
+
+    .signature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 60px;
+        text-align: center;
+    }
+    .sig-line {
+        border-top: 1px solid #cbd5e0;
+        width: 80%;
+        margin: 0 auto 5px;
+    }
+    .sig-name { font-weight: bold; font-size: 10pt; color: #2d3748; }
+    .sig-title { font-size: 9pt; color: #718096; }
 
     .watermark {
         position: absolute;
@@ -321,6 +416,7 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
         <?php 
         $show_results = true;
         if ($role === 'patient') {
+
             // Re-verify payment logic (same as before)
             // ... [Keep existing payment check logic simplified for brevity but functionally effectively]
              $raw_bill_check = db_select_one("SELECT id FROM billing WHERE patient_id = $1 AND status = 'paid' AND total_amount > 0 LIMIT 1", [$test['patient_id']]);
@@ -336,56 +432,637 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
         ?>
 
         <?php if ($test['status'] === 'completed' && $show_results): ?>
-            <div class="results-section">
-                <h3>Clinical Findings</h3>
-                <div class="results-content">
-                    <?php echo nl2br(htmlspecialchars($result_data['findings'] ?? $result_data['summary'] ?? 'No findings recorded.')); ?>
-                </div>
-
-                <!-- Normal Range Block Removed as per request -->
-
-                <?php if (!empty($result_data['comments'])): ?>
-                <div style="margin-top: 20px;">
-                    <strong style="color: #4a5568; text-transform: uppercase; font-size: 0.85em;">Pathologist Comments</strong>
-                    <p style="margin-top: 5px;">
-                        <?php echo nl2br(htmlspecialchars($result_data['comments'])); ?>
-                    </p>
-                </div>
-                <?php endif; ?>
-            </div>
             
-            <?php if (!empty($result_data['details'])): ?>
-            <div class="results-section" style="margin-top: 30px;">
-                <h3>Detailed Metrics</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                    <thead style="border-bottom: 2px solid #cbd5e0;">
+            <?php if ($is_cbc): ?>
+                <div class="cbc-title-container">
+                    <div class="cbc-title">Complete Blood Count (CBC)</div>
+                </div>
+                
+                <table class="cbc-table">
+                    <thead>
                         <tr style="text-align: left;">
-                            <th style="padding: 8px;">Metric</th>
-                            <th style="padding: 8px;">Value</th>
-                            <th style="padding: 8px;">Unit</th>
-                            <th style="padding: 8px;">Range</th>
+                            <th style="width: 45%;">Investigation</th>
+                            <th style="width: 15%;">Result</th>
+                            <th style="width: 15%;">Reference Value</th>
+                            <th style="width: 25%;">Unit</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Mock row if details missing -->
+                        <tr><td colspan="4" style="padding: 10px 5px;">Primary Sample Type : &nbsp;&nbsp;&nbsp;Blood</td></tr>
+                        
+                        <?php 
+                        // CBC Logical Grouping Array
+                        $cbc_groups = [
+                            'HEMOGLOBIN' => ['Hemoglobin (Hb)', 'Hemoglobin'],
+                            'RBC COUNT' => ['Total RBC count', 'RBC COUNT'],
+                            'BLOOD INDICES' => ['Packed Cell Volume (PCV)', 'Mean Corpuscular Volume (MCV)', 'MCH', 'MCHC', 'RDW'],
+                            'WBC COUNT' => ['Total WBC count', 'WBC COUNT'],
+                            'DIFFERENTIAL WBC COUNT' => ['Neutrophils', 'Lymphocytes', 'Eosinophils', 'Monocytes', 'Basophils'],
+                            'PLATELET COUNT' => ['Platelet Count', 'Platelets']
+                        ];
+                        
+                        $processed_metrics = [];
+                        if (!empty($result_data['details'])) {
+                            // First pass: group known items
+                            foreach ($cbc_groups as $group_name => $expected_metrics) {
+                                $group_html = "";
+                                $has_items = false;
+                                
+                                foreach ($result_data['details'] as $metric) {
+                                    foreach ($expected_metrics as $expected) {
+                                        // Case insensitive partial match
+                                        if (stripos(trim($metric['name']), trim($expected)) !== false && !in_array($metric['name'], $processed_metrics)) {
+                                            $has_items = true;
+                                            $processed_metrics[] = $metric['name'];
+                                            
+                                            $val = trim($metric['value']);
+                                            $range = trim($metric['range']);
+                                            $status = get_range_status($val, $range);
+                                            
+                                            $val_class = '';
+                                            $flag_html = '';
+                                            if ($status === 'Low') {
+                                                $val_class = 'val-low';
+                                                $flag_html = '<span class="val-flag flag-low">Low</span>';
+                                            } elseif ($status === 'High') {
+                                                $val_class = 'val-high';
+                                                $flag_html = '<span class="val-flag flag-high">High</span>';
+                                            }
+                                            
+                                            // Special borderline visual for platelets if near edge (optional fine-tuning)
+                                            if ($status === '' && stripos($metric['name'], 'platelet') !== false) {
+                                                if ((float)$val > 140000 && (float)$val < 160000) {
+                                                    $val_class = 'flag-borderline';
+                                                    $flag_html = '<span class="val-flag flag-borderline">Borderline</span>';
+                                                }
+                                            }
+
+                                            $group_html .= "<tr>";
+                                            $group_html .= "<td>" . htmlspecialchars($metric['name']);
+                                            if (in_array(strtoupper($expected), ['PCV', 'MCV', 'MCH', 'MCHC', 'RDW'])) {
+                                                $group_html .= "<br><small style='font-size: 7pt; color: #a0aec0;'>Calculated</small>";
+                                            }
+                                            $group_html .= "</td>";
+                                            
+                                            $group_html .= "<td class='$val_class'>" . htmlspecialchars($val) . "</td>";
+                                            $group_html .= "<td>$flag_html " . htmlspecialchars($range) . "</td>";
+                                            $group_html .= "<td>" . htmlspecialchars($metric['unit']) . "</td>";
+                                            $group_html .= "</tr>";
+                                        }
+                                    }
+                                }
+                                
+                                if ($has_items) {
+                                    echo "<tr><td colspan='4' class='cbc-group-header'>$group_name</td></tr>";
+                                    echo $group_html;
+                                }
+                            }
+                            
+                            // Second pass: Any ungrouped items
+                            $has_other = false;
+                            $other_html = "";
+                            foreach ($result_data['details'] as $metric) {
+                                if (!in_array($metric['name'], $processed_metrics)) {
+                                    if (!$has_other) {
+                                        echo "<tr><td colspan='4' class='cbc-group-header'>OTHER INVESTIGATIONS</td></tr>";
+                                        $has_other = true;
+                                    }
+                                    $val = trim($metric['value']);
+                                    $range = trim($metric['range']);
+                                    $status = get_range_status($val, $range);
+                                    
+                                    $val_class = ''; $flag_html = '';
+                                    if ($status === 'Low') { $val_class = 'val-low'; $flag_html = '<span class="val-flag flag-low">Low</span>'; }
+                                    elseif ($status === 'High') { $val_class = 'val-high'; $flag_html = '<span class="val-flag flag-high">High</span>'; }
+
+                                    echo "<tr>";
+                                    echo "<td>" . htmlspecialchars($metric['name']) . "</td>";
+                                    echo "<td class='$val_class'>" . htmlspecialchars($val) . "</td>";
+                                    echo "<td>$flag_html " . htmlspecialchars($range) . "</td>";
+                                    echo "<td>" . htmlspecialchars($metric['unit']) . "</td>";
+                                    echo "</tr>";
+                                }
+                            }
+                        } else {
+                            echo "<tr><td colspan='4' style='text-align:center;'>Detailed metrics not available.</td></tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+                <br>
+                <div style="font-size: 10pt; line-height: 1.5; margin-top: 20px;">
+                    <strong>Instruments:</strong> Fully automated cell counter - Mindray 300<br>
+                    <strong>Interpretation:</strong> <?php echo nl2br(htmlspecialchars($result_data['findings'] ?? $result_data['summary'] ?? 'N/A')); ?><br>
+                </div>
+            <?php elseif ($is_lipid): ?>
+                <div class="cbc-title-container" style="border-bottom: 2px solid #2d3748; padding-bottom: 5px; margin-bottom: 15px; text-align: center;">
+                    <div style="font-size: 14pt; font-weight: bold; margin-bottom: 5px;">BIOCHEMISTRY</div>
+                    <div class="cbc-title" style="font-size: 12pt; font-weight: bold;">LIPID PROFILE</div>
+                </div>
+                
+                <table class="cbc-table">
+                    <thead>
+                        <tr style="text-align: left;">
+                            <th style="width: 45%;">TEST</th>
+                            <th style="width: 15%;">VALUE</th>
+                            <th style="width: 15%;">UNIT</th>
+                            <th style="width: 25%;">REFERENCE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <?php if (!empty($result_data['details'])): ?>
                             <?php foreach ($result_data['details'] as $metric): ?>
-                            <tr style="border-bottom: 1px solid #edf2f7;">
-                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['name'] ?? 'Unknown'); ?></td>
-                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['value'] ?? '-'); ?></td>
-                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['unit'] ?? ''); ?></td>
-                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['range'] ?? ''); ?></td>
-                            </tr>
+                                <?php 
+                                    $val = trim($metric['value']);
+                                    $range = trim($metric['range']);
+                                    $status = get_range_status($val, $range);
+                                    
+                                    $val_disp = htmlspecialchars($val);
+                                    if ($status === 'Low') {
+                                        $val_disp = "<strong style='display:inline-block; width:20px;'>L</strong> " . $val_disp;
+                                    } elseif ($status === 'High') {
+                                        $val_disp = "<strong style='display:inline-block; width:20px;'>H</strong> " . $val_disp;
+                                    } else {
+                                        $val_disp = "<span style='display:inline-block; width:24px;'></span>" . $val_disp;
+                                    }
+                                ?>
+                                <tr style="border-bottom: 1px solid #edf2f7;">
+                                    <td><?php echo htmlspecialchars($metric['name']); ?></td>
+                                    <td><?php echo $val_disp; ?></td>
+                                    <td><?php echo htmlspecialchars($metric['unit']); ?></td>
+                                    <td><?php echo htmlspecialchars($range); ?></td>
+                                </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr style="border-bottom: 1px solid #edf2f7;">
-                                <td colspan="4" style="padding: 8px; text-align: center; color: #718096; font-style: italic;">Detailed metrics not available.</td>
-                            </tr>
+                            <tr><td colspan='4' style='text-align:center;'>Detailed metrics not available.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
-            <?php endif; ?>
+                <br>
+                <!-- Disclaimer Text -->
+                <div style="font-size: 8.5pt; line-height: 1.4; text-align: justify; margin-top: 10px; color: #2d3748; background: #fdfdfd; padding: 10px; border: 1px solid #e2e8f0;">
+                    <p style="margin-bottom: 8px;">Abnormalities of lipids are associated with increased risk of coronary artery disease (CAD) in patients with DM. This risk can be reduced by intensive treatment of lipid abnormalities. The usual pattern of lipid abnormalities in type 2 DM is elevated triglycerides, decreased HDL cholesterol and higher proportion of small, dense LDL particles. Cholesterol is a lipid found in all cell membranes and in blood plasma. It is an essential component of the cell membranes, and is necessary for synthesis of steroid hormones, and for the formation of bile acids. Cholesterol is synthesized by the liver and many other organs, and is also ingested in the diet. Triglycerides are lipids in which three long-chain fatty acids are attached to glycerol. They are present in dietary fat and also synthesized by liver and adipose tissue.</p>
+                    <p style="margin-bottom: 5px;">Newer treatment goals and statin initiation thresholds based on the risk categories proposed by Lipid Association of India in 2020.</p>
+                    
+                    <!-- Treatment Goal Table -->
+                    <table style="width: 100%; border-collapse: collapse; font-size: 8pt; margin-top: 5px; border: 1px solid #cbd5e0;">
+                        <thead>
+                            <tr style="background: #edf2f7; text-align: left;">
+                                <th style="border: 1px solid #cbd5e0; padding: 4px;">Risk Category</th>
+                                <th style="border: 1px solid #cbd5e0; padding: 4px;" colspan="2">Treatment Goal</th>
+                                <th style="border: 1px solid #cbd5e0; padding: 4px;" colspan="2">Consider Therapy</th>
+                            </tr>
+                            <tr style="background: #edf2f7; text-align: left;">
+                                <th style="border: 1px solid #cbd5e0; padding: 4px;"></th>
+                                <th style="border: 1px solid #cbd5e0; padding: 4px;">LDL Cholesterol<br>(LDL-C) (Mg/dl)</th>
+                                <th style="border: 1px solid #cbd5e0; padding: 4px;">Non-HDL Cholesterol<br>(Non HDL-C) (Mg/dl)</th>
+                                <th style="border: 1px solid #cbd5e0; padding: 4px;">LDL cholesterol<br>(LDL-C) (Mg/dl)</th>
+                                <th style="border: 1px solid #cbd5e0; padding: 4px;">Non- HDL Cholesterol<br>(Non HDL-C) (Mg/dl)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">Extreme Risk Group Category A</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&lt; 50<br>(Optional Goal&lt;=30)</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&lt; 80<br>(Optional Goal&lt;=60)</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&gt;= 50</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&gt;= 80</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">Extreme Risk Group Category B</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&lt;= 30</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&lt;= 60</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&gt; 30</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&gt; 60</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">Very High</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&lt; 50</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&lt; 80</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&gt;= 50</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&gt;= 80</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">High</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&lt; 70</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&lt; 100</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&gt;= 70</td>
+                                <td style="border: 1px solid #cbd5e0; padding: 4px;">&gt;= 100</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <?php elseif ($is_lft): ?>
+                <div class="cbc-title-container" style="border-bottom: 2px solid #2d3748; padding-bottom: 5px; margin-bottom: 15px; text-align: center;">
+                    <div style="font-size: 14pt; font-weight: bold; margin-bottom: 5px;">BIOCHEMISTRY</div>
+                    <div class="cbc-title" style="font-size: 12pt; font-weight: bold;">LIVER FUNCTION TEST (LFT)</div>
+                </div>
+                
+                <table class="cbc-table">
+                    <thead>
+                        <tr style="text-align: left;">
+                            <th style="width: 45%;">TEST</th>
+                            <th style="width: 15%;">VALUE</th>
+                            <th style="width: 15%;">UNIT</th>
+                            <th style="width: 25%;">REFERENCE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($result_data['details'])): ?>
+                            <?php foreach ($result_data['details'] as $metric): ?>
+                                <?php 
+                                    $val = trim($metric['value']);
+                                    $range = trim($metric['range']);
+                                    $status = get_range_status($val, $range);
+                                    
+                                    $val_disp = htmlspecialchars($val);
+                                    if ($status === 'Low') {
+                                        $val_disp = "<strong style='display:inline-block; width:20px;'>L</strong> " . $val_disp;
+                                    } elseif ($status === 'High') {
+                                        $val_disp = "<strong style='display:inline-block; width:20px;'>H</strong> " . $val_disp;
+                                    } else {
+                                        $val_disp = "<span style='display:inline-block; width:24px;'></span>" . $val_disp;
+                                    }
+                                ?>
+                                <tr style="border-bottom: 1px solid #edf2f7;">
+                                    <td><?php echo htmlspecialchars($metric['name']); ?></td>
+                                    <td><?php echo $val_disp; ?></td>
+                                    <td><?php echo htmlspecialchars($metric['unit']); ?></td>
+                                    <td><?php echo htmlspecialchars($range); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan='4' style='text-align:center;'>Detailed metrics not available.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+                <br>
+                <!-- LFT Disclaimer Text -->
+                <div style="font-size: 8.5pt; line-height: 1.4; text-align: justify; margin-top: 10px; color: #2d3748; background: #fdfdfd; padding: 10px; border: 1px solid #e2e8f0;">
+                    <strong style="font-size: 9.5pt;">LFT Interpretation</strong><br>
+                    <p style="margin-top: 3px; margin-bottom: 8px;">Liver Function Blood Test gives an insight into your liver health and helps identify problems like hepatitis, cirrhosis, and fatty liver disease, which may cause similar symptoms but require different treatments to recover.</p>
+                    <strong style="font-size: 9.5pt;">Test Significance</strong><br>
+                    <p style="margin-top: 3px; margin-bottom: 8px;">Besides diagnosing liver problems, LFT's also monitor overall liver functioning. Monitoring helps people with liver disease or taking medication, as it helps screen whether the treatment works fine or requires adjustments. Moreover, Liver Function Tests help determine if someone is at risk of developing liver diseases. Apart from assessing your chances, this test also checks the severity of the liver damage to help the doctor plan and prescribe appropriate treatment.</p>
+                    <p style="margin-bottom: 5px;"><strong>Increased in:</strong> Acute or chronic hepatitis, cirrhosis, biliary tract obstruction, toxic hepatitis, neonatal jaundice (neonatal hyperbilirubinemia), congenital liver enzyme abnormalities (Dubin-Johnson, Rotor, Gilbert, Crigler-Najjar syndromes), fasting, hemolytic disorders. Hepatotoxic drugs.</p>
+                </div>
+
+            <?php elseif ($is_sugar): ?>
+                <div class="cbc-title-container" style="border-bottom: 2px solid #2d3748; padding-bottom: 5px; margin-bottom: 15px; text-align: center;">
+                    <div style="font-size: 14pt; font-weight: bold; margin-bottom: 5px;">BIOCHEMISTRY</div>
+                    <div class="cbc-title" style="font-size: 12pt; font-weight: bold;">BLOOD SUGAR FASTING & PP</div>
+                </div>
+                
+                <table class="cbc-table">
+                    <thead>
+                        <tr style="text-align: left;">
+                            <th style="width: 45%;">TEST</th>
+                            <th style="width: 15%;">VALUE</th>
+                            <th style="width: 15%;">UNIT</th>
+                            <th style="width: 25%;">REFERENCE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($result_data['details'])): ?>
+                            <?php foreach ($result_data['details'] as $metric): ?>
+                                <?php 
+                                    $val = trim($metric['value']);
+                                    $range = trim($metric['range']);
+                                    $status = get_range_status($val, $range);
+                                    
+                                    $val_disp = htmlspecialchars($val);
+                                    if ($status === 'Low') {
+                                        $val_disp = "<strong style='display:inline-block; width:20px;'>L</strong> " . $val_disp;
+                                    } elseif ($status === 'High') {
+                                        $val_disp = "<strong style='display:inline-block; width:20px;'>H</strong> " . $val_disp;
+                                    } else {
+                                        $val_disp = "<span style='display:inline-block; width:24px;'></span>" . $val_disp;
+                                    }
+                                ?>
+                                <tr style="border-bottom: 1px solid #edf2f7;">
+                                    <td><?php echo htmlspecialchars($metric['name']); ?></td>
+                                    <td><?php echo $val_disp; ?></td>
+                                    <td><?php echo htmlspecialchars($metric['unit']); ?></td>
+                                    <td><?php echo htmlspecialchars($range); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan='4' style='text-align:center;'>Detailed metrics not available.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+                <br>
+                <!-- Blood Sugar Disclaimer Text -->
+                <div style="font-size: 8.5pt; line-height: 1.4; margin-top: 10px; color: #2d3748; background: #fdfdfd; padding: 10px; border: 1px solid #e2e8f0;">
+                    <strong style="font-size: 9.5pt;">Clinical Notes</strong><br>
+                    <p style="margin-top: 3px; margin-bottom: 10px; text-align: justify;">Elevated glucose levels (hyperglycemia) are most often encountered clinically in the setting of diabetes mellitus, but they may also occur with pancreatic neoplasms, hyperthyroidism, and adrenocortical dysfunction. Decreased glucose levels (hypoglycemia) may result from endogenous or exogenous insulin excess, prolonged starvation, or liver disease.</p>
+                    
+                    <table style="width: 60%; border-collapse: collapse; font-size: 8pt; margin-bottom: 10px; border: 1px dashed #a0aec0;">
+                        <thead>
+                            <tr style="text-align: left;">
+                                <th style="border: 1px dashed #a0aec0; padding: 4px;">Fasting Glucose</th>
+                                <th style="border: 1px dashed #a0aec0; padding: 4px;">2 hours PP Glucose</th>
+                                <th style="border: 1px dashed #a0aec0; padding: 4px;">Diagnosis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">&lt;100</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">&lt;140</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Normal</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">100 to 125</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">140 to 199</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Pre Diabetes</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">&gt;126</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">&gt;200</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Diabetes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p style="margin-bottom: 0px; line-height: 1.3;">A level of 126 mg/dL or above, confirmed by repeating the test on another day, means a person has diabetes.<br>
+                    IGT (2 hrs Post meal), means a person has an increased risk of developing type 2 diabetes but does not have it yet.<br>
+                    A 2-hour glucose level of 200 mg/dL or above, confirmed by repeating the test on another day, means a person has diabetes.</p>
+                </div>
+
+            <?php elseif ($is_thyroid): ?>
+                <div class="cbc-title-container" style="border-bottom: 2px solid #2d3748; padding-bottom: 5px; margin-bottom: 15px; text-align: center;">
+                    <div style="font-size: 14pt; font-weight: bold; margin-bottom: 5px;">ENDOCRINOLOGY</div>
+                    <div class="cbc-title" style="font-size: 12pt; font-weight: bold;">THYROID FUNCTION TEST (TFT)</div>
+                </div>
+                
+                <table class="cbc-table">
+                    <thead>
+                        <tr style="text-align: left;">
+                            <th style="width: 45%;">TEST</th>
+                            <th style="width: 15%;">VALUE</th>
+                            <th style="width: 15%;">UNIT</th>
+                            <th style="width: 25%;">REFERENCE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($result_data['details'])): ?>
+                            <?php foreach ($result_data['details'] as $metric): ?>
+                                <?php 
+                                    $val = trim($metric['value']);
+                                    $range = trim($metric['range']);
+                                    $status = get_range_status($val, $range);
+                                    
+                                    $val_disp = htmlspecialchars($val);
+                                    if ($status === 'Low') {
+                                        $val_disp = "<strong style='display:inline-block; width:20px;'>L</strong> " . $val_disp;
+                                    } elseif ($status === 'High') {
+                                        $val_disp = "<strong style='display:inline-block; width:20px;'>H</strong> " . $val_disp;
+                                    } else {
+                                        $val_disp = "<span style='display:inline-block; width:24px;'></span>" . $val_disp;
+                                    }
+                                ?>
+                                <tr style="border-bottom: 1px solid #edf2f7;">
+                                    <td><?php echo htmlspecialchars($metric['name']); ?></td>
+                                    <td><?php echo $val_disp; ?></td>
+                                    <td><?php echo htmlspecialchars($metric['unit']); ?></td>
+                                    <td><?php echo htmlspecialchars($range); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan='4' style='text-align:center;'>Detailed metrics not available.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+                <br>
+                <!-- Thyroid Disclaimer Text -->
+                <div style="font-size: 8pt; line-height: 1.4; margin-top: 10px; color: #2d3748; background: #fdfdfd; padding: 10px; border: 1px solid #e2e8f0;">
+                    <strong style="font-size: 9pt;">Physiologic Basis</strong><br>
+                    <p style="margin-top: 3px; margin-bottom: 3px; text-align: justify;"><strong>Total T4</strong> is a measure of thyroid gland secretion of T4, bound and free, and thus is influenced by levels of thyroid hormone binding proteins. Only free T4 is biologically active.<br>
+                    <strong>TSH</strong> is an anterior pituitary hormone that stimulates the thyroid gland to produce thyroid hormones. Secretion is stimulated by thyrotropin releasing hormones from the hypothalamus. There is negative feedback on TSH secretion by circulating thyroid hormone.<br>
+                    <strong>T3</strong> is the primary active thyroid hormone. Approximately 80% of T3 is produced by extrathyroidal deiodination of T4 and the rest by thyroid gland. Total T3 is influenced by levels of thyroxine binding proteins.</p>
+                    
+                    <strong style="font-size: 9pt; display: block; margin-top: 8px; margin-bottom: 4px;">Patterns of Thyroid Function Tests in Patients with Thyroid Disease</strong>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 8pt; margin-bottom: 5px; border: 1px dashed #a0aec0;">
+                        <thead>
+                            <tr style="text-align: left;">
+                                <th style="border: 1px dashed #a0aec0; padding: 4px; width: 40%;">Type of disease</th>
+                                <th style="border: 1px dashed #a0aec0; padding: 4px; width: 20%;">T4</th>
+                                <th style="border: 1px dashed #a0aec0; padding: 4px; width: 20%;">T3</th>
+                                <th style="border: 1px dashed #a0aec0; padding: 4px; width: 20%;">TSH</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Conventional hyperthyroidism (95%)</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Raised</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Raised</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Undetectable</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">T3 hyperthyroidism (5%)</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Normal</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Raised</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Undetectable</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Subclinical hyperthyroidism</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Normal</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Normal</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Undetectable</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Primary hypothyroidism</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Low</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Not indicated</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Raised</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Subclinical hypothyroidism</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Normal</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Not indicated</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Raised</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Secondary hypothyroidism</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Low</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Not indicated</td>
+                                <td style="border: 1px dashed #a0aec0; padding: 4px;">Undetectable</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <?php elseif ($is_electro): ?>
+                <div class="cbc-title-container" style="border-bottom: 2px solid #2d3748; padding-bottom: 5px; margin-bottom: 15px; text-align: center;">
+                    <div class="cbc-title" style="font-size: 14pt; font-weight: bold; letter-spacing: 1px;">ELECTROLYTES</div>
+                </div>
+                
+                <table class="cbc-table" style="margin-bottom: 15px;">
+                    <thead>
+                        <tr style="text-align: left; border-bottom: 1px solid #cbd5e0;">
+                            <th style="width: 35%; padding-bottom: 8px;">Investigation</th>
+                            <th style="width: 25%; padding-bottom: 8px;">Result</th>
+                            <th style="width: 25%; padding-bottom: 8px;">Reference Value</th>
+                            <th style="width: 15%; padding-bottom: 8px;">Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: none;">
+                            <td colspan="4" style="padding-top: 10px;">
+                                <table style="width: 100%; font-size: 9pt;">
+                                    <tr><td style="width: 35%;">Primary Sample Type :</td><td>Serum</td></tr>
+                                    <tr><td>Test method :</td><td>Indirect ISE</td></tr>
+                                    <tr><td colspan="2"><strong style="font-size: 10pt; display: block; margin-top: 5px; margin-bottom: 5px;">ELECTROLYTES</strong></td></tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <?php if (!empty($result_data['details'])): ?>
+                            <?php foreach ($result_data['details'] as $metric): ?>
+                                <?php 
+                                    $val = trim($metric['value']);
+                                    $range = trim($metric['range']);
+                                    $status = get_range_status($val, $range);
+                                    
+                                    $val_disp = htmlspecialchars($val);
+                                    $status_disp = "";
+                                    $val_color = "#2d3748"; // default text color
+                                    
+                                    if ($status === 'Low') {
+                                        $status_disp = "<span style='color: #2b6cb0; font-weight: bold;'>Low</span>";
+                                        $val_color = "#2b6cb0"; // light blue
+                                    } elseif ($status === 'High') {
+                                        $status_disp = "<span style='color: #e53e3e; font-weight: bold;'>High</span>";
+                                        $val_color = "#e53e3e"; // red
+                                    }
+                                ?>
+                                <tr style="border-bottom: none;">
+                                    <td style="padding-top: 5px; padding-bottom: 5px;"><?php echo htmlspecialchars($metric['name']); ?></td>
+                                    <td style="padding-top: 5px; padding-bottom: 5px;">
+                                        <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                                            <strong style="color: <?php echo $val_color; ?>;"><?php echo $val_disp; ?></strong>
+                                            <?php echo $status_disp; ?>
+                                        </div>
+                                    </td>
+                                    <td style="padding-top: 5px; padding-bottom: 5px;"><?php echo htmlspecialchars($range); ?></td>
+                                    <td style="padding-top: 5px; padding-bottom: 5px;"><?php echo htmlspecialchars($metric['unit']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan='4' style='text-align:center;'>Detailed metrics not available.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+                <br>
+                <!-- Electrolytes Interpretation Text -->
+                <div style="font-size: 8pt; line-height: 1.4; color: #2d3748; padding-top: 10px;">
+                    <strong style="font-size: 9pt;">Interpretation :</strong><br>
+                    <p style="margin-top: 2px; margin-bottom: 12px;">The serum electrolytes test measures the levels of electrolytes in the blood, providing valuable information about hydration status, kidney function, and electrolyte imbalances.</p>
+                    
+                    <strong style="font-size: 8.5pt;">Electrolytes High Levels cause:</strong>
+                    <ul style="margin-top: 3px; margin-bottom: 12px; padding-left: 15px;">
+                        <li>Sodium - Overhydration, kidney disease, Addison's disease.</li>
+                        <li>Potassium - Kidney disease, Addison's disease, excessive intake of potassium-rich foods.</li>
+                        <li>Chloride - Overhydration, kidney disease.</li>
+                        <li>Bicarbonate - Kidney disease, respiratory alkalosis.</li>
+                        <li>Calcium - Hyperparathyroidism, kidney disease, vitamin D toxicity.</li>
+                        <li>Magnesium - Kidney disease, excessive intake of magnesium-rich foods.</li>
+                    </ul>
+
+                    <strong style="font-size: 8.5pt;">Electrolytes Low Levels cause:</strong>
+                    <ul style="margin-top: 3px; margin-bottom: 10px; padding-left: 15px;">
+                        <li>Sodium - Dehydration, kidney disease, Addison's disease.</li>
+                        <li>Potassium - Diarrhea, vomiting, kidney disease, excessive use of diuretics.</li>
+                        <li>Chloride - Dehydration, kidney disease.</li>
+                        <li>Bicarbonate - Diarrhea, vomiting, respiratory acidosis.</li>
+                        <li>Calcium - Hypoparathyroidism, kidney disease, vitamin D deficiency.</li>
+                        <li>Magnesium - Diarrhea, vomiting, kidney disease, excessive use of laxatives.</li>
+                    </ul>
+                </div>
+
+            <?php elseif ($is_scan): ?>
+                <div class="results-section" style="text-align: center;">
+                    <h3 style="margin-bottom: 20px; color: #2d3748;">Diagnostic Scan Report</h3>
+                    <?php if (!empty($result_data['scan_file'])): ?>
+                        <?php 
+                        $ext = strtolower(pathinfo($result_data['scan_file'], PATHINFO_EXTENSION));
+                        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                            <img src="<?php echo htmlspecialchars($result_data['scan_file']); ?>" style="max-width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <?php elseif ($ext === 'pdf'): ?>
+                            <object data="<?php echo htmlspecialchars($result_data['scan_file']); ?>" type="application/pdf" width="100%" height="800px" style="border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <p>Your browser does not support PDFs. <a href="<?php echo htmlspecialchars($result_data['scan_file']); ?>">Download the PDF</a>.</p>
+                            </object>
+                        <?php else: ?>
+                            <a href="<?php echo htmlspecialchars($result_data['scan_file']); ?>" class="btn btn-primary" target="_blank"><i class="fas fa-download"></i> View Document</a>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <div style="padding: 40px; background: #f7fafc; border: 1px dashed #cbd5e0; color: #718096;">
+                            <i class="fas fa-file-image" style="font-size: 3rem; margin-bottom: 10px; color: #a0aec0;"></i>
+                            <p>No scan image or document uploaded yet.</p>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($result_data['comments'])): ?>
+                    <div style="margin-top: 20px; text-align: left;">
+                        <strong style="color: #4a5568;">Radiologist/Pathologist Comments:</strong>
+                        <p style="margin-top: 5px;"><?php echo nl2br(htmlspecialchars($result_data['comments'])); ?></p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+            <?php else: ?>
+                <!-- Standard Report Format -->
+                <div class="results-section">
+                    <h3>Clinical Findings</h3>
+                    <div class="results-content">
+                        <?php echo nl2br(htmlspecialchars($result_data['findings'] ?? $result_data['summary'] ?? 'No findings recorded.')); ?>
+                    </div>
+
+                    <?php if (!empty($result_data['comments'])): ?>
+                    <div style="margin-top: 20px;">
+                        <strong style="color: #4a5568; text-transform: uppercase; font-size: 0.85em;">Pathologist Comments</strong>
+                        <p style="margin-top: 5px;">
+                            <?php echo nl2br(htmlspecialchars($result_data['comments'])); ?>
+                        </p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <?php if (!empty($result_data['details'])): ?>
+                <div class="results-section" style="margin-top: 30px;">
+                    <h3>Detailed Metrics</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead style="border-bottom: 2px solid #cbd5e0;">
+                            <tr style="text-align: left;">
+                                <th style="padding: 8px;">Metric</th>
+                                <th style="padding: 8px;">Value</th>
+                                <th style="padding: 8px;">Unit</th>
+                                <th style="padding: 8px;">Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($result_data['details'] as $metric): ?>
+                                <?php 
+                                    $val = trim($metric['value']);
+                                    $range = trim($metric['range']);
+                                    $status = get_range_status($val, $range);
+                                    $val_style = "";
+                                    if ($status === 'Low') $val_style = "color: #2b6cb0; font-weight: bold;";
+                                    if ($status === 'High') $val_style = "color: #e53e3e; font-weight: bold;";
+                                ?>
+                            <tr style="border-bottom: 1px solid #edf2f7;">
+                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['name'] ?? 'Unknown'); ?></td>
+                                <td style="padding: 8px; <?php echo $val_style; ?>">
+                                    <?php echo htmlspecialchars($val); ?>
+                                    <?php if($status) echo " <span style='font-size:0.8em;'>($status)</span>"; ?>
+                                </td>
+                                <td style="padding: 8px;"><?php echo htmlspecialchars($metric['unit'] ?? ''); ?></td>
+                                <td style="padding: 8px;"><?php echo htmlspecialchars($range ?? ''); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php endif; ?>
+            <?php endif; // End is_cbc switch ?>
 
         <?php elseif (!$show_results): ?>
             <div style="text-align: center; padding: 50px; background: #fff5f5; border: 1px dashed red;">
@@ -400,9 +1077,43 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
         <?php endif; ?>
     </div>
 
-    <div class="report-footer">
-        <p>This report is electronically verified. No signature required.</p>
-        <p>Generated on <?php echo date('Y-m-d H:i:s'); ?> | ADMS Hospital System</p>
+    <div class="report-footer" style="padding-bottom: 10px; padding-top: 0; border-top: none;">
+        <?php if ($test['status'] === 'completed'): ?>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <?php if ($is_sugar || $is_thyroid): ?>
+            <span style="flex: 1;"></span>
+            <span style="text-align: center; letter-spacing: 1px; flex: 1; color: #4a5568;">~~~ End of report ~~~</span>
+            <span style="flex: 1;"></span>
+            <?php else: ?>
+            <span style="font-size: 10pt; font-weight: bold; flex: 1; text-align: left;">Thanks for Reference</span>
+            <span style="text-align: center; letter-spacing: 2px; flex: 1;">****End of Report****</span>
+            <span style="flex: 1;"></span>
+            <?php endif; ?>
+        </div>
+        
+        <div class="signature-grid" style="margin-top: 30px; margin-bottom: 15px;">
+            <div>
+                <div style="height: 30px;"><i class="fas fa-signature" style="font-size: 18pt; color: #a0aec0; opacity: 0.5;"></i></div>
+                <div class="sig-line"></div>
+                <div class="sig-name">Medical Lab Technician</div>
+                <div class="sig-title">(DMLT, BMLT)</div>
+            </div>
+            <div>
+                <!-- Blank Middle -->
+            </div>
+            <div>
+                <div style="height: 30px;"><i class="fas fa-signature" style="font-size: 18pt; color: #a0aec0; opacity: 0.5;"></i></div>
+                <div class="sig-line"></div>
+                <div class="sig-name">Dr. Pathologist</div>
+                <div class="sig-title">(MD, Pathologist)</div>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <div style="display: flex; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8pt;">
+            <span>This report is electronically verified. No physical signature required.</span>
+            <span>Generated on <?php echo date('d M, Y h:i A'); ?> | Page 1 of 1</span>
+        </div>
     </div>
 </div>
 
@@ -412,44 +1123,66 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
         <div class="card">
             <div class="card-header bg-light">Update Results</div>
             <div class="card-body">
-                <form method="POST" action="">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <?php if ($is_scan): ?>
+                    <div class="alert alert-info">
+                        <strong><i class="fas fa-file-upload"></i> Upload Scan Report</strong><br>
+                        Please upload the digital scan image or PDF report for this diagnostic test.
+                    </div>
                     <div class="form-group">
-                        <label>Clinical Findings / Results</label>
-                        <textarea name="findings" class="form-control" rows="6" required placeholder="Enter the main test findings here..."></textarea>
+                        <label>Upload Scan File (JPG, PNG, PDF max 5MB)</label>
+                        <input type="file" name="scan_report" class="form-control-file" accept="image/*,.pdf" required>
+                    </div>
+                    <div class="form-group">
+                         <label>Radiologist/Pathologist Comments</label>
+                         <textarea name="comments" class="form-control" rows="3" placeholder="Optional comments regarding the scan..."></textarea>
                     </div>
                     
-                    <div class="row">
-                        <div class="col-md-6">
-                             <div class="form-group">
-                                 <label>Normal/Reference Range (Summary)</label>
-                                 <textarea name="normal_range" class="form-control" rows="3" placeholder="e.g. 70-110 mg/dL"></textarea>
-                             </div>
+                    <?php else: ?>
+                        <?php if (!$is_cbc && !$is_lipid && !$is_lft && !$is_sugar && !$is_thyroid && !$is_electro): ?>
+                        <div class="form-group">
+                            <label>Clinical Findings / Results</label>
+                            <textarea name="findings" class="form-control" rows="6" required placeholder="Enter the main test findings here..."></textarea>
                         </div>
-                        <div class="col-md-6">
-                             <div class="form-group">
-                                 <label>Comments / Notes</label>
-                                 <textarea name="comments" class="form-control" rows="3" placeholder="Optional comments..."></textarea>
-                             </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                 <div class="form-group">
+                                     <label>Normal/Reference Range (Summary)</label>
+                                     <textarea name="normal_range" class="form-control" rows="3" placeholder="e.g. 70-110 mg/dL"></textarea>
+                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                 <div class="form-group">
+                                     <label>Comments / Notes</label>
+                                     <textarea name="comments" class="form-control" rows="3" placeholder="Optional comments..."></textarea>
+                                 </div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <hr>
-                    <h5 class="mb-3">Detailed Metrics Table</h5>
-                    <table class="table table-bordered table-sm" id="metricsTable">
-                        <thead>
-                            <tr>
-                                <th>Test / Parameter Name</th>
-                                <th>Result Value</th>
-                                <th>Unit</th>
-                                <th>Ref Range</th>
-                                <th style="width:50px;"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="metricsBody">
-                            <!-- Rows will be added here -->
-                        </tbody>
-                    </table>
-                    <button type="button" class="btn btn-secondary btn-sm mb-3" onclick="addMetricRow()"><i class="fas fa-plus"></i> Add Row</button>
+                        <?php else: ?>
+                        <input type="hidden" name="findings" value="Automated profile generated.">
+                        <input type="hidden" name="normal_range" value="">
+                        <input type="hidden" name="comments" value="No significant pathologist comments added.">
+                        <?php endif; ?>
+                        
+                        <hr>
+                        <h5 class="mb-3">Detailed Metrics Table</h5>
+                        <table class="table table-bordered table-sm" id="metricsTable">
+                            <thead>
+                                <tr>
+                                    <th>Test / Parameter Name</th>
+                                    <th>Result Value</th>
+                                    <th>Unit</th>
+                                    <th>Ref Range</th>
+                                    <th style="width:50px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="metricsBody">
+                                <!-- Rows will be added here -->
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-secondary btn-sm mb-3" onclick="addMetricRow()"><i class="fas fa-plus"></i> Add Row</button>
+                    <?php endif; ?>
                     <br>
                     
                     <button type="submit" class="btn btn-primary">Submit & Finalize</button>
@@ -459,20 +1192,117 @@ $result_data = json_decode($test['result_data'] ?? '{}', true);
     </div>
     
     <script>
-    function addMetricRow() {
+    const testType = <?php echo json_encode($test['test_type'] ?? ''); ?>;
+    
+    // JS Templates for common tests
+    const labTemplates = {
+        'cbc': [
+            {n: 'Hemoglobin (Hb)', u: 'g/dL', r: '13.0 - 17.0'},
+            {n: 'Total RBC count', u: 'mill/cumm', r: '4.5 - 5.5'},
+            {n: 'Packed Cell Volume (PCV)', u: '%', r: '40 - 50'},
+            {n: 'Mean Corpuscular Volume (MCV)', u: 'fL', r: '83 - 101'},
+            {n: 'MCH', u: 'pg', r: '27 - 32'},
+            {n: 'MCHC', u: 'g/dL', r: '32.5 - 34.5'},
+            {n: 'RDW', u: '%', r: '11.6 - 14.0'},
+            {n: 'Total WBC count', u: 'cumm', r: '4000-11000'},
+            {n: 'Neutrophils', u: '%', r: '50 - 62'},
+            {n: 'Lymphocytes', u: '%', r: '20 - 40'},
+            {n: 'Eosinophils', u: '%', r: '00 - 06'},
+            {n: 'Monocytes', u: '%', r: '00 - 10'},
+            {n: 'Basophils', u: '%', r: '00 - 02'},
+            {n: 'Platelet Count', u: 'cumm', r: '150000 - 410000'}
+        ],
+        'lipid': [
+            {n: 'TOTAL CHOLESTEROL', u: 'mg/dl', r: '125 - 200'},
+            {n: 'TRIGLYCERIDES', u: 'mg/dl', r: '25 - 200'},
+            {n: 'HDL CHOLESTEROL', u: 'mg/dl', r: '35 - 80'},
+            {n: 'LDL CHOLESTEROL', u: 'mg/dl', r: '85 - 130'},
+            {n: 'VLDL CHOLESTEROL', u: 'mg/dl', r: '5 - 40'},
+            {n: 'LDL / HDL', u: '', r: '1.5 - 3.5'},
+            {n: 'TOTAL CHOLESTEROL / HDL', u: '', r: '3.5 - 5'},
+            {n: 'TG / HDL', u: '', r: ''},
+            {n: 'NON-HDL CHOLESTEROL', u: '', r: ''}
+        ],
+        'lft': [
+            {n: 'SERUM BILIRUBIN (TOTAL)', u: 'mg/dl', r: '0.2 - 1.2'},
+            {n: 'SERUM BILIRUBIN (DIRECT)', u: 'mg/dl', r: '0 - 0.3'},
+            {n: 'SERUM BILIRUBIN (INDIRECT)', u: 'mg/dl', r: '0.2 - 1'},
+            {n: 'SGPT (ALT)', u: 'U/l', r: '13 - 40'},
+            {n: 'SGOT (AST)', u: 'U/l', r: '0 - 37'},
+            {n: 'SERUM ALKALINE PHOSPHATASE', u: 'U/l', r: ''},
+            {n: 'SERUM PROTEIN', u: 'g/dl', r: '6.4 - 8.3'},
+            {n: 'SERUM ALBUMIN', u: 'g/dl', r: '3.5 - 5.2'},
+            {n: 'GLOBULIN', u: 'g/dl', r: '1.8 - 3.6'},
+            {n: 'A/G RATIO', u: '', r: '1.1 - 2.1'}
+        ],
+        'sugar': [
+            {n: 'FASTING BLOOD SUGAR', u: 'mg/dl', r: '70 - 100'},
+            {n: 'BLOOD SUGAR PP', u: 'mg/dl', r: '< 140 mg/dl'}
+        ],
+        'thyroid': [
+            {n: 'SERUM TRIIODOTHYRONINE, T3', u: 'ng/mL', r: '0.69 - 2.15'},
+            {n: 'SERUM THYROXINE, T4', u: 'ng/mL', r: '52 - 127'},
+            {n: 'THYROID-STIMULATING HORMONE, TSH', u: 'µIU/mL', r: '0.3 - 4.5'}
+        ],
+        'electro': [
+            {n: 'Sodium', u: 'mEq/L', r: '136.00 - 145.00'},
+            {n: 'Potassium', u: 'mEq/L', r: '3.50 - 5.10'},
+            {n: 'Chloride', u: 'mEq/L', r: '98.00 - 107.00'},
+            {n: 'Bicarbonate', u: 'mEq/L', r: '22.00 - 28.00'},
+            {n: 'Calcium', u: 'mg/dL', r: '8.6 - 10.2'},
+            {n: 'Magnesium', u: 'mg/dL', r: '1.8 - 2.3'}
+        ]
+    };
+
+    function addMetricRow(name = '', value = '', unit = '', range = '') {
         const tbody = document.getElementById('metricsBody');
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><input type="text" name="metric_name[]" class="form-control form-control-sm" placeholder="e.g. Hemoglobin"></td>
-            <td><input type="text" name="metric_value[]" class="form-control form-control-sm" placeholder="e.g. 13.5"></td>
-            <td><input type="text" name="metric_unit[]" class="form-control form-control-sm" placeholder="e.g. g/dL"></td>
-            <td><input type="text" name="metric_range[]" class="form-control form-control-sm" placeholder="e.g. 12-16"></td>
+            <td><input type="text" name="metric_name[]" class="form-control form-control-sm" placeholder="e.g. Hemoglobin" value="${name}"></td>
+            <td><input type="text" name="metric_value[]" class="form-control form-control-sm" placeholder="e.g. 13.5" value="${value}"></td>
+            <td><input type="text" name="metric_unit[]" class="form-control form-control-sm" placeholder="e.g. g/dL" value="${unit}"></td>
+            <td><input type="text" name="metric_range[]" class="form-control form-control-sm" placeholder="e.g. 12-16" value="${range}"></td>
             <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
         `;
         tbody.appendChild(row);
     }
-    // Add one empty row by default
-    document.addEventListener('DOMContentLoaded', addMetricRow);
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Auto-populate based on test type
+        const tt_lower = testType.toLowerCase();
+        let populated = false;
+
+        if (tt_lower.includes('cbc') || tt_lower.includes('complete blood count')) {
+            labTemplates['cbc'].forEach(m => addMetricRow(m.n, '', m.u, m.r));
+            document.querySelector('[name="findings"]').value = "Further confirm for Anemia";
+            populated = true;
+        } else if (tt_lower.includes('lipid')) {
+            labTemplates['lipid'].forEach(m => addMetricRow(m.n, '', m.u, m.r));
+            document.querySelector('[name="findings"]').value = "Lipid Profile processed.";
+            populated = true;
+        } else if (tt_lower.includes('lft') || tt_lower.includes('liver function')) {
+            labTemplates['lft'].forEach(m => addMetricRow(m.n, '', m.u, m.r));
+            document.querySelector('[name="findings"]').value = "Liver Function Test (LFT) processed.";
+            populated = true;
+        } else if (tt_lower.includes('sugar') || tt_lower.includes('glucose')) {
+            labTemplates['sugar'].forEach(m => addMetricRow(m.n, '', m.u, m.r));
+            document.querySelector('[name="findings"]').value = "Blood Sugar Fasting & PP processed.";
+            populated = true;
+        } else if (tt_lower.includes('thyroid') || tt_lower.includes('tft')) {
+            labTemplates['thyroid'].forEach(m => addMetricRow(m.n, '', m.u, m.r));
+            document.querySelector('[name="findings"]').value = "Thyroid Function Test (TFT) processed.";
+            populated = true;
+        } else if (tt_lower.includes('electrolyte')) {
+            labTemplates['electro'].forEach(m => addMetricRow(m.n, '', m.u, m.r));
+            document.querySelector('[name="findings"]').value = "Electrolytes processed.";
+            populated = true;
+        }
+        
+        // Default empty row if no template mapped
+        if (!populated) {
+            addMetricRow();
+        }
+    });
     </script>
 <?php endif; ?>
 

@@ -9,43 +9,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_alternative'])
     $prescription_id = $_POST['prescription_id'];
     $original_med = $_POST['original_med'];
     $new_med = $_POST['new_med'];
-    $qty = $_POST['qty'];
-    $price = $_POST['price']; // Should ideally fetch current price
     
-    // Log the substitution
-    $note = "Substituted $original_med with $new_med (Qty: $qty) - Approved by Customer.";
-    
-    // Deduct stock of the NEW medicine if it exists in inventory
-    $new_med_inv = db_select_one("SELECT * FROM pharmacy_inventory WHERE medication_name = $1", [$new_med]);
-    if ($new_med_inv) {
-        $new_qty_val = max(0, $new_med_inv['quantity'] - $qty);
-        db_update('pharmacy_inventory', ['quantity' => $new_qty_val], ['id' => $new_med_inv['id']]);
-        $price = $new_med_inv['unit_price']; // Use actual price of alternative
-    }
-
-    // Bill Generation for the alternative
+    // Update the prescription JSON to reflect the AI substitution
     $rx = db_select_one("SELECT * FROM prescriptions WHERE id = $1", [$prescription_id]);
-    
     if ($rx) {
-        $total_cost = $qty * $price;
+        $meds = json_decode($rx['medication_details'], true);
+        if (is_array($meds)) {
+            foreach ($meds as &$m) {
+                if ($m['name'] === $original_med) {
+                    $m['name'] = $new_med; // Replace original with new
+                    $m['dosage'] .= " [Substituted for $original_med]";
+                }
+            }
+            db_update('prescriptions', ['medication_details' => json_encode($meds)], ['id' => $prescription_id]);
+        }
         
-        $bill_data = [
-            'patient_id' => $rx['patient_id'],
-            'appointment_id' => $rx['appointment_id'],
-            'total_amount' => $total_cost,
-            'status' => 'pending',
-            'service_description' => "Pharmacy: $new_med (x$qty) [Substitution] - $note"
-        ];
-        db_insert('billing', $bill_data);
-        
-        // Clear session
+        // Clear session so the prompt doesn't trigger repeatedly
         unset($_SESSION['dispense_shortage_data']);
-        
-        header("Location: dispense.php?success=" . urlencode("Alternative dispensed and billed successfully."));
-        exit();
     } else {
         die("Prescription not found during confirmation.");
     }
+    
+    // REMOVED early exit() and individual billing here.
+    // The code will naturally fall through to the Normal Dispense Flow below, 
+    // which will read the newly updated prescription JSON and dispense/bill 
+    // ALL medications at once.
 }
 
 // --- Normal Dispense Flow ---
@@ -75,9 +63,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($available < $qty_needed) {
                 // Shortage detected! Trigger AI for this medication.
                 
+                // Collect actual available inventory names to guide the AI
+                $inventory_db = db_select("SELECT medication_name FROM pharmacy_inventory WHERE quantity > 0");
+                $available_meds = array_column($inventory_db, 'medication_name');
+                
                 // Call AI Service
                 $url = 'http://127.0.0.1:5001/suggest_alternative';
-                $data = json_encode(['medicine' => $name]);
+                $data = json_encode([
+                    'medicine' => $name,
+                    'inventory' => $available_meds
+                ]);
                 
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -138,6 +133,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         // Generate Bill
         if ($total_cost > 0) {
+            // Prevent DB numeric overflow for NUMERIC(10,2)
+            $total_cost = min((float)$total_cost, 99999999.99);
+            
             $desc = "Pharmacy: " . implode(", ", $billed_items);
             $bill_data = [
                 'patient_id' => $rx['patient_id'],
@@ -149,7 +147,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             db_insert('billing', $bill_data);
         }
         
-        $success_msg = "Dispensed and Billed $$total_cost.";
+        // Mark the actual prescription as completed! (This was previously missing)
+        db_update('prescriptions', ['status' => 'completed'], ['id' => $prescription_id]);
+        
+        $success_msg = "Dispensed and Billed ₹$total_cost.";
         header("Location: dispense.php?success=" . urlencode($success_msg));
         exit();
         

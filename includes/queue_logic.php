@@ -70,7 +70,11 @@ function get_estimated_wait_time($appointment_id) {
     $nurse_prep_time = ($appt['status'] === 'waiting' || $appt['status'] === 'scheduled') ? 5 : 0; 
     // Assuming 'waiting' is default. 'ready' means nurse is done.
     
-    $est_wait = ($ahead_count * $avg_time) + $nurse_prep_time;
+    if ($ahead_count == 0) {
+        $est_wait = 0;
+    } else {
+        $est_wait = ($ahead_count * $avg_time) + $nurse_prep_time;
+    }
     
     return $est_wait;
 }
@@ -237,7 +241,12 @@ function get_queue_details($appointment_id) {
     }
 
     $nurse_prep_time = ($appt['status'] === 'waiting' || $appt['status'] === 'scheduled') ? 5 : 0;
-    $est_wait = ($ahead_count * $current_avg) + $nurse_prep_time;
+    
+    if ($ahead_count == 0) {
+        $est_wait = 0;
+    } else {
+        $est_wait = ($ahead_count * $current_avg) + $nurse_prep_time;
+    }
 
     return [
         'wait_time' => $est_wait,

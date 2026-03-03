@@ -37,11 +37,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (strtotime($appointment_time) < time()) {
             $error = "Cannot book an appointment in the past. Please select a future date and time.";
         } else {
-            // Check availability (double check)
+            // Check if Doctor is booked
             $existing = db_select_one("SELECT id FROM appointments WHERE doctor_id = $1 AND appointment_time = $2 AND status = 'scheduled'", [$doctor_id, $appointment_time]);
             
+            // Check if Patient is already booked somewhere else at this time
+            $patient_booked = db_select_one("SELECT id FROM appointments WHERE patient_id = $1 AND appointment_time = $2 AND status = 'scheduled'", [$patient['id'], $appointment_time]);
+            
             if ($existing) {
-                 $error = "This slot is already booked. Please choose another.";
+                 $error = "This slot is already booked for this doctor. Please choose another time.";
+            } elseif ($patient_booked) {
+                 $error = "You already have an appointment scheduled at this exact time with another doctor. Please choose a different time slot.";
             } else {
                 $data = [
                     'patient_id' => $patient['id'],

@@ -24,7 +24,7 @@ if (!$appointment_id) {
 }
 
 // Fetch appointment + patient details
-$appt = db_select_one("SELECT a.*, p.first_name, p.last_name, p.date_of_birth, p.gender, p.phone, u.email as p_email, p.address, p.id as patient_id, p.uhid, p.medical_history, u.profile_image 
+$appt = db_select_one("SELECT a.*, p.first_name, p.last_name, p.date_of_birth, p.gender, p.phone, u.email as p_email, p.address, p.id as patient_id, p.uhid, p.medical_history, u.profile_image, p.user_id 
                        FROM appointments a 
                        JOIN patients p ON a.patient_id = p.id 
                        JOIN users u ON p.user_id = u.id
@@ -48,7 +48,7 @@ if (isset($_POST['call_patient_ajax'])) {
     $role = get_user_role();
     if ($role === 'doctor') {
         $doc_id = get_user_id();
-        $staff = db_select_one("SELECT id, primary_room_id FROM staff WHERE user_id = $1", [$doc_id]);
+        $staff = db_select_one("SELECT id, primary_room_id, last_name FROM staff WHERE user_id = $1", [$doc_id]);
         
         $final_room = 'OPD'; // Default
         if (!empty($staff['primary_room_id'])) {
@@ -64,6 +64,23 @@ if (isset($_POST['call_patient_ajax'])) {
             'room_number' => $final_room,
             'status' => 'calling'
         ]);
+        
+        // --- NEW: Send In-App Web Notification to Patient ---
+        if (!empty($appt['user_id'])) {
+            $doc_name = "Dr. " . htmlspecialchars($staff['last_name'] ?? '');
+            db_insert('notifications', [
+                'user_id' => $appt['user_id'],
+                'title' => 'Doctor Ready',
+                'message' => "<strong>$doc_name</strong> is ready. Please proceed to <strong>Room $final_room</strong> immediately.",
+                'type' => 'info'
+            ]);
+        }
+        
+        // --- Optional Email Notification (Disabled per request) ---
+        // if (!empty($appt['p_email'])) {
+        //     require_once '../../includes/mail_service.php';
+        //     @send_email_smtp($appt['p_email'], "Please Proceed to Room: $final_room", "...");
+        // }
 
         echo json_encode(['status' => 'success', 'room' => $final_room]);
         exit;
@@ -136,7 +153,7 @@ if ($latest_lab && $latest_lab['result_data']) {
 // Handle POST Requests (Doctor Only)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
     $doc_id = get_user_id();
-    $staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$doc_id]);
+    $staff = db_select_one("SELECT id, first_name, last_name FROM staff WHERE user_id = $1", [$doc_id]);
     
     // 1. Save Notes & History
     if (isset($_POST['save_note']) || isset($_POST['complete_visit']) || isset($_POST['finalize_meds'])) {
@@ -257,7 +274,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
             $next_appt = db_select_one("SELECT id FROM appointments WHERE doctor_id = $1 AND status = 'scheduled' AND appointment_time > NOW() ORDER BY appointment_time ASC LIMIT 1", [$staff['id'] ?? 0]);
             $next_url = $next_appt ? "?appointment_id=" . $next_appt['id'] : "appointments.php";
             
-            $success = "Visit completed successfully. <a href='$next_url' class='btn btn-sm btn-primary'>Proceed to Next Patient</a>";
+            $success = "Visit completed successfully. Redirecting in <strong id='countdown_timer'>6</strong> seconds... <a href='$next_url' class='btn btn-sm btn-primary ml-3'>Proceed to Next Patient Now</a>";
+            $success .= "<script>
+                setTimeout(function() { window.location.href = '$next_url'; }, 6000);
+                let secs = 6;
+                setInterval(function() {
+                    secs--;
+                    let el = document.getElementById('countdown_timer');
+                    if (el && secs >= 0) el.innerText = secs;
+                }, 1000);
+            </script>";
         } else {
             $success = "Note & History saved successfully.";
         }
@@ -494,6 +520,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
 
         $success = isset($_POST['edit_vitals']) ? "Vitals updated successfully." : "Vitals recorded successfully. You may now proceed with the consultation.";
     }
+
+    // 5. Handle Refer to Doctor
+    if (isset($_POST['refer_patient'])) {
+        $ref_doc_id = $_POST['referral_doctor_id'];
+        $ref_date = $_POST['referral_date'];
+        $ref_time = $_POST['referral_time'];
+        $ref_reason = $_POST['referral_reason'];
+
+        if ($ref_doc_id && $ref_date && $ref_time) {
+            $appointment_time = $ref_date . ' ' . $ref_time;
+            try {
+                // Check if Doctor is already booked
+                $existing = db_select_one("SELECT id FROM appointments WHERE doctor_id = $1 AND appointment_time = $2 AND status = 'scheduled'", [$ref_doc_id, $appointment_time]);
+                
+                // Check if Patient is already booked somewhere else at this time
+                $patient_booked = db_select_one("SELECT id FROM appointments WHERE patient_id = $1 AND appointment_time = $2 AND status = 'scheduled'", [$patient_id, $appointment_time]);
+                
+                if ($existing) {
+                    $error = "The selected time slot is already booked for that doctor. Please choose a different time.";
+                } elseif ($patient_booked) {
+                    $error = "This patient already has an appointment scheduled at this exact time with another doctor.";
+                } else {
+                    db_insert('appointments', [
+                        'patient_id' => $patient_id,
+                        'doctor_id' => $ref_doc_id,
+                        'appointment_time' => $appointment_time,
+                        'reason' => "Referral from Dr. " . ($staff['last_name'] ?? 'Unknown') . ". " . $ref_reason,
+                        'status' => 'scheduled'
+                    ]);
+                    
+                    // Notify Referred Doctor
+                    $ref_doc = db_select_one("SELECT user_id, last_name FROM staff WHERE id = $1", [$ref_doc_id]);
+                    if ($ref_doc) {
+                        if (file_exists('../../includes/fcm_service.php')) {
+                            require_once '../../includes/fcm_service.php';
+                            $doc_token_row = db_select_one("SELECT fcm_token FROM users WHERE id = $1", [$ref_doc['user_id']]);
+                            $pat_name = $appt['first_name'] . ' ' . $appt['last_name'];
+                            if($doc_token_row && !empty($doc_token_row['fcm_token'])) {
+                                FCMService::send($doc_token_row['fcm_token'], 'New Referral', "Patient $pat_name referred to you for " . date('M d, h:i A', strtotime($appointment_time)));
+                            }
+                        }
+                    }
+                    $success = "Patient successfully referred to another doctor.";
+                }
+            } catch (Exception $e) {
+                $error = "Referral failed: " . $e->getMessage();
+            }
+        } else {
+            $error = "Please fill all required referral fields.";
+        }
+    }
 }
 
 // Fetch Vitals (Strictly for this Visit)
@@ -510,6 +587,11 @@ foreach ($vitals as $v) {
 // Fetch Medical History (Past Visits)
 $history = db_select("SELECT appointment_time, reason, status FROM appointments WHERE patient_id = $1 AND status = 'completed' AND id != $2 ORDER BY appointment_time DESC LIMIT 5", [$patient_id, $appointment_id]);
 
+// Fetch all doctors for Referral Modal
+$referral_doctors = db_select("SELECT id, first_name, last_name, specialization FROM staff WHERE role = 'doctor'");
+$specializations = array_unique(array_column($referral_doctors, 'specialization'));
+sort($specializations);
+
 // Fetch Inventory for Meds Modal
 $inventory = db_select("SELECT medication_name, quantity FROM pharmacy_inventory ORDER BY medication_name");
 
@@ -519,8 +601,23 @@ $prescribed_meds = $current_rx ? json_decode($current_rx['medication_details'], 
 
 $age = date_diff(date_create($appt['date_of_birth']), date_create('today'))->y;
 
-// Fetch Lab Results for Modal
+// Fetch Lab and Radiology Results for Modal
 $lab_results_list = db_select("SELECT * FROM laboratory_tests WHERE patient_id = $1 ORDER BY created_at DESC", [$patient_id]);
+$radiology_results_list = db_select("SELECT * FROM radiology_reports WHERE patient_id = $1 ORDER BY created_at DESC", [$patient_id]);
+
+// Combine and sort by date descending
+$combined_results = [];
+foreach ($lab_results_list as $lr) {
+    $lr['source_type'] = 'lab';
+    $combined_results[] = $lr;
+}
+foreach ($radiology_results_list as $rad) {
+    $rad['source_type'] = 'rad';
+    $combined_results[] = $rad;
+}
+usort($combined_results, function($a, $b) {
+    return strtotime($b['created_at']) - strtotime($a['created_at']);
+});
 
 $page_title = "Consultation & Notes";
 include '../../includes/header.php';
@@ -638,7 +735,7 @@ function callPatient() {
         <button type="button" class="btn btn-primary btn-sm" onclick="openLabModal()"><i class="fas fa-flask"></i> Order Lab</button>
         <button type="button" class="btn btn-success btn-sm" onclick="openMedModal()"><i class="fas fa-pills"></i> Prescribe Meds</button>
         <button type="button" class="btn btn-warning btn-sm" onclick="openRadModal()"><i class="fas fa-x-ray"></i> Radiology</button>
-        <button type="button" class="btn btn-info btn-sm" onclick="openViewLabModal()"><i class="fas fa-vial"></i> View Results</button>
+        <button type="button" class="btn btn-info btn-sm" onclick="openViewLabModal()"><i class="fas fa-clipboard-list"></i> View Lab & Scans</button>
         
         <div style="flex-grow: 1;"></div>
         
@@ -966,12 +1063,10 @@ function callPatient() {
                         <i class="fas fa-save"></i> Save Progress
                     </button>
 
-                    <!-- 3. Complete (with Diagnosis) -->
-                    <button type="button" class="action-tile tile-complete" onclick="openCompleteModal()">
+                    <!-- 3. Complete -->
+                    <button type="submit" name="complete_visit" value="1" class="action-tile tile-complete">
                         <i class="fas fa-check-circle"></i> Complete Visit
                     </button>
-                    <!-- Actual hidden submit button triggered by JS -->
-                    <button type="submit" id="realCompleteBtn" name="complete_visit" value="1" style="display:none;"></button>
 
                     <!-- 4. Order Lab -->
                     <button type="button" class="action-tile tile-lab" onclick="openLabModal()">
@@ -985,12 +1080,17 @@ function callPatient() {
 
                     <!-- 6. View Results -->
                     <button type="button" class="action-tile tile-view" onclick="openViewLabModal()">
-                        <i class="fas fa-vial"></i> View Results
+                        <i class="fas fa-clipboard-list"></i> View Lab & Scans
                     </button>
 
                     <!-- 7. Meds -->
                     <button type="button" class="action-tile tile-meds" onclick="openMedModal()">
                         <i class="fas fa-pills"></i> Meds
+                    </button>
+
+                    <!-- 8. Refer to Doctor -->
+                    <button type="button" class="action-tile tile-referral" onclick="openReferralModal()" style="border-left: 4px solid #f39c12; background: #fffdf5;">
+                        <i class="fas fa-hand-holding-medical" style="color: #f39c12;"></i> Refer to Doctor
                     </button>
                 </div>
             </form>
@@ -1126,68 +1226,7 @@ function callPatient() {
     </div>
 </div>
 
-<!-- Modal for Final Diagnosis (AI Feedback Loop) -->
-<div id="completeModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5);">
-    <div style="background-color:#fefefe; margin:10% auto; padding:20px; border:1px solid #888; width:500px; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-        <h4 style="margin-top:0; color:#2c3e50;">Confirm Diagnosis & Complete</h4>
-        <p style="font-size:0.9em; color:#666;">Please confirm the final diagnosis. This helps the AI system learn.</p>
-        
-        <div class="form-group">
-            <label style="font-weight:600;">Final Diagnosis</label>
-            <input type="text" id="finalDiag" class="form-control" placeholder="e.g. Viral Fever..." list="diag_list">
-            <datalist id="diag_list">
-                 <option value="Viral Fever">
-                 <option value="Migraine">
-                 <option value="Hypertension">
-                 <option value="Diabetes Type 2">
-                 <option value="Acute Bronchitis">
-            </datalist>
-        </div>
-        
-        <div class="form-group">
-            <label style="font-weight:600;">Urgency / Severity</label>
-            <select id="finalUrgency" class="form-control">
-                <option value="Low">Low (Routine)</option>
-                <option value="Medium" selected>Medium (Urgent)</option>
-                <option value="High">High (Immediate)</option>
-                <option value="Critical">Critical (Life Threatening)</option>
-            </select>
-        </div>
-
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('completeModal').style.display='none'">Cancel</button>
-            <button type="button" class="btn btn-success" onclick="submitValidCompletion()">Confirm & Finish</button>
-        </div>
-    </div>
-</div>
-
-<script>
-function openCompleteModal() {
-    document.getElementById('completeModal').style.display = 'block';
-}
-
-function submitValidCompletion() {
-    const diag = document.getElementById('finalDiag').value;
-    const urgency = document.getElementById('finalUrgency').value;
-    
-    if(!diag.trim()) {
-        alert("Please enter a final diagnosis.");
-        return;
-    }
-    
-    // Inject hidden inputs into main form
-    const form = document.getElementById('mainForm');
-    
-    const i1 = document.createElement('input'); i1.type='hidden'; i1.name='final_diagnosis'; i1.value=diag;
-    const i2 = document.createElement('input'); i2.type='hidden'; i2.name='urgency_rating'; i2.value=urgency;
-    
-    form.appendChild(i1);
-    form.appendChild(i2);
-    
-    // Submit
-    document.getElementById('realCompleteBtn').click();
-}
-</script>
+<!-- Complete Modal removed as per request -->
 
 <!-- Lab Order Modal -->
 <div id="labModal" class="lab-modal">
@@ -1401,40 +1440,76 @@ function submitValidCompletion() {
 <div id="viewLabModal" class="lab-modal">
     <div class="lab-modal-content" style="width: 100%; max-width: 700px;">
         <h4 style="margin-top: 0; display:flex; justify-content:space-between; align-items:center;">
-            <span><i class="fas fa-vial"></i> Laboratory Results</span>
+            <span><i class="fas fa-clipboard-list text-primary"></i> Lab & Radiology Results</span>
             <button type="button" onclick="closeViewLabModal()" style="background:none; border:none; font-size:1.2em; cursor:pointer;">&times;</button>
         </h4>
         <div style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
             <table class="table table-hover" style="font-size: 0.9em; width: 100%;">
                 <thead style="background: #f8f9fa;">
                     <tr>
-                        <th style="padding: 10px;">Date</th>
-                        <th style="padding: 10px;">Test</th>
+                        <th style="padding: 10px;">Date & Time</th>
+                        <th style="padding: 10px;">Category</th>
+                        <th style="padding: 10px;">Test / Scan</th>
                         <th style="padding: 10px;">Status</th>
                         <th style="padding: 10px;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($lab_results_list)): ?>
-                        <tr><td colspan="4" style="text-align:center; padding: 20px; color: #777;">No lab results found.</td></tr>
+                    <?php if (empty($combined_results)): ?>
+                        <tr><td colspan="5" style="text-align:center; padding: 20px; color: #777;">No results found.</td></tr>
                     <?php else: ?>
-                        <?php foreach ($lab_results_list as $lr): ?>
+                        <?php foreach ($combined_results as $item): ?>
                         <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 10px;"><?php echo date('M d, Y', strtotime($lr['created_at'])); ?></td>
-                            <td style="padding: 10px;"><strong><?php echo htmlspecialchars($lr['test_type']); ?></strong></td>
+                            <td style="padding: 10px; white-space: nowrap;"><?php echo date('M d, Y H:i', strtotime($item['created_at'])); ?></td>
                             <td style="padding: 10px;">
-                                <span class="badge <?php echo $lr['status'] == 'completed' ? 'badge-success' : 'badge-warning'; ?>">
-                                    <?php echo ucfirst($lr['status']); ?>
+                                <?php if ($item['source_type'] === 'lab'): ?>
+                                    <span class="badge" style="background: #e3f2fd; color: #0d47a1;"><i class="fas fa-flask"></i> Lab</span>
+                                <?php else: ?>
+                                    <span class="badge" style="background: #fff3e0; color: #e65100;"><i class="fas fa-x-ray"></i> Radiology</span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="padding: 10px;"><strong><?php echo htmlspecialchars($item['source_type'] === 'lab' ? $item['test_type'] : $item['report_type']); ?></strong></td>
+                            <td style="padding: 10px;">
+                                <span class="badge <?php echo $item['status'] == 'completed' ? 'badge-success' : 'badge-warning'; ?>">
+                                    <?php echo ucfirst($item['status']); ?>
                                 </span>
                             </td>
                             <td style="padding: 10px;">
-                                <?php if ($lr['status'] === 'completed'): ?>
-                                    <a href="../../modules/lab/results.php?id=<?php echo $lr['id']; ?>" target="_blank" class="btn btn-sm btn-primary" style="padding: 2px 8px; font-size: 0.8em;">View Report</a>
+                                <?php if ($item['status'] === 'completed'): ?>
+                                    <?php if ($item['source_type'] === 'lab'): ?>
+                                        <a href="../../modules/lab/results.php?id=<?php echo $item['id']; ?>" target="_blank" class="btn btn-sm btn-primary" style="padding: 2px 8px; font-size: 0.8em;">View Report</a>
+                                    <?php else: ?>
+                                        <?php 
+                                            $urls = json_decode($item['image_url'], true);
+                                            if (!is_array($urls)) {
+                                                $urls = !empty($item['image_url']) ? [$item['image_url']] : [];
+                                            }
+                                            if (empty($urls)):
+                                        ?>
+                                            <span class="text-muted">No File Attached</span>
+                                        <?php else: ?>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                            <?php foreach ($urls as $idx => $url): ?>
+                                                <a href="<?php echo htmlspecialchars($url); ?>" target="_blank" class="btn btn-sm btn-info" style="padding: 2px 8px; font-size: 0.8em; white-space: nowrap;">View Scan <?php echo count($urls) > 1 ? ($idx + 1) : ''; ?></a>
+                                            <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <span class="text-muted">-</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
+                        <?php if ($item['source_type'] === 'rad' && !empty($item['findings'])): ?>
+                        <tr>
+                            <td colspan="5" style="padding: 15px; background: #fafafa; border-bottom: 2px solid #eee;">
+                                <div style="font-size: 0.9em; color: #444;">
+                                    <strong><i class="fas fa-file-medical-alt text-primary"></i> Radiologist Findings & Interpretation:</strong><br>
+                                    <div style="margin-top: 8px; white-space: pre-wrap; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; font-family: 'Inter', sans-serif;"><?php echo htmlspecialchars($item['findings']); ?></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
@@ -1693,6 +1768,158 @@ function submitValidCompletion() {
             btn.disabled = false;
         });
     }
+</script>
+
+<!-- Referral Modal -->
+<div id="referralModal" class="lab-modal" style="display:none;">
+    <div class="lab-modal-content" style="width: 800px; max-width: 95%;">
+        <span class="close" onclick="closeReferralModal()" style="cursor: pointer; float: right; font-size: 28px; font-weight: bold;">&times;</span>
+        <h4 style="color: #344767; margin-bottom: 20px;"><i class="fas fa-hand-holding-medical"></i> Refer Patient to Doctor</h4>
+        
+        <form method="POST" action="">
+            <input type="hidden" name="refer_patient" value="1">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <!-- Specialization -->
+                <div>
+                    <label style="font-weight: 500; font-size: 0.9em; display: block; margin-bottom: 5px;">Select Specialization</label>
+                    <select id="ref_specialization" class="form-control" onchange="filterRefDoctors()" style="width: 100%;">
+                        <option value="">All Specializations</option>
+                        <?php foreach ($specializations as $spec): ?>
+                            <option value="<?php echo htmlspecialchars($spec); ?>"><?php echo htmlspecialchars($spec); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <!-- Doctor -->
+                <div>
+                    <label style="font-weight: 500; font-size: 0.9em; display: block; margin-bottom: 5px;">Select Doctor</label>
+                    <select name="referral_doctor_id" id="ref_doctor_id" class="form-control" required onchange="fetchRefSlots()" style="width: 100%;">
+                        <option value="">-- Choose Doctor --</option>
+                        <?php foreach ($referral_doctors as $doc): ?>
+                            <option value="<?php echo $doc['id']; ?>" data-spec="<?php echo htmlspecialchars($doc['specialization']); ?>">
+                                Dr. <?php echo htmlspecialchars($doc['first_name'] . ' ' . $doc['last_name']); ?> (<?php echo htmlspecialchars($doc['specialization']); ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Date & Time Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px; margin-bottom: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <div>
+                    <label style="font-weight: 500; font-size: 0.9em; display: block; margin-bottom: 5px;">Select Date</label>
+                    <input type="date" id="ref_date" name="referral_date" class="form-control" required onchange="fetchRefSlots()" min="<?php echo date('Y-m-d'); ?>" style="width: 100%;">
+                </div>
+                <div>
+                    <label style="font-weight: 500; font-size: 0.9em; display: block; margin-bottom: 5px;">Available Time Slots (Auto-updating)</label>
+                    <div id="ref-slot-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; max-height: 150px; overflow-y: auto; padding: 10px; border: 1px dashed #ccc; background: #f9f9f9; border-radius: 6px; min-height: 50px;">
+                        <p style="color: #777; font-size: 0.85em; grid-column: 1/-1; margin: 0;">Select doctor and date first.</p>
+                    </div>
+                    <input type="hidden" name="referral_time" id="ref_selected_time" required>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 500; font-size: 0.9em; display: block; margin-bottom: 5px;">Referral Reason / Notes for Doctor</label>
+                <textarea name="referral_reason" class="form-control" rows="3" required placeholder="State the reason for referral..." style="width: 100%;"></textarea>
+            </div>
+
+            <div style="text-align: right; margin-top: 15px;">
+                <button type="button" class="btn btn-secondary" onclick="closeReferralModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="background: #333; color: white;"><i class="fas fa-paper-plane"></i> Submit Referral</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .ref-slot { background: #e8f5e9; border: 1px solid #c8e6c9; color: #1b5e20; border-radius: 4px; padding: 5px; text-align: center; cursor: pointer; font-size: 0.85em; transition: 0.2s; user-select: none; }
+    .ref-slot:hover { background: #c8e6c9; }
+    .ref-slot.booked { background: #ffebee; border-color: #ffcdd2; color: #b71c1c; cursor: not-allowed; text-decoration: line-through; }
+    .ref-slot.selected { background: #007bff; color: white; border-color: #0056b3; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: bold; }
+</style>
+
+<script>
+function openReferralModal() { document.getElementById('referralModal').style.display = 'block'; }
+function closeReferralModal() { document.getElementById('referralModal').style.display = 'none'; }
+
+function filterRefDoctors() {
+    const spec = document.getElementById('ref_specialization').value;
+    const select = document.getElementById('ref_doctor_id');
+    const options = select.options;
+    select.value = "";
+    
+    for (let i = 1; i < options.length; i++) {
+        const option = options[i];
+        const docSpec = option.getAttribute('data-spec');
+        if (spec === "" || docSpec === spec) {
+            option.style.display = "";
+            option.disabled = false;
+        } else {
+            option.style.display = "none";
+            option.disabled = true;
+        }
+    }
+    document.getElementById('ref-slot-container').innerHTML = '<p style="color: #777; font-size: 0.85em; grid-column: 1/-1; margin: 0;">Select doctor and date first.</p>';
+    document.getElementById('ref_selected_time').value = '';
+}
+
+function fetchRefSlots() {
+    const docId = document.getElementById('ref_doctor_id').value;
+    const date = document.getElementById('ref_date').value;
+    const container = document.getElementById('ref-slot-container');
+
+    if (!docId || !date) return;
+
+    container.innerHTML = '<span style="font-size: 0.8em; color: #666;">Loading available slots...</span>';
+
+    fetch(`get_booked_slots.php?doctor_id=${docId}&date=${date}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.error) throw new Error(data.error);
+            renderRefSlots(data.booked_slots || [], date);
+        })
+        .catch(err => {
+            container.innerHTML = `<span style="font-size: 0.8em; color: red;">Error: ${err.message}</span>`;
+        });
+}
+
+function renderRefSlots(booked, dateStr) {
+    const container = document.getElementById('ref-slot-container');
+    container.innerHTML = '';
+    const now = new Date();
+    const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    const isToday = (dateStr === todayStr);
+
+    for (let h = 9; h < 17; h++) {
+        for (let m = 0; m < 60; m += 15) {
+            const timeStr = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+            const isBooked = booked.includes(timeStr);
+            let isPast = false;
+            if (isToday && (h < now.getHours() || (h === now.getHours() && m < now.getMinutes()))) {
+                isPast = true;
+            }
+            
+            const div = document.createElement('div');
+            let cls = 'ref-slot';
+            if(isBooked || isPast) {
+                cls += ' booked';
+                if (isPast) div.title = "Time passed";
+                if (isBooked) div.title = "Already booked";
+            }
+            div.className = cls;
+            div.textContent = timeStr;
+
+            if(!isBooked && !isPast) {
+                div.onclick = function() {
+                    document.querySelectorAll('.ref-slot.selected').forEach(e => e.classList.remove('selected'));
+                    div.classList.add('selected');
+                    document.getElementById('ref_selected_time').value = timeStr;
+                };
+            }
+            container.appendChild(div);
+        }
+    }
+}
 </script>
 
 <?php if (!$is_embedded) include '../../includes/footer.php'; ?>

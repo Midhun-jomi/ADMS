@@ -124,7 +124,19 @@ $pre_patient_id = $_GET['patient_id'] ?? '';
                             <a href="upload.php?id=<?php echo $order['id']; ?>" class="btn btn-sm" style="background: #007bff; color: white; padding: 2px 8px; font-size: 12px;">Upload/Process</a>
                         <?php else: ?>
                             <?php if ($order['status'] === 'completed'): ?>
-                                <a href="<?php echo htmlspecialchars($order['image_url']); ?>" target="_blank" class="btn btn-sm" style="background: #28a745; color: white; padding: 2px 8px; font-size: 12px;">View Scan</a>
+                                <?php 
+                                    $urls = json_decode($order['image_url'], true);
+                                    if (!is_array($urls)) {
+                                        $urls = !empty($order['image_url']) ? [$order['image_url']] : [];
+                                    }
+                                    if (empty($urls)):
+                                ?>
+                                    <span style="color: #6c757d; font-size: 0.9em;">No File</span>
+                                <?php else: ?>
+                                    <?php foreach ($urls as $idx => $url): ?>
+                                        <a href="<?php echo htmlspecialchars($url); ?>" target="_blank" class="btn btn-sm" style="background: #28a745; color: white; padding: 2px 8px; font-size: 12px; margin-bottom: 2px; display: inline-block;">View Scan <?php echo count($urls) > 1 ? ($idx + 1) : ''; ?></a>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <span style="color: #6c757d; font-size: 0.9em;">Pending</span>
                             <?php endif; ?>

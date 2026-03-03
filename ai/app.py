@@ -14,9 +14,10 @@ CORS(app)  # Enable CORS for all routes
 vectorizer = None
 model = None
 med_db = []
-DATASET_PATH = "ai_triage_queue_dataset_200.xlsx"
-FEEDBACK_PATH = "ai_feedback_data.csv"
-MED_DB_PATH = "med_database.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_PATH = os.path.join(BASE_DIR, "ai_triage_queue_dataset_200.xlsx")
+FEEDBACK_PATH = os.path.join(BASE_DIR, "ai_feedback_data.csv")
+MED_DB_PATH = os.path.join(BASE_DIR, "med_database.json")
 
 # --- 1. Load Medicine Database ---
 def load_med_db():
@@ -358,8 +359,14 @@ def suggest_alternative():
         return jsonify({"error": "No medicine provided"}), 400
         
     med_name = data['medicine'].lower().strip()
+    inventory = data.get('inventory', []) # Optional list of strings of available meds from PHP
+    inventory_lower = [str(i).lower().strip() for i in inventory]
     
-    # Find the medication in our DB
+    # 1. Ensure DB is loaded (in case it failed initially due to path)
+    if not med_db:
+        load_med_db()
+        
+    # 2. Find the requested medication in our smart JSON DB
     found_med = None
     for m in med_db:
         if m['name'].lower() == med_name or med_name in [b.lower() for b in m['brand_names']]:
@@ -367,44 +374,70 @@ def suggest_alternative():
             break
             
     if not found_med:
-        # Fallback to old simple dict if not in JSON (optional)
+        # If we can't identify it in our smart DB, just pick something random from inventory as a fallback, 
+        # or return a generic unknown string if no inventory provided.
+        if inventory:
+            best_guess = inventory[0]
+            return jsonify({
+                "suggested_alternative": best_guess,
+                "reason": "Exact match not found in AI knowledge base. Suggesting available stock.",
+                "dosage": "As per prescription",
+                "active_ingredients": []
+            })
         return jsonify({
-            "suggested_alternative": f"Generic {med_name.capitalize()}",
-            "reason": "Exact match not found in smart DB. Suggesting generic.",
+            "suggested_alternative": f"Generic {med_name.title()}",
+            "reason": "Exact match not found in smart DB. Suggesting generic pattern.",
             "dosage": "As per prescription",
             "active_ingredients": []
         })
 
-    # Look for substitutes with OVERLAPPING active ingredients
-    substitutes = []
-    target_ingredients = set(found_med['active_ingredients'])
+    # 3. Gather all possible valid substitute names (same active ingredient)
+    possible_subs = []
     
+    # Add names from the SAME category object (generic name + all other brand names)
+    possible_subs.append((found_med['name'], found_med))
+    for b in found_med['brand_names']:
+        if b.lower() != med_name: # Don't suggest the exact same name they asked for
+            possible_subs.append((b, found_med))
+            
+    # Add names from OTHER objects with overlapping active ingredients
+    target_ingredients = set(found_med['active_ingredients'])
     for m in med_db:
-        if m['name'] == found_med['name']: continue # Skip self
-        
-        # Check ingredient overlap
+        if m['name'] == found_med['name']: continue
         current_ingredients = set(m['active_ingredients'])
-        if target_ingredients & current_ingredients: # Intersection exists
-            substitutes.append(m)
+        if target_ingredients & current_ingredients:
+            possible_subs.append((m['name'], m))
+            for b in m['brand_names']:
+                possible_subs.append((b, m))
 
-    if substitutes:
-        # Pick the best one (same form preferred)
-        best_sub = substitutes[0] # Default first
-        for s in substitutes:
-            if s['dosage_form'] == found_med['dosage_form']:
-                best_sub = s
+    # 4. Filter by actual inventory (if PHP passed it)
+    best_sub_name = None
+    best_sub_obj = None
+    
+    if inventory_lower:
+        # Prioritize substitutes that are ACTUALLY IN STOCK
+        for sub_name, sub_obj in possible_subs:
+            if sub_name.lower() in inventory_lower:
+                best_sub_name = sub_name
+                best_sub_obj = sub_obj
                 break
-        
+                
+    # If none found in stock, or inventory wasn't provided, just grab the first valid substitute
+    if not best_sub_name and possible_subs:
+        best_sub_name = possible_subs[0][0]
+        best_sub_obj = possible_subs[0][1]
+
+    if best_sub_name and best_sub_obj:
         return jsonify({
-            "original_medicine": found_med['name'],
-            "suggested_alternative": best_sub['brand_names'][0] if best_sub['brand_names'] else best_sub['name'],
-            "reason": f"Same formula: {', '.join(best_sub['active_ingredients'])}",
-            "dosage": best_sub['strength'],
-            "active_ingredients": best_sub['active_ingredients']
+            "original_medicine": found_med['name'] if found_med['name'].lower() != med_name else med_name.title(),
+            "suggested_alternative": best_sub_name.title(),
+            "reason": f"Shared active ingredient: {', '.join(best_sub_obj['active_ingredients'])}",
+            "dosage": best_sub_obj.get('strength', 'Standard'),
+            "active_ingredients": best_sub_obj.get('active_ingredients', [])
         })
     else:
-         return jsonify({
-            "suggested_alternative": "No direct formula match",
+        return jsonify({
+            "suggested_alternative": "No direct formula match available",
             "reason": "Consult Doctor for alternative class.",
             "dosage": "N/A"
         })
