@@ -115,7 +115,7 @@ $maintenance_assets = count(array_filter($assets, fn($a) => $a['status'] === 'ma
                 <i class="fas fa-dollar-sign"></i>
             </div>
             <div class="stat-details">
-                <h3>$<?php echo number_format($total_cost, 2); ?></h3>
+                <h3>₹<?php echo number_format($total_cost, 2); ?></h3>
                 <p>Total Value</p>
             </div>
         </div>
@@ -164,7 +164,7 @@ $maintenance_assets = count(array_filter($assets, fn($a) => $a['status'] === 'ma
                         <td class="text-muted asset-cat"><?php echo htmlspecialchars($item['category']); ?></td>
                         <td class="text-muted"><i class="fas fa-map-marker-alt text-danger-light mr-1"></i> <?php echo htmlspecialchars($item['location']); ?></td>
                         <td class="text-muted"><?php echo date('M d, Y', strtotime($item['purchase_date'])); ?></td>
-                        <td class="font-weight-600">$<?php echo number_format($item['cost'], 2); ?></td>
+                        <td class="font-weight-600">₹<?php echo number_format($item['cost'], 2); ?></td>
                         <td>
                             <?php if ($item['status'] == 'active'): ?>
                                 <span class="badge badge-success-soft badge-pill px-3 py-1 font-weight-500"><i class="fas fa-check-circle mr-1"></i> Active</span>
