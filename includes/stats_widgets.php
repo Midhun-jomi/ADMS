@@ -24,7 +24,7 @@ try {
         $stats['card2']['value'] = db_select_one("SELECT COUNT(*) as c FROM appointments WHERE status = 'scheduled'")['c'] ?? 0;
         $stats['card3']['value'] = db_select_one("SELECT COUNT(*) as c FROM rooms WHERE status = 'occupied'")['c'] ?? 0;
         $revenue = db_select_one("SELECT SUM(total_amount) as s FROM billing WHERE status = 'paid'")['s'] ?? 0;
-        $stats['card4']['value'] = '$' . number_format($revenue, 0);
+        $stats['card4']['value'] = '₹' . number_format($revenue, 0);
 
     } elseif ($role === 'doctor') {
         // DOCTOR STATS
