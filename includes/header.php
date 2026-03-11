@@ -24,6 +24,7 @@ $user_role = $_SESSION['role'] ?? 'Guest';
         
         <div class="content-wrapper">
             <header class="top-header">
+                <?php if ($user_role !== 'patient'): ?>
                 <div class="search-bar">
                     <button id="sidebarToggle" class="icon-btn-sm" style="margin-right: 10px; display: none;">
                         <i class="fas fa-bars"></i>
@@ -35,6 +36,7 @@ $user_role = $_SESSION['role'] ?? 'Guest';
                         <input type="text" name="q" placeholder="Search here..." required style="border: none; outline: none; flex: 1; font-size: 0.95em;">
                     </form>
                 </div>
+                <?php endif; ?>
                 
                 <div class="header-actions">
                     <?php if ($user_role === 'patient'): ?>
@@ -220,7 +222,17 @@ $user_role = $_SESSION['role'] ?? 'Guest';
             <main class="main-content">
                 <!-- Global Stats Widgets (Requested on every page) -->
                 <?php 
-                if ($user_role !== 'patient') {
+                $hide_global_stats = ['/modules/blood_bank/'];
+                $current_script = $_SERVER['PHP_SELF'];
+                $should_show_stats = true;
+                foreach($hide_global_stats as $path){
+                    if(strpos($current_script, $path) !== false){
+                        $should_show_stats = false;
+                        break;
+                    }
+                }
+                
+                if ($user_role !== 'patient' && $should_show_stats) {
                     include __DIR__ . '/stats_widgets.php'; 
                 }
                 ?>

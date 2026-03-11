@@ -3,12 +3,7 @@
 require_once '../../includes/db.php';
 require_once '../../includes/auth_session.php';
 
-// Access: Admin, Patient
-$allowed_roles = ['admin', 'patient'];
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], $allowed_roles)) {
-    header("Location: /index.php");
-    exit();
-}
+check_role(['admin', 'patient']);
 
 $page_title = "Edit Profile";
 require_once '../../includes/header.php';
@@ -47,6 +42,9 @@ if (!$patient) {
 
 // Handle Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error_msg = "Invalid request. Please refresh and try again.";
+    } else {
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
     $phone = $_POST['phone'];
@@ -67,11 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         $error_msg = "Update failed: " . $e->getMessage();
     }
-    // Include redirect logic
-    $redirect_url = ($role === 'admin') ? 'patients.php' : '/dashboards/patient_dashboard.php';
+    // Redirect on success
     if ($success_msg) {
-        echo "<script>setTimeout(function(){ window.location.href = '$redirect_url'; }, 3000);</script>";
+        $redirect_url = ($role === 'admin') ? BASE_URL . '/modules/ehr/patients.php' : BASE_URL . '/dashboards/patient_dashboard.php';
+        header("Location: " . $redirect_url);
+        exit();
     }
+    } // end CSRF check
 }
 ?>
 
@@ -105,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if ($error_msg): ?> <div class="alert alert-danger"><?php echo $error_msg; ?></div> <?php endif; ?>
 
                 <form method="POST" class="styled-form">
+                    <?php echo csrf_input(); ?>
                     <div class="form-row">
                         <div class="form-group">
                             <label><i class="fas fa-user"></i> First Name</label>

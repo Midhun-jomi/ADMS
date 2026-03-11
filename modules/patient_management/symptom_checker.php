@@ -191,38 +191,89 @@ include '../../includes/header.php';
         return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     }
 
-    function appendMessage(role, text, diagnosis = null, urgency = null) {
+    function appendMessage(role, text, diagnosis = null, urgency = null, spec = null) {
         const chatBox = document.getElementById('chatBox');
         const indicator = document.getElementById('typingIndicator');
-        
+
         const div = document.createElement('div');
         div.className = `msg-bubble msg-${role === 'user' ? 'user' : 'ai'}`;
-        
+
         let html = formatMessage(text);
-        
+
         if (diagnosis) {
             let urgencyColor = urgency === 'Critical' ? '#ef4444' : (urgency === 'High' ? '#f59e0b' : '#3b82f6');
             let bgClass = urgency === 'Critical' ? 'background: #fef2f2; border-color: #fecaca;' : '';
-            
+
             html += `
                 <div class="diagnosis-card" style="${bgClass}">
                     <div style="font-size: 0.85em; text-transform:uppercase; font-weight:700; color: #64748b; margin-bottom:5px;">AI Preliminary Assessment</div>
                     <div style="font-size: 1.1em; font-weight: 600; margin-bottom: 5px;">${diagnosis}</div>
+                    ${spec ? `<div style="font-size: 0.9em; margin-bottom: 8px; color: #475569;"><i class="fas fa-hospital-user"></i> Recommended Dept: <strong>${spec}</strong></div>` : ''}
                     <span style="font-size: 0.8em; font-weight: 600; padding: 3px 8px; border-radius: 12px; background: white; border: 1px solid ${urgencyColor}; color: ${urgencyColor};">
                         Priority: ${urgency || 'Normal'}
                     </span>
+                    <div id="doctorSuggestions" style="margin-top: 12px;"></div>
                     <div style="margin-top: 10px;">
                         <a href="/modules/ehr/book_appointment.php" class="btn btn-sm btn-primary" style="background: #21a9af; border: none; padding: 5px 15px; font-size: 0.85em;">Book Doctor Appointment</a>
                     </div>
                 </div>
             `;
+
+            // Fetch suggested doctors after rendering
+            if (spec) {
+                setTimeout(() => loadSuggestedDoctors(spec), 100);
+            }
         }
-        
+
         div.innerHTML = html;
-        
+
         // Insert before typing indicator
         chatBox.insertBefore(div, indicator);
         chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function loadSuggestedDoctors(spec) {
+        fetch(`api_suggest_doctors.php?specialization=${encodeURIComponent(spec)}`)
+        .then(r => r.json())
+        .then(data => {
+            const container = document.getElementById('doctorSuggestions');
+            if (!container) return;
+            if (!data.doctors || data.doctors.length === 0) return;
+
+            let html = `<div style="font-size: 0.85em; font-weight: 700; color: #166534; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fas fa-user-md"></i> Available Doctors
+                        </div>`;
+            data.doctors.forEach(doc => {
+                const load = parseInt(doc.appt_count);
+                const loadColor = load <= 3 ? '#16a34a' : load <= 7 ? '#d97706' : '#dc2626';
+                const loadLabel = load <= 3 ? 'Low Load' : load <= 7 ? 'Moderate' : 'Busy';
+                const bookUrl = `/modules/ehr/book_appointment.php?doctor_id=${encodeURIComponent(doc.id)}&spec=${encodeURIComponent(doc.specialization)}`;
+                html += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: white; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; border: 1px solid #d1fae5;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #e0f2fe; display: flex; align-items: center; justify-content: center; color: #0369a1; font-size: 1em;">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #1e293b; font-size: 0.9em;">Dr. ${doc.first_name} ${doc.last_name}</div>
+                                <div style="font-size: 0.78em; color: #64748b;">${doc.specialization}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.75em; font-weight: 600; color: ${loadColor}; background: ${loadColor}18; padding: 2px 8px; border-radius: 99px;">${loadLabel}</div>
+                                <div style="font-size: 0.72em; color: #94a3b8; margin-top: 2px;">${load} today</div>
+                            </div>
+                            <a href="${bookUrl}" style="background: #21a9af; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.78em; font-weight: 600; text-decoration: none; white-space: nowrap;">
+                                Book
+                            </a>
+                        </div>
+                    </div>`;
+            });
+
+            container.innerHTML = html;
+        })
+        .catch(() => {});
     }
 
     function sendMessage() {
@@ -246,7 +297,7 @@ include '../../includes/header.php';
         chatBox.scrollTop = chatBox.scrollHeight;
         
         // 3. Send to Python Backend
-        fetch('http://localhost:5001/symptom_chat', {
+        fetch('api_symptom_chat.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ messages: chatHistory })
@@ -262,7 +313,7 @@ include '../../includes/header.php';
                 return;
             }
             
-            appendMessage('ai', data.reply, data.diagnosis, data.urgency);
+            appendMessage('ai', data.reply, data.diagnosis, data.urgency, data.specialization);
             chatHistory.push({ role: 'assistant', content: data.reply });
             
             if (data.finished) {

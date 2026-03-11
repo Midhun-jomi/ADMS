@@ -9,20 +9,25 @@ include '../../includes/header.php';
 
 $patient_id = db_select_one("SELECT id FROM patients WHERE user_id = $1", [get_user_id()])['id'];
 $success = '';
+$error = '';
 
 // Handle Add Policy
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_policy'])) {
-    $provider_id = $_POST['provider_id'];
-    $policy_no = $_POST['policy_number'];
-    $expiry = $_POST['expiry_date'];
-    
-    db_insert('patient_insurance', [
-        'patient_id' => $patient_id,
-        'provider_id' => $provider_id,
-        'policy_number' => $policy_no,
-        'expiry_date' => $expiry
-    ]);
-    $success = "Insurance policy added.";
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
+        $provider_id = $_POST['provider_id'];
+        $policy_no = $_POST['policy_number'];
+        $expiry = $_POST['expiry_date'];
+
+        db_insert('patient_insurance', [
+            'patient_id' => $patient_id,
+            'provider_id' => $provider_id,
+            'policy_number' => $policy_no,
+            'expiry_date' => $expiry
+        ]);
+        $success = "Insurance policy added.";
+    }
 }
 
 // Fetch Data
@@ -36,7 +41,8 @@ $my_policies = db_select("SELECT pi.*, ip.name as provider_name
 <div class="card">
     <div class="card-header">My Insurance Policies</div>
     <div class="card-body">
-        <?php if ($success): ?><div class="alert alert-success"><?php echo $success; ?></div><?php endif; ?>
+        <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
+        <?php if ($success): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
 
         <div style="display: flex; gap: 20px;">
             <!-- List Policies -->
@@ -59,6 +65,7 @@ $my_policies = db_select("SELECT pi.*, ip.name as provider_name
             <div style="flex: 1; background: #fff; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
                 <h5>Link New Insurance</h5>
                 <form method="POST" action="">
+                    <?php echo csrf_input(); ?>
                     <div class="form-group">
                         <label>Provider</label>
                         <select name="provider_id" class="form-control" required>

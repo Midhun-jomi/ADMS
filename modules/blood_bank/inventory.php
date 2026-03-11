@@ -58,16 +58,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_stock'])) {
     }
 }
 
+// Auto-expire stock past expiry date
+db_query("UPDATE blood_inventory SET status = 'expired' WHERE status = 'available' AND expiry_date < CURRENT_DATE");
+
 // Fetch data — join donor name for inventory display
 $donors      = db_select("SELECT * FROM blood_donors ORDER BY name");
 $stock_items = db_select("
     SELECT bi.*, bd.name AS donor_name
     FROM blood_inventory bi
     LEFT JOIN blood_donors bd ON bi.donor_id = bd.id
-    WHERE bi.status = 'available'
-    ORDER BY bi.expiry_date ASC
+    WHERE bi.status IN ('available', 'expired')
+    ORDER BY bi.status ASC, bi.expiry_date ASC
 ");
 ?>
+
 
 <div class="main-content">
     <div class="page-header" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
@@ -142,7 +146,13 @@ $stock_items = db_select("
                                     <?php if ($expiring_soon): ?><span class="bb-tag-pill orange">Soon</span><?php endif; ?>
                                 </span>
                             </td>
-                            <td><span class="bb-tag-pill green">Available</span></td>
+                            <td>
+                                <?php if ($item['status'] === 'expired'): ?>
+                                    <span class="bb-tag-pill red">Unavailable</span>
+                                <?php else: ?>
+                                    <span class="bb-tag-pill green">Available</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -260,13 +270,28 @@ $stock_items = db_select("
                         <label>Quantity (Units) <span class="bb-required">*</span></label>
                         <input type="number" name="quantity" value="1" min="1" required class="bb-input">
                     </div>
+                <div class="bb-form-row">
+                    <div class="bb-form-group">
+                        <label>Component Type <span class="bb-required">*</span></label>
+                        <select name="component" id="stock_component" class="bb-select" onchange="predictExpiry()">
+                            <option value="Whole Blood">Whole Blood</option>
+                            <option value="PRBC">PRBC</option>
+                            <option value="Platelets">Platelets</option>
+                            <option value="Plasma">Plasma</option>
+                        </select>
+                    </div>
+                    <div class="bb-form-group">
+                        <label>Collection Date <span class="bb-required">*</span></label>
+                        <input type="date" name="collection_date" id="stock_collection_date" class="bb-input"
+                               value="<?php echo date('Y-m-d'); ?>" max="<?php echo date('Y-m-d'); ?>" onchange="predictExpiry()">
+                    </div>
                 </div>
                 <div class="bb-form-group">
-                    <label>Expiry Date <span class="bb-required">*</span></label>
-                    <input type="date" name="expiry_date" required class="bb-input"
+                    <label>Expiry Date (AI Predicted) <span class="bb-required">*</span></label>
+                    <input type="date" name="expiry_date" id="stock_expiry_date" required class="bb-input"
                            min="<?php echo date('Y-m-d'); ?>"
                            value="<?php echo date('Y-m-d', strtotime('+42 days')); ?>">
-                    <small class="bb-hint">Standard blood shelf life is ~42 days</small>
+                    <small class="bb-hint" id="expiry_hint"><i class="fas fa-robot text-primary"></i> AI Engine automatically calculates accurate shelf-life per ISBT standards</small>
                 </div>
             </div>
 
@@ -445,6 +470,36 @@ function autofillBloodGroup() {
     } else {
         preview.style.display = 'none';
     }
+}
+
+// Predict Expiry Date via AI
+function predictExpiry() {
+    const comp = document.getElementById('stock_component').value;
+    const colDate = document.getElementById('stock_collection_date').value;
+    const expInput = document.getElementById('stock_expiry_date');
+    const hint = document.getElementById('expiry_hint');
+    
+    if(!colDate) return;
+    
+    hint.innerHTML = '<i class="fas fa-spinner fa-spin text-primary"></i> AI calculating...';
+    
+    fetch('api_predict_blood_expiry.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ component: comp, collection_date: colDate })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.expiry_date) {
+            expInput.value = data.expiry_date;
+            expInput.min = colDate; // Reset min just in case
+            hint.innerHTML = `<i class="fas fa-check-circle text-success"></i> Based on <strong>${data.calculated_days} day(s)</strong> shelf-life for ${comp}`;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        hint.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> AI unavailable. Falling back to manual entry.';
+    });
 }
 
 // Close modal on Escape

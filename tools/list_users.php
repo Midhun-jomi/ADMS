@@ -1,5 +1,8 @@
 <?php
-require_once 'includes/db.php';
+// tools/list_users.php — Admin-only tool
+require_once '../includes/db.php';
+require_once '../includes/auth_session.php';
+check_role(['admin']);
 
 try {
     $sql = "SELECT id, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 5";

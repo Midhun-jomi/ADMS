@@ -14,6 +14,7 @@ CORS(app)  # Enable CORS for all routes
 vectorizer = None
 model = None
 med_db = []
+# Ensure path is relative to script location
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_PATH = os.path.join(BASE_DIR, "ai_triage_queue_dataset_200.xlsx")
 FEEDBACK_PATH = os.path.join(BASE_DIR, "ai_feedback_data.csv")
@@ -32,23 +33,15 @@ def load_med_db():
 # --- 2. Mock Data Generator (Fallback) ---
 def create_mock_dataset():
     data = {
-        "Medical_History": ["None", "Diabetes", "Asthma", "Heart Condition", "None", "Migraine", "None", "Smoking", "High BP"],
+        "Medical_History": ["None", "Diabetes", "Asthma", "Heart Condition", "Migraine", "Gastritis", "None"],
         "Symptoms": [
-            "mild headache", 
-            "thirst and frequent urination", 
-            "wheezing breath shortage", 
-            "severe chest pain radiating to left arm", 
-            "cut on finger bleeding", 
-            "throbbing headache sensitivity to light", 
-            "fever and cough", 
-            "chronic cough night sweats", 
-            "severe headache blurred vision"
+            "mild headache", "thirst and urination", "wheezing", "chest pain", "stomach pain", "fever", "cough"
         ],
         "Keyword_Symptoms": [
-            "headache", "thirst, urination", "wheezing", "chest pain", "cut, bleeding", "headache, light", "fever", "cough", "headache, vision"
+            "headache", "thirst", "wheezing", "chest pain", "stomach", "fever", "cough"
         ],
-        "AI_Urgency": ["Low", "Medium", "High", "Critical", "Low", "Medium", "Medium", "High", "Critical"],
-        "Disease_Label": ["Tension Headache", "Diabetes Type 2", "Asthma Attack", "Myocardial Infarction", "Laceration", "Migraine", "Viral Flu", "Tuberculosis", "Hypertensive Crisis"]
+        "AI_Urgency": ["Low", "Medium", "High", "Critical", "Low", "Medium", "Medium"],
+        "Disease_Label": ["Headache", "Diabetes", "Asthma", "Heart Issue", "Acidity", "Viral", "Cold"]
     }
     return pd.DataFrame(data)
 
@@ -56,50 +49,595 @@ def create_mock_dataset():
 def train_model():
     global vectorizer, model
     
-    # Load Base Dataset
-    if os.path.exists(DATASET_PATH):
-        try:
-            df = pd.read_excel(DATASET_PATH)
-            # Normalize column names if needed
-            if "Disease_Label" not in df.columns:
-               # Map urgency to a proxy label if real label missing (just for demo)
-               df["Disease_Label"] = df["AI_Urgency"] + " Risk Condition" 
-        except Exception as e:
-            print(f"Error loading base dataset: {e}")
-            df = create_mock_dataset()
-    else:
+    # Path logic
+    base_file = "ai_triage_queue_dataset_200.xlsx"
+    path_alternatives = [base_file, os.path.join("ai", base_file), os.path.join("..", base_file)]
+    
+    df = None
+    for path in path_alternatives:
+        if os.path.exists(path):
+            try:
+                print(f"Loading dataset from: {path}")
+                df = pd.read_excel(path)
+                break
+            except Exception as e:
+                print(f"Error reading {path}: {e}")
+
+    if df is None:
+        print("Warning: Dataset not found. Using fallback mock data.")
         df = create_mock_dataset()
 
-    # Load Feedback Data (New Learning)
-    if os.path.exists(FEEDBACK_PATH):
-        try:
-            df_new = pd.read_csv(FEEDBACK_PATH)
-            if not df_new.empty:
-                print(f"Integrating {len(df_new)} new learning samples...")
-                df = pd.concat([df, df_new], ignore_index=True)
-        except Exception as e:
-            print(f"Error loading feedback data: {e}")
-
-    # Preprocessing
+    # Data Cleaning
     df = df.fillna("")
+    
+    # Feature Engineering (Matching untitled1.py)
+    for col in ["Medical_History", "Symptoms", "Keyword_Symptoms"]:
+        if col not in df.columns:
+            df[col] = ""
+
     df["Text"] = (
         df["Medical_History"].astype(str) + " " +
         df["Symptoms"].astype(str) + " " +
         df["Keyword_Symptoms"].astype(str)
     )
 
-    # Vectorization
-    print(f"Training model on {len(df)} records...")
-    vectorizer = TfidfVectorizer()
-    X_vector = vectorizer.fit_transform(df["Text"])
-    y = df["Disease_Label"] # predicting specific disease/condition now
+    # Target Label: AI_Urgency (Proper Training)
+    if "AI_Urgency" not in df.columns:
+        df["AI_Urgency"] = "Medium"
+    
+    y = df["AI_Urgency"]
 
     # Training
+    print(f"Training urgency model on {len(df)} records...")
+    vectorizer = TfidfVectorizer(stop_words='english')
+    X_vector = vectorizer.fit_transform(df["Text"])
+    
     model = MultinomialNB()
     model.fit(X_vector, y)
-    print("Model training complete.")
+    print("Urgency model training complete.")
 
-# --- 4. Prediction Logic ---
+# --- 4. Disease Prediction Engine (Rule-based) ---
+def engine_predict_disease(symptoms, full_history=""):
+    s = symptoms.lower().strip()
+    h = full_history.lower().strip()
+    combined = s + " " + h
+
+    # --- Direct Disease Name Lookup (exact name typed) ---
+    disease_map = {
+        # ── Cardiac / Vascular ──────────────────────────────────────────
+        "heart attack": "Possible Cardiac Condition",
+        "cardiac arrest": "Possible Cardiac Condition",
+        "myocardial infarction": "Possible Cardiac Condition",
+        "angina": "Angina Pectoris / Chest Pain",
+        "heart failure": "Congestive Heart Failure",
+        "congestive heart": "Congestive Heart Failure",
+        "pericarditis": "Pericarditis / Heart Inflammation",
+        "cardiomyopathy": "Cardiomyopathy / Heart Muscle Disease",
+        "atrial fibrillation": "Cardiac Arrhythmia / Atrial Fibrillation",
+        "arrhythmia": "Cardiac Arrhythmia",
+        "hypertension": "Hypertension / High Blood Pressure",
+        "high blood pressure": "Hypertension / High Blood Pressure",
+        "low blood pressure": "Hypotension / Low Blood Pressure",
+        "hypotension": "Hypotension / Low Blood Pressure",
+        "cholesterol": "Hyperlipidemia / High Cholesterol",
+        "hyperlipidemia": "Hyperlipidemia / High Cholesterol",
+        "dvt": "Deep Vein Thrombosis (DVT)",
+        "deep vein thrombosis": "Deep Vein Thrombosis (DVT)",
+        "varicose": "Varicose Veins",
+        "peripheral artery": "Peripheral Artery Disease",
+        "aortic aneurysm": "Aortic Aneurysm",
+        "mitral valve": "Mitral Valve Disease",
+        # ── Endocrine / Metabolic ────────────────────────────────────────
+        "diabetes": "Diabetes Mellitus",
+        "diabetic": "Diabetes Mellitus",
+        "type 1 diabetes": "Type 1 Diabetes Mellitus",
+        "type 2 diabetes": "Type 2 Diabetes Mellitus",
+        "gestational diabetes": "Gestational Diabetes",
+        "thyroid": "Thyroid Disorder",
+        "hypothyroid": "Hypothyroidism",
+        "hyperthyroid": "Hyperthyroidism",
+        "goiter": "Goitre / Thyroid Enlargement",
+        "adrenal": "Adrenal Gland Disorder",
+        "cushing": "Cushing's Syndrome",
+        "addison": "Addison's Disease",
+        "obesity": "Obesity / Metabolic Disorder",
+        "metabolic syndrome": "Metabolic Syndrome",
+        "pcos": "PCOS / Hormonal Disorder",
+        "pcod": "PCOS / Hormonal Disorder",
+        "gout": "Gout / Uric Acid Disorder",
+        "hyperuricemia": "Hyperuricemia / Gout",
+        # ── Respiratory ─────────────────────────────────────────────────
+        "asthma": "Asthma / Respiratory Distress",
+        "tuberculosis": "Tuberculosis (TB)",
+        "tb": "Tuberculosis (TB)",
+        "pneumonia": "Pneumonia / Lung Infection",
+        "bronchitis": "Bronchitis / Airway Inflammation",
+        "copd": "COPD / Chronic Lung Disease",
+        "emphysema": "Emphysema / COPD",
+        "pulmonary embolism": "Pulmonary Embolism",
+        "pulmonary fibrosis": "Pulmonary Fibrosis",
+        "pleurisy": "Pleuritis / Pleurisy",
+        "pleuritis": "Pleuritis / Pleurisy",
+        "sleep apnea": "Sleep Apnoea / Breathing Disorder",
+        "cystic fibrosis": "Cystic Fibrosis",
+        "whooping cough": "Whooping Cough / Pertussis",
+        "pertussis": "Whooping Cough / Pertussis",
+        "sinusitis": "Sinusitis / Nasal Congestion",
+        "sinus": "Sinusitis / Nasal Congestion",
+        "rhinitis": "Allergic Rhinitis / Hay Fever",
+        "hay fever": "Allergic Rhinitis / Hay Fever",
+        "tonsillitis": "Tonsillitis / Throat Infection",
+        "tonsil": "Tonsillitis / Throat Infection",
+        "laryngitis": "Laryngitis / Voice Loss",
+        "nasal polyp": "Nasal Polyp",
+        "deviated septum": "Deviated Nasal Septum",
+        "adenoid": "Adenoid Hypertrophy",
+        # ── Gastrointestinal ─────────────────────────────────────────────
+        "gastritis": "Gastritis / Stomach Inflammation",
+        "gastroenteritis": "Gastroenteritis / Stomach Infection",
+        "appendicitis": "Potential Appendicitis",
+        "ulcer": "Peptic Ulcer Disease",
+        "peptic ulcer": "Peptic Ulcer Disease",
+        "ibs": "Irritable Bowel Syndrome",
+        "irritable bowel": "Irritable Bowel Syndrome",
+        "colitis": "Colitis / Inflammatory Bowel Disease",
+        "crohn": "Crohn's Disease",
+        "inflammatory bowel": "Inflammatory Bowel Disease",
+        "diverticulitis": "Diverticulitis / Bowel Condition",
+        "pancreatitis": "Pancreatitis / Pancreas Inflammation",
+        "gallstone": "Gallstones / Biliary Colic",
+        "cholecystitis": "Cholecystitis / Gallbladder Infection",
+        "jaundice": "Jaundice / Liver Condition",
+        "hepatitis": "Hepatitis / Liver Infection",
+        "cirrhosis": "Liver Cirrhosis",
+        "fatty liver": "Non-Alcoholic Fatty Liver Disease",
+        "nafld": "Non-Alcoholic Fatty Liver Disease",
+        "hernia": "Hernia",
+        "piles": "Piles / Haemorrhoids",
+        "haemorrhoid": "Piles / Haemorrhoids",
+        "hemorrhoid": "Piles / Haemorrhoids",
+        "anal fissure": "Anal Fissure",
+        "fistula": "Anal Fistula",
+        "celiac": "Coeliac / Gluten Intolerance",
+        "constipation": "Chronic Constipation",
+        "diarrhea": "Diarrhoea / GI Infection",
+        "achalasia": "Achalasia / Oesophageal Disorder",
+        "gerd": "GERD / Acid Reflux",
+        "acid reflux": "GERD / Acid Reflux",
+        "lactose": "Lactose Intolerance",
+        # ── Neurological ─────────────────────────────────────────────────
+        "migraine": "Migraine / Severe Headache",
+        "epilepsy": "Epilepsy / Seizure Disorder",
+        "seizure": "Epilepsy / Seizure Disorder",
+        "stroke": "Stroke / Cerebrovascular Accident",
+        "tia": "TIA / Mini Stroke",
+        "transient ischemic": "TIA / Mini Stroke",
+        "paralysis": "Paralysis / Neurological Condition",
+        "parkinson": "Parkinson's Disease",
+        "alzheimer": "Alzheimer's Disease / Dementia",
+        "dementia": "Dementia / Cognitive Decline",
+        "vertigo": "Vertigo / Inner Ear Disorder",
+        "meningitis": "Meningitis / Brain Infection",
+        "encephalitis": "Encephalitis / Brain Inflammation",
+        "bell's palsy": "Bell's Palsy / Facial Nerve Palsy",
+        "bells palsy": "Bell's Palsy / Facial Nerve Palsy",
+        "facial palsy": "Bell's Palsy / Facial Nerve Palsy",
+        "multiple sclerosis": "Multiple Sclerosis",
+        "ms ": "Multiple Sclerosis",
+        "neuropathy": "Peripheral Neuropathy",
+        "trigeminal": "Trigeminal Neuralgia",
+        "cerebral palsy": "Cerebral Palsy",
+        "guillain": "Guillain-Barré Syndrome",
+        "motor neuron": "Motor Neuron Disease",
+        "als": "Amyotrophic Lateral Sclerosis (ALS)",
+        "hydrocephalus": "Hydrocephalus",
+        "meniere": "Ménière's Disease",
+        # ── Musculoskeletal ──────────────────────────────────────────────
+        "arthritis": "Arthritis / Joint Inflammation",
+        "rheumatoid": "Rheumatoid Arthritis",
+        "osteoarthritis": "Osteoarthritis / Degenerative Joint Disease",
+        "osteoporosis": "Osteoporosis / Bone Weakness",
+        "sciatica": "Sciatica / Nerve Pain",
+        "slip disc": "Slipped Disc / Spinal Condition",
+        "slipped disc": "Slipped Disc / Spinal Condition",
+        "herniated disc": "Herniated Disc / Spinal Condition",
+        "spondylitis": "Spondylitis / Spinal Inflammation",
+        "spondylosis": "Spondylosis / Spinal Degeneration",
+        "fracture": "Bone Fracture / Orthopedic Injury",
+        "bursitis": "Bursitis / Joint Inflammation",
+        "tendinitis": "Tendinitis / Tendon Inflammation",
+        "tendonitis": "Tendinitis / Tendon Inflammation",
+        "carpal tunnel": "Carpal Tunnel Syndrome",
+        "rotator cuff": "Rotator Cuff Injury",
+        "plantar fasciitis": "Plantar Fasciitis / Heel Pain",
+        "fibromyalgia": "Fibromyalgia / Chronic Pain Syndrome",
+        "myositis": "Myositis / Muscle Inflammation",
+        "frozen shoulder": "Frozen Shoulder / Adhesive Capsulitis",
+        "tennis elbow": "Tennis Elbow / Lateral Epicondylitis",
+        "golfer elbow": "Golfer's Elbow / Medial Epicondylitis",
+        "ligament tear": "Ligament Injury / ACL Tear",
+        "acl": "ACL Tear / Knee Ligament Injury",
+        "meniscus": "Meniscus Tear / Knee Injury",
+        # ── Dermatology ──────────────────────────────────────────────────
+        "psoriasis": "Psoriasis / Skin Condition",
+        "eczema": "Eczema / Atopic Dermatitis",
+        "atopic dermatitis": "Eczema / Atopic Dermatitis",
+        "fungal": "Fungal Skin Infection",
+        "ringworm": "Ringworm / Tinea Infection",
+        "tinea": "Tinea / Fungal Infection",
+        "allerg": "Allergic Reaction / Dermatitis",
+        "urticaria": "Urticaria / Hives",
+        "hives": "Urticaria / Hives",
+        "acne": "Acne Vulgaris / Skin Condition",
+        "vitiligo": "Vitiligo / Skin Pigmentation Disorder",
+        "shingles": "Herpes Zoster / Shingles",
+        "herpes zoster": "Herpes Zoster / Shingles",
+        "melasma": "Melasma / Skin Pigmentation",
+        "seborrhea": "Seborrheic Dermatitis",
+        "alopecia": "Alopecia / Hair Loss",
+        "hair loss": "Alopecia / Hair Loss",
+        "cellulitis": "Cellulitis / Skin Infection",
+        "impetigo": "Impetigo / Bacterial Skin Infection",
+        "wart": "Warts / HPV Skin Lesion",
+        "scabies": "Scabies / Mite Infestation",
+        "rosacea": "Rosacea / Chronic Skin Redness",
+        "contact dermatitis": "Contact Dermatitis",
+        "drug rash": "Drug-Induced Rash",
+        "ichthyosis": "Ichthyosis / Dry Scaly Skin",
+        # ── Mental Health ─────────────────────────────────────────────────
+        "depression": "Depression / Mood Disorder",
+        "anxiety": "Anxiety / Stress Disorder",
+        "insomnia": "Insomnia / Sleep Disorder",
+        "ocd": "Obsessive-Compulsive Disorder (OCD)",
+        "obsessive": "Obsessive-Compulsive Disorder (OCD)",
+        "ptsd": "Post-Traumatic Stress Disorder (PTSD)",
+        "trauma": "PTSD / Trauma Disorder",
+        "bipolar": "Bipolar Disorder",
+        "schizophrenia": "Schizophrenia / Psychotic Disorder",
+        "psychosis": "Psychosis / Mental Health Crisis",
+        "adhd": "ADHD / Attention Deficit Disorder",
+        "attention deficit": "ADHD / Attention Deficit Disorder",
+        "panic attack": "Panic Disorder",
+        "panic disorder": "Panic Disorder",
+        "eating disorder": "Eating Disorder",
+        "anorexia": "Anorexia Nervosa",
+        "bulimia": "Bulimia Nervosa",
+        "autism": "Autism Spectrum Disorder",
+        "phobia": "Phobia / Anxiety Disorder",
+        "social anxiety": "Social Anxiety Disorder",
+        "burnout": "Burnout / Stress Disorder",
+        # ── Urological / Renal ───────────────────────────────────────────
+        "kidney stone": "Kidney Stones / Renal Calculi",
+        "renal calculi": "Kidney Stones / Renal Calculi",
+        "nephrolithiasis": "Kidney Stones / Renal Calculi",
+        "uti": "Urinary Tract Infection",
+        "urinary infection": "Urinary Tract Infection",
+        "urinary tract": "Urinary Tract Infection",
+        "renal": "Renal / Kidney Condition",
+        "kidney failure": "Chronic Kidney Disease / Renal Failure",
+        "chronic kidney": "Chronic Kidney Disease",
+        "ckd": "Chronic Kidney Disease",
+        "nephrotic": "Nephrotic Syndrome",
+        "nephritis": "Nephritis / Kidney Inflammation",
+        "glomerulonephritis": "Glomerulonephritis",
+        "hydronephrosis": "Hydronephrosis",
+        "prostatitis": "Prostatitis / Prostate Infection",
+        "prostate": "Prostate Condition",
+        "bph": "Benign Prostatic Hyperplasia (BPH)",
+        "benign prostatic": "Benign Prostatic Hyperplasia (BPH)",
+        "incontinence": "Urinary Incontinence",
+        "overactive bladder": "Overactive Bladder",
+        "cystitis": "Cystitis / Bladder Infection",
+        # ── Ophthalmology ─────────────────────────────────────────────────
+        "cataract": "Cataract / Eye Condition",
+        "glaucoma": "Glaucoma / Eye Condition",
+        "conjunctivitis": "Conjunctivitis / Pink Eye",
+        "retinal detachment": "Retinal Detachment",
+        "macular degeneration": "Macular Degeneration",
+        "dry eye": "Dry Eye Syndrome",
+        "uveitis": "Uveitis / Eye Inflammation",
+        "strabismus": "Strabismus / Squint",
+        "squint": "Strabismus / Squint",
+        "keratoconus": "Keratoconus / Corneal Disorder",
+        "blepharitis": "Blepharitis / Eyelid Inflammation",
+        "pterygium": "Pterygium / Eye Growth",
+        "diabetic retinopathy": "Diabetic Retinopathy",
+        "lazy eye": "Amblyopia / Lazy Eye",
+        "amblyopia": "Amblyopia / Lazy Eye",
+        # ── ENT ───────────────────────────────────────────────────────────
+        "otitis": "Otitis / Ear Infection",
+        "ear infection": "Otitis / Ear Infection",
+        "tinnitus": "Tinnitus / Ringing in Ears",
+        "hearing loss": "Hearing Loss / Auditory Disorder",
+        "deafness": "Hearing Loss / Auditory Disorder",
+        "acoustic neuroma": "Acoustic Neuroma",
+        "eardrum": "Tympanic Membrane Disorder",
+        "epistaxis": "Epistaxis / Nosebleed",
+        "nosebleed": "Epistaxis / Nosebleed",
+        # ── Women's Health / Gynaecology ──────────────────────────────────
+        "endometriosis": "Endometriosis",
+        "fibroid": "Uterine Fibroids",
+        "uterine fibroid": "Uterine Fibroids",
+        "menstrual": "Menstrual Disorder",
+        "dysmenorrhea": "Dysmenorrhoea / Painful Periods",
+        "amenorrhea": "Amenorrhoea / Absent Periods",
+        "ovarian cyst": "Ovarian Cyst",
+        "polycystic ovary": "PCOS / Polycystic Ovary Syndrome",
+        "cervical": "Cervical Condition",
+        "cervicitis": "Cervicitis / Cervical Infection",
+        "vaginitis": "Vaginitis / Vaginal Infection",
+        "vulvodynia": "Vulvodynia",
+        "preeclampsia": "Preeclampsia / Pregnancy Complication",
+        "ectopic pregnancy": "Ectopic Pregnancy",
+        "menopause": "Menopause / Hormonal Change",
+        "pelvic inflammatory": "Pelvic Inflammatory Disease",
+        "pid": "Pelvic Inflammatory Disease",
+        # ── Haematology ──────────────────────────────────────────────────
+        "leukemia": "Leukaemia / Blood Cancer",
+        "leukaemia": "Leukaemia / Blood Cancer",
+        "lymphoma": "Lymphoma / Lymph Gland Cancer",
+        "sickle cell": "Sickle Cell Anaemia",
+        "thalassemia": "Thalassaemia / Blood Disorder",
+        "thalassaemia": "Thalassaemia / Blood Disorder",
+        "thrombocytopenia": "Thrombocytopenia / Low Platelets",
+        "hemophilia": "Haemophilia / Bleeding Disorder",
+        "haemophilia": "Haemophilia / Bleeding Disorder",
+        "polycythemia": "Polycythaemia / High Blood Cell Count",
+        "myeloma": "Multiple Myeloma",
+        "aplastic anemia": "Aplastic Anaemia",
+        "anemia": "Anaemia / Blood Deficiency",
+        "anaemia": "Anaemia / Blood Deficiency",
+        "iron deficiency": "Iron Deficiency Anaemia",
+        # ── Oncology ─────────────────────────────────────────────────────
+        "cancer": "Oncological Condition (Cancer)",
+        "tumour": "Oncological Condition (Tumour)",
+        "tumor": "Oncological Condition (Tumour)",
+        "breast cancer": "Breast Cancer",
+        "lung cancer": "Lung Cancer",
+        "colon cancer": "Colorectal Cancer",
+        "colorectal": "Colorectal Cancer",
+        "prostate cancer": "Prostate Cancer",
+        "cervical cancer": "Cervical Cancer",
+        "skin cancer": "Skin Cancer / Melanoma",
+        "melanoma": "Melanoma / Skin Cancer",
+        "stomach cancer": "Gastric Cancer",
+        "liver cancer": "Hepatocellular Carcinoma",
+        "pancreatic cancer": "Pancreatic Cancer",
+        "ovarian cancer": "Ovarian Cancer",
+        "thyroid cancer": "Thyroid Cancer",
+        "brain tumor": "Brain Tumour",
+        "brain tumour": "Brain Tumour",
+        "lymph node": "Possible Lymphoma / Oncological Concern",
+        "metastasis": "Metastatic Cancer",
+        "carcinoma": "Carcinoma / Malignancy",
+        # ── Infections / Tropical ────────────────────────────────────────
+        "malaria": "Malaria / Vector-Borne Fever",
+        "dengue": "Dengue Fever",
+        "typhoid": "Typhoid Fever",
+        "covid": "COVID-19 / Viral Respiratory Infection",
+        "coronavirus": "COVID-19 / Viral Respiratory Infection",
+        "influenza": "Influenza / Seasonal Flu",
+        "chickenpox": "Chickenpox / Varicella Infection",
+        "varicella": "Chickenpox / Varicella Infection",
+        "measles": "Measles / Viral Infection",
+        "mumps": "Mumps / Viral Infection",
+        "rubella": "Rubella / German Measles",
+        "chikungunya": "Chikungunya / Viral Fever",
+        "leptospirosis": "Leptospirosis",
+        "typhus": "Typhus Fever",
+        "rabies": "Rabies (Emergency — Seek Immediate Care)",
+        "tetanus": "Tetanus / Lock Jaw",
+        "hiv": "HIV / AIDS",
+        "aids": "HIV / AIDS",
+        "hepatitis a": "Hepatitis A",
+        "hepatitis b": "Hepatitis B",
+        "hepatitis c": "Hepatitis C",
+        "hpv": "HPV / Human Papillomavirus",
+        "herpes": "Herpes Simplex Infection",
+        "cold sore": "Herpes Simplex / Cold Sore",
+        "food poisoning": "Food Poisoning / Foodborne Illness",
+        "sepsis": "Sepsis / Blood Infection (Emergency)",
+    }
+
+    for keyword, condition in disease_map.items():
+        if keyword in combined:
+            return condition
+
+    # Garbage/Nonsense detection
+    medical_keywords = [
+        "pain", "ache", "fever", "cough", "head", "stomach", "breath", "blood", "skin",
+        "hurt", "eye", "ear", "leg", "heart", "chest", "arm", "throat", "fatigue",
+        "nausea", "vomit", "dizzy", "rash", "cold", "flu", "swelling", "burn", "weak"
+    ]
+    if len(s) < 3 or not any(kw in combined for kw in medical_keywords):
+        return "Unclear Symptoms (Need more detail)"
+
+    # Prioritize specific complex symptom combinations
+    if "chest pain" in s or ("chest" in s and "pain" in s):
+        return "Possible Cardiac Condition"
+    if "severe headache" in s and ("blurred vision" in s or "vision" in s):
+        return "Neurological Issue (High Risk)"
+    if "thirst" in s and "urination" in s:
+        return "Diabetes Related Symptoms"
+    if "cough" in s and ("night sweats" in s or "fever" in s):
+        return "Possible Respiratory Infection / TB"
+    if "wheezing" in s or "breath" in s:
+        return "Asthma / Respiratory Distress"
+
+    # Abdominal
+    if "stomach" in s or "abdomen" in s or "belly" in s:
+        if "right" in s and "lower" in s:
+            return "Potential Appendicitis"
+        return "Gastrointestinal Issue / Gastritis"
+
+    # Standalone symptoms
+    if "lung" in s or ("chest" in s and "pain" in s):
+        return "Respiratory / Pulmonary Condition"
+    if "fever" in s:
+        return "Viral Infection / Fever"
+    if "cough" in s:
+        return "Common Cold / Bronchitis"
+    if "cold" in s or "flu" in s:
+        return "Influenza / Common Cold"
+    if "headache" in s:
+        return "Migraine / Tension Headache"
+    if "skin" in s or "rash" in s:
+        return "Dermatological Condition"
+    if "throat" in s:
+        return "Pharyngitis / Sore Throat"
+    if "nausea" in s or "vomit" in s:
+        return "Gastric Upset / Nausea"
+    if "leg" in s or "arm" in s or "bone" in s or "joint" in s or "body pain" in s:
+        return "Musculoskeletal Pain / Orthopedic Issue"
+    if "fatigue" in s or "dizzy" in s:
+        return "General Weakness / Fatigue"
+    if "checkup" in s:
+        return "General Wellness Checkup"
+
+    if "heart" in h and not any(kw in s for kw in ["leg", "arm", "stomach", "head"]):
+        return "Cardiac Related (Previous Mention)"
+
+    return "General Clinical Assessment Needed"
+
+
+# Helper for Specialization Mapping
+def get_specialization_for_condition(condition):
+    spec_map = {
+        # Cardiology
+        "Cardiac": "Cardiology", "Heart": "Cardiology", "Hypertension": "Cardiology",
+        "Hypotension": "Cardiology", "Cholesterol": "Cardiology", "Arrhythmia": "Cardiology",
+        "Angina": "Cardiology", "Pericarditis": "Cardiology", "Cardiomyopathy": "Cardiology",
+        "Atrial Fibrillation": "Cardiology", "DVT": "Cardiology", "Deep Vein": "Cardiology",
+        "Varicose": "Cardiology", "Aortic": "Cardiology", "Mitral": "Cardiology",
+        "Peripheral Artery": "Cardiology",
+        # Neurology
+        "Neurological": "Neurology", "Migraine": "Neurology", "Epilepsy": "Neurology",
+        "Seizure": "Neurology", "Stroke": "Neurology", "Paralysis": "Neurology",
+        "Parkinson": "Neurology", "Alzheimer": "Neurology", "Dementia": "Neurology",
+        "Vertigo": "Neurology", "Meningitis": "Neurology", "Encephalitis": "Neurology",
+        "Bell's Palsy": "Neurology", "Multiple Sclerosis": "Neurology",
+        "Neuropathy": "Neurology", "Trigeminal": "Neurology", "Cerebral Palsy": "Neurology",
+        "Guillain": "Neurology", "ALS": "Neurology", "Motor Neuron": "Neurology",
+        "Hydrocephalus": "Neurology", "TIA": "Neurology", "Mini Stroke": "Neurology",
+        "Ménière": "Neurology", "Meniere": "Neurology", "Acoustic Neuroma": "Neurology",
+        # Endocrinology
+        "Diabetes": "Endocrinology", "Thyroid": "Endocrinology", "Obesity": "Endocrinology",
+        "Metabolic": "Endocrinology", "PCOS": "Endocrinology", "Hormonal": "Endocrinology",
+        "Goitre": "Endocrinology", "Adrenal": "Endocrinology", "Cushing": "Endocrinology",
+        "Addison": "Endocrinology", "Hyperuricemia": "Endocrinology",
+        # Pulmonology
+        "Respiratory": "Pulmonology", "Pulmonary": "Pulmonology", "Asthma": "Pulmonology",
+        "Bronchitis": "Pulmonology", "Tuberculosis": "Pulmonology", "TB": "Pulmonology",
+        "Pneumonia": "Pulmonology", "COPD": "Pulmonology", "Emphysema": "Pulmonology",
+        "Pleuritis": "Pulmonology", "Pleurisy": "Pulmonology", "Sleep Apnoea": "Pulmonology",
+        "Cystic Fibrosis": "Pulmonology", "Pertussis": "Pulmonology",
+        "Pulmonary Embolism": "Pulmonology", "Pulmonary Fibrosis": "Pulmonology",
+        # ENT
+        "Sinusitis": "ENT", "Tonsillitis": "ENT", "Rhinitis": "ENT",
+        "Laryngitis": "ENT", "Nasal Polyp": "ENT", "Deviated": "ENT",
+        "Adenoid": "ENT", "Otitis": "ENT", "Tinnitus": "ENT",
+        "Hearing Loss": "ENT", "Epistaxis": "ENT", "Hay Fever": "ENT",
+        # Gastroenterology
+        "Gastrointestinal": "Gastroenterology", "Gastritis": "Gastroenterology",
+        "Gastro": "Gastroenterology", "Ulcer": "Gastroenterology", "Colitis": "Gastroenterology",
+        "Bowel": "Gastroenterology", "Constipation": "Gastroenterology",
+        "Diarrhoea": "Gastroenterology", "Crohn": "Gastroenterology",
+        "Diverticulitis": "Gastroenterology", "Pancreatitis": "Gastroenterology",
+        "GERD": "Gastroenterology", "Acid Reflux": "Gastroenterology",
+        "Achalasia": "Gastroenterology", "Celiac": "Gastroenterology",
+        "Coeliac": "Gastroenterology", "Lactose": "Gastroenterology",
+        "Food Poisoning": "Gastroenterology",
+        # Hepatology / Liver
+        "Jaundice": "Hepatology", "Hepatitis": "Hepatology", "Liver": "Hepatology",
+        "Cirrhosis": "Hepatology", "Fatty Liver": "Hepatology", "NAFLD": "Hepatology",
+        "Hepatocellular": "Hepatology",
+        # General Surgery
+        "Hernia": "General Surgery", "Appendicitis": "General Surgery",
+        "Piles": "General Surgery", "Haemorrhoids": "General Surgery",
+        "Anal Fissure": "General Surgery", "Fistula": "General Surgery",
+        "Gallstone": "General Surgery", "Cholecystitis": "General Surgery",
+        "Gallbladder": "General Surgery",
+        # Orthopedics
+        "Musculoskeletal": "Orthopedics", "Orthopedic": "Orthopedics",
+        "Arthritis": "Orthopedics", "Fracture": "Orthopedics", "Gout": "Orthopedics",
+        "Sciatica": "Orthopedics", "Spinal": "Orthopedics", "Disc": "Orthopedics",
+        "Spondylitis": "Orthopedics", "Spondylosis": "Orthopedics",
+        "Osteoporosis": "Orthopedics", "Bursitis": "Orthopedics",
+        "Tendinitis": "Orthopedics", "Carpal Tunnel": "Orthopedics",
+        "Rotator Cuff": "Orthopedics", "Plantar": "Orthopedics",
+        "Fibromyalgia": "Orthopedics", "Myositis": "Orthopedics",
+        "Frozen Shoulder": "Orthopedics", "Tennis Elbow": "Orthopedics",
+        "ACL": "Orthopedics", "Meniscus": "Orthopedics", "Ligament": "Orthopedics",
+        "Osteoarthritis": "Orthopedics",
+        # Dermatology
+        "Dermatological": "Dermatology", "Psoriasis": "Dermatology", "Eczema": "Dermatology",
+        "Fungal": "Dermatology", "Allergic": "Dermatology", "Urticaria": "Dermatology",
+        "Skin": "Dermatology", "Acne": "Dermatology", "Vitiligo": "Dermatology",
+        "Shingles": "Dermatology", "Herpes Zoster": "Dermatology", "Melasma": "Dermatology",
+        "Alopecia": "Dermatology", "Cellulitis": "Dermatology", "Impetigo": "Dermatology",
+        "Rosacea": "Dermatology", "Scabies": "Dermatology", "Wart": "Dermatology",
+        "Tinea": "Dermatology", "Ringworm": "Dermatology", "Contact Dermatitis": "Dermatology",
+        # Nephrology / Urology
+        "Kidney": "Nephrology", "Renal": "Nephrology", "Nephrotic": "Nephrology",
+        "Nephritis": "Nephrology", "Glomerulo": "Nephrology", "Hydronephrosis": "Nephrology",
+        "Chronic Kidney": "Nephrology",
+        "Urinary Tract": "Urology", "UTI": "Urology", "Cystitis": "Urology",
+        "Prostatitis": "Urology", "Prostate": "Urology", "BPH": "Urology",
+        "Benign Prostatic": "Urology", "Incontinence": "Urology",
+        "Overactive Bladder": "Urology",
+        # Ophthalmology
+        "Cataract": "Ophthalmology", "Glaucoma": "Ophthalmology",
+        "Conjunctivitis": "Ophthalmology", "Eye": "Ophthalmology",
+        "Retinal": "Ophthalmology", "Macular": "Ophthalmology",
+        "Dry Eye": "Ophthalmology", "Uveitis": "Ophthalmology",
+        "Strabismus": "Ophthalmology", "Keratoconus": "Ophthalmology",
+        "Blepharitis": "Ophthalmology", "Amblyopia": "Ophthalmology",
+        "Diabetic Retinopathy": "Ophthalmology",
+        # Psychiatry
+        "Depression": "Psychiatry", "Anxiety": "Psychiatry", "Insomnia": "Psychiatry",
+        "Mood": "Psychiatry", "OCD": "Psychiatry", "Obsessive": "Psychiatry",
+        "PTSD": "Psychiatry", "Trauma": "Psychiatry", "Bipolar": "Psychiatry",
+        "Schizophrenia": "Psychiatry", "Psychosis": "Psychiatry", "ADHD": "Psychiatry",
+        "Panic": "Psychiatry", "Autism": "Psychiatry", "Phobia": "Psychiatry",
+        "Anorexia": "Psychiatry", "Bulimia": "Psychiatry", "Burnout": "Psychiatry",
+        # Oncology
+        "Oncological": "Oncology", "Cancer": "Oncology", "Tumour": "Oncology",
+        "Melanoma": "Oncology", "Carcinoma": "Oncology", "Metastasis": "Oncology",
+        "Leukaemia": "Oncology", "Lymphoma": "Haematology", "Myeloma": "Haematology",
+        # Haematology
+        "Anaemia": "Haematology", "Anemia": "Haematology", "Blood Deficiency": "Haematology",
+        "Sickle Cell": "Haematology", "Thalassaemia": "Haematology",
+        "Thalassemia": "Haematology", "Thrombocytopenia": "Haematology",
+        "Haemophilia": "Haematology", "Hemophilia": "Haematology",
+        "Polycythaemia": "Haematology", "Aplastic": "Haematology",
+        "Iron Deficiency": "Haematology",
+        # Gynaecology
+        "Endometriosis": "Gynaecology", "Fibroid": "Gynaecology",
+        "Menstrual": "Gynaecology", "Dysmenorrhoea": "Gynaecology",
+        "Amenorrhoea": "Gynaecology", "Ovarian Cyst": "Gynaecology",
+        "Cervical": "Gynaecology", "Vaginitis": "Gynaecology",
+        "Vulvodynia": "Gynaecology", "Preeclampsia": "Gynaecology",
+        "Ectopic": "Gynaecology", "Menopause": "Gynaecology",
+        "Pelvic Inflammatory": "Gynaecology",
+        # General
+        "Viral": "General Medicine", "Influenza": "General Medicine", "Fever": "General Medicine",
+        "Pharyngitis": "General Medicine", "Wellness": "General Medicine",
+        "Malaria": "General Medicine", "Dengue": "General Medicine", "Typhoid": "General Medicine",
+        "COVID": "General Medicine", "Fatigue": "General Medicine", "Weakness": "General Medicine",
+        "Chickenpox": "General Medicine", "Measles": "General Medicine",
+        "Mumps": "General Medicine", "Rubella": "General Medicine",
+        "Chikungunya": "General Medicine", "Leptospirosis": "General Medicine",
+        "Typhus": "General Medicine", "HIV": "General Medicine", "AIDS": "General Medicine",
+        "Herpes Simplex": "General Medicine", "Sepsis": "General Medicine",
+        "Tetanus": "General Medicine", "Rabies": "General Medicine",
+        "General": "General Medicine"
+    }
+    for key, spec in spec_map.items():
+        if key.lower() in condition.lower():
+            return spec
+    return "General Medicine"
+
+# --- 5. Prediction API Endpoint ---
 @app.route('/predict', methods=['POST'])
 def predict():
     if not model or not vectorizer:
@@ -111,211 +649,40 @@ def predict():
 
     history = data.get("history", "")
     symptoms = data.get("symptoms", "")
-    vitals = data.get("vitals", {}) # Expecting dict like {'heart_rate': 80, ...}
+    vitals = data.get("vitals", {})
     
-    # A. Vitals-Based Pre-Diagnosis (Rule Engine)
-    vital_flags = []
+    # 1. Disease Prediction (Rule Engine)
+    primary_condition = engine_predict_disease(symptoms)
     
-    # Parsing vitals if they come as string or incomplete
-    if isinstance(vitals, str):
-        try: vitals = json.loads(vitals)
-        except: vitals = {}
-    # Fix: PHP encodes empty arrays as [] (list), not {} (dict)
-    if not isinstance(vitals, dict):
-        vitals = {}
-        
-    hr = float(vitals.get('heart_rate', 0))
-    bp_sys = float(vitals.get('bp_systolic', 0))
-    temp = float(vitals.get('temperature', 0))
-    glucose = float(vitals.get('glucose', 0))
-    
-    pre_diagnosis = []
-
-    if bp_sys > 180:
-        pre_diagnosis.append("Hypertensive Crisis (Critical)")
-        vital_flags.append("critical BP")
-    elif bp_sys > 140:
-        pre_diagnosis.append("Hypertension")
-        vital_flags.append("high BP")
-        
-    if hr > 120:
-        pre_diagnosis.append("Tachycardia / Possible Infection")
-        vital_flags.append("high heart rate")
-    elif hr < 50 and hr > 0:
-        pre_diagnosis.append("Bradycardia")
-
-    if temp > 102:
-        pre_diagnosis.append("Severe Infection / Sepsis Risk")
-        vital_flags.append("high fever")
-    elif temp > 99.5:
-        pre_diagnosis.append("Viral Fever")
-        
-    if glucose > 250:
-        pre_diagnosis.append("Diabetic Ketoacidosis Risk")
-        vital_flags.append("critical sugar")
-    elif glucose > 140:
-        pre_diagnosis.append("Hyperglycemia")
-
-    # B. AI Prediction (ML)
-    # Combine everything for the model
-    text_input = f"{history} {symptoms} {' '.join(vital_flags)}"
+    # 2. Urgency Prediction (ML)
+    text_input = f"{history} {symptoms}"
     text_vec = vectorizer.transform([text_input])
-
-    # Get Probabilities
+    predicted_urgency = model.predict(text_vec)[0]
+    
+    # 3. Probabilities for UI
     probs = model.predict_proba(text_vec)[0]
     classes = model.classes_
+    top_3 = [{"label": c, "probability": round(p * 100, 1)} for c, p in zip(classes, probs)]
+
+    # 4. Vitals Check (Override)
+    hr = float(vitals.get('heart_rate', 0) if vitals else 0)
+    bp_sys = float(vitals.get('bp_systolic', 0) if vitals else 0)
     
-    # Sort by probability
-    sorted_probs = sorted(zip(classes, probs), key=lambda x: x[1], reverse=True)
-    top_3 = [{"condition": c, "probability": round(p * 100, 1)} for c, p in sorted_probs[:3] if p > 0.05]
+    final_urgency = predicted_urgency
+    if bp_sys > 170 or (hr > 120 and "Cardiac" in primary_condition):
+        final_urgency = "Critical"
+    elif bp_sys > 145 or hr > 110:
+        if final_urgency == "Low": final_urgency = "Medium"
 
-    # --- ENHANCED RULE-BASED OVERRIDES (Prioritize specific keywords) ---
-    s_lower = symptoms.lower()
-    override_condition = None
-    override_urgency = "Low"
-    
-    if "respiratory effort" in s_lower or "shortness of breath" in s_lower or "pneumonia" in s_lower:
-        override_condition = "Severe Respiratory Distress"
-        override_urgency = "Critical"
-    elif "chest pain" in s_lower or "myocardial" in s_lower or "heart attack" in s_lower:
-        override_condition = "Myocardial Infarction Risk"
-        override_urgency = "Critical"
-    elif "stroke" in s_lower or "slurred speech" in s_lower:
-        override_condition = "Stroke Risk"
-        override_urgency = "Critical"
-        
-    # Smart fallback / Override
-    primary_prediction = top_3[0]['condition'] if top_3 else "General Assessment Needed"
-    
-    # Apply override if found
-    if override_condition:
-        primary_prediction = override_condition
-        # Insert at top of probability list visually
-        top_3.insert(0, {"condition": override_condition, "probability": 99.9})
-
-    if not symptoms.strip() and pre_diagnosis:
-        # If doctor hasn't typed symptoms but vitals are abnormal, prioritize vitals
-        primary_prediction = pre_diagnosis[0]
-        top_3.insert(0, {"condition": pre_diagnosis[0], "probability": 95.0})
-
-    # Urgency Logic (Simplified)
-    urgency = "Low"
-    if override_urgency == "Critical":
-        urgency = "Critical"
-    elif "Critical" in primary_prediction or "Attack" in primary_prediction or "Sepsis" in primary_prediction:
-        urgency = "Critical"
-    elif "Severe" in primary_prediction or "High" in primary_prediction or bp_sys > 160 or temp > 103:
-        urgency = "High"
-    elif "Medium" in primary_prediction or temp > 100:
-        urgency = "Medium"
-
-    # --- Medication Recommendation Logic ---
-    suggested_meds = []
-    
-    # Simple Knowledge Base (Condition -> Meds)
-    # in a real system this would be a separate ML model or database query
-    med_knowledge = {
-        "Fever": ["Paracetamol 500mg", "Ibuprofen 400mg"],
-        "Pain": ["Ibuprofen 400mg", "Diclofenac 50mg"],
-        "Headache": ["Paracetamol 500mg", "Aspirin 300mg"],
-        "Migraine": ["Sumatriptan 50mg", "Naproxen 500mg"],
-        "Infection": ["Amoxicillin 500mg", "Azithromycin 500mg"],
-        "Hypertension": ["Amlodipine 5mg", "Lisinopril 10mg"],
-        "Diabetes": ["Metformin 500mg", "Glimepiride 1mg"],
-        "Asthma": ["Salbutamol Inhaler", "Budesonide Inhaler"],
-        "Respiratory Distress": ["Oxygen Therapy", "Hydrocortisone IV"],
-        "Pneumonia": ["Azithromycin 500mg", "Augmentin 625mg"],
-        "Acidity": ["Pantoprazole 40mg", "Omeprazole 20mg"],
-        "Myocardial Infarction": ["Aspirin 300mg (Stat)", "Clopidogrel 300mg (Stat)"]
-    }
-    
-    # 1. Check Condition Match
-    for condition, meds in med_knowledge.items():
-        if condition.lower() in primary_prediction.lower():
-            suggested_meds.extend(meds)
-            
-    # 2. Check Keyword Overrides if empty
-    if not suggested_meds:
-        s_lower = symptoms.lower()
-        if "fever" in s_lower: suggested_meds.extend(med_knowledge["Fever"])
-        if "pain" in s_lower: suggested_meds.extend(med_knowledge["Pain"])
-        if "cough" in s_lower: suggested_meds.extend(["Dextromethorphan Syrup"])
-        if "vomiting" in s_lower: suggested_meds.extend(["Ondansetron 4mg"])
-
-    # Returns unique meds
-    suggested_meds = list(set(suggested_meds))
-
-    # --- Specialization Recommendation Logic ---
-    specialization_knowledge = {
-        "Fever": "General Medicine",
-        "Pain": "General Medicine",
-        "Headache": "Neurology",
-        "Migraine": "Neurology",
-        "Infection": "General Medicine",
-        "Hypertension": "Cardiology",
-        "Diabetes": "Endocrinology",
-        "Asthma": "Pulmonology",
-        "Respiratory Distress": "Pulmonology",
-        "Pneumonia": "Pulmonology",
-        "Acidity": "Gastroenterology",
-        "Myocardial Infarction": "Cardiology",
-        "Tension Headache": "Neurology",
-        "Myocardial Infarction Risk": "Cardiology",
-        "Stroke Risk": "Neurology",
-        "Laceration": "General Surgery",
-        "Tuberculosis": "Pulmonology",
-        "Hypertensive Crisis": "Cardiology",
-        "Severe Infection / Sepsis Risk": "Infectious Disease",
-        "Viral Fever": "General Medicine",
-        "Diabetic Ketoacidosis Risk": "Endocrinology"
-    }
-
-    recommended_specialization = "General Medicine" # Default
-    
-    # Check if the exact or partial string matches any known condition
-    for condition, spec in specialization_knowledge.items():
-        if condition.lower() in primary_prediction.lower():
-            recommended_specialization = spec
-            break
-
-    # Additional generic keyword fallbacks
-    if recommended_specialization == "General Medicine":
-        s_lower = symptoms.lower()
-        history_lower = history.lower()
-        combined_text = s_lower + " " + history_lower
-        
-        if "heart" in combined_text or "chest" in combined_text or "blood pressure" in combined_text or bp_sys > 140 or hr > 110:
-            recommended_specialization = "Cardiology"
-        elif "sugar" in combined_text or "diabetes" in combined_text or "glucose" in combined_text or glucose > 200:
-            recommended_specialization = "Endocrinology"
-        elif "breath" in combined_text or "lungs" in combined_text or "cough" in combined_text or "wheeze" in combined_text:
-            recommended_specialization = "Pulmonology"
-        elif "stomach" in combined_text or "digest" in combined_text or "vomit" in combined_text or "nausea" in combined_text:
-            recommended_specialization = "Gastroenterology"
-        elif "headache" in combined_text or "dizzy" in combined_text or "brain" in combined_text:
-            recommended_specialization = "Neurology"
-        elif "bone" in combined_text or "joint" in combined_text or "muscle" in combined_text or "fracture" in combined_text:
-            recommended_specialization = "Orthopedics"
-        elif "skin" in combined_text or "rash" in combined_text or "itch" in combined_text:
-            recommended_specialization = "Dermatology"
-        elif "eye" in combined_text or "vision" in combined_text:
-            recommended_specialization = "Ophthalmology"
-        elif "ear" in combined_text or "nose" in combined_text or "throat" in combined_text:
-            recommended_specialization = "ENT"
-        elif "child" in combined_text or "baby" in combined_text or "pediatric" in combined_text:
-            recommended_specialization = "Pediatrics"
-        elif "women" in combined_text or "pregnancy" in combined_text or "period" in combined_text:
-            recommended_specialization = "Gynecology"
-        elif "cut" in combined_text or "bleed" in combined_text or "wound" in combined_text:
-            recommended_specialization = "General Surgery"
+    # 5. Specialization
+    recommended_spec = get_specialization_for_condition(primary_condition)
 
     return jsonify({
-        "disease": primary_prediction,
-        "urgency": urgency,
+        "disease": primary_condition,
+        "urgency": final_urgency,
+        "ml_urgency": predicted_urgency,
         "probabilities": top_3,
-        "vitals_analysis": pre_diagnosis,
-        "specialization": recommended_specialization,
-        "suggested_medication": suggested_meds
+        "specialization": recommended_spec
     })
 
 # --- 5. Continuous Learning Endpoint ---
@@ -351,265 +718,330 @@ def learn():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# --- 6. Smart Medicine Alternative ---
+# --- 6. Medicine Alternative Suggestion ---
 @app.route('/suggest_alternative', methods=['POST'])
 def suggest_alternative():
+    if not med_db:
+        load_med_db()
+        
     data = request.json
     if not data or 'medicine' not in data:
         return jsonify({"error": "No medicine provided"}), 400
         
-    med_name = data['medicine'].lower().strip()
-    inventory = data.get('inventory', []) # Optional list of strings of available meds from PHP
-    inventory_lower = [str(i).lower().strip() for i in inventory]
+    med_input = data['medicine'].lower().strip()
     
-    # 1. Ensure DB is loaded (in case it failed initially due to path)
-    if not med_db:
-        load_med_db()
-        
-    # 2. Find the requested medication in our smart JSON DB
-    found_med = None
+    # 1. Find entry for the input medicine
+    target_med = None
     for m in med_db:
-        if m['name'].lower() == med_name or med_name in [b.lower() for b in m['brand_names']]:
-            found_med = m
+        # Check generic name
+        if m['name'].lower() == med_input:
+            target_med = m
+            break
+        # Check all brand names (case insensitive)
+        if any(b.lower() == med_input for b in m.get('brand_names', [])):
+            target_med = m
             break
             
-    if not found_med:
-        # If we can't identify it in our smart DB, just pick something random from inventory as a fallback, 
-        # or return a generic unknown string if no inventory provided.
-        if inventory:
-            best_guess = inventory[0]
-            return jsonify({
-                "suggested_alternative": best_guess,
-                "reason": "Exact match not found in AI knowledge base. Suggesting available stock.",
-                "dosage": "As per prescription",
-                "active_ingredients": []
-            })
+    if not target_med:
         return jsonify({
-            "suggested_alternative": f"Generic {med_name.title()}",
-            "reason": "Exact match not found in smart DB. Suggesting generic pattern.",
-            "dosage": "As per prescription",
-            "active_ingredients": []
+            "suggested_alternative": f"Generic {med_input.capitalize()}",
+            "reason": "Medicine profile not found in smart database. Consult pharmacist for generic composition.",
+            "dosage": "As per medical advice"
         })
 
-    # 3. Gather all possible valid substitute names (same active ingredient)
-    possible_subs = []
+    # 2. Find alternatives based on same active ingredients (Substitutes)
+    substitutes = []
+    target_ingredients = set([i.lower() for i in target_med['active_ingredients']])
+    target_category = target_med.get('category', '').lower()
     
-    # Add names from the SAME category object (generic name + all other brand names)
-    possible_subs.append((found_med['name'], found_med))
-    for b in found_med['brand_names']:
-        if b.lower() != med_name: # Don't suggest the exact same name they asked for
-            possible_subs.append((b, found_med))
-            
-    # Add names from OTHER objects with overlapping active ingredients
-    target_ingredients = set(found_med['active_ingredients'])
     for m in med_db:
-        if m['name'] == found_med['name']: continue
-        current_ingredients = set(m['active_ingredients'])
-        if target_ingredients & current_ingredients:
-            possible_subs.append((m['name'], m))
-            for b in m['brand_names']:
-                possible_subs.append((b, m))
+        if m['name'].lower() == target_med['name'].lower():
+            continue
+            
+        m_ingredients = set([i.lower() for i in m['active_ingredients']])
+        
+        # Best Match: Overlapping active ingredients
+        if target_ingredients & m_ingredients:
+            substitutes.append({
+                "name": m['name'],
+                "brand": m['brand_names'][0] if m['brand_names'] else m['name'],
+                "reason": f"Same composition: {', '.join(m['active_ingredients'])}",
+                "dosage": m['strength']
+            })
+            
+    if not substitutes and target_category:
+        # Fallback: Same category (Analgesic, Antibiotic, etc.)
+        for m in med_db:
+             if m['name'].lower() == target_med['name'].lower(): continue
+             if m.get('category', '').lower() == target_category:
+                 substitutes.append({
+                    "name": m['name'],
+                    "brand": m['brand_names'][0] if m['brand_names'] else m['name'],
+                    "reason": f"Same therapeutic class: {m['category']}",
+                    "dosage": m['strength']
+                })
 
-    # 4. Filter by actual inventory (if PHP passed it)
-    best_sub_name = None
-    best_sub_obj = None
+    if substitutes:
+        # Provide the best available substitute
+        top = substitutes[0]
+        return jsonify({
+            "original": target_med['name'],
+            "suggested_alternative": top['brand'],
+            "reason": top['reason'],
+            "dosage": top['dosage']
+        })
     
-    if inventory_lower:
-        # Prioritize substitutes that are ACTUALLY IN STOCK
-        for sub_name, sub_obj in possible_subs:
-            if sub_name.lower() in inventory_lower:
-                best_sub_name = sub_name
-                best_sub_obj = sub_obj
-                break
-                
-    # If none found in stock, or inventory wasn't provided, just grab the first valid substitute
-    if not best_sub_name and possible_subs:
-        best_sub_name = possible_subs[0][0]
-        best_sub_obj = possible_subs[0][1]
+    return jsonify({
+        "suggested_alternative": f"Generic {target_med['name']}",
+        "reason": f"No direct substitute found in local records for {target_med.get('category', 'this class')}.",
+        "dosage": target_med['strength']
+    })
 
-    if best_sub_name and best_sub_obj:
-        return jsonify({
-            "original_medicine": found_med['name'] if found_med['name'].lower() != med_name else med_name.title(),
-            "suggested_alternative": best_sub_name.title(),
-            "reason": f"Shared active ingredient: {', '.join(best_sub_obj['active_ingredients'])}",
-            "dosage": best_sub_obj.get('strength', 'Standard'),
-            "active_ingredients": best_sub_obj.get('active_ingredients', [])
-        })
-    else:
-        return jsonify({
-            "suggested_alternative": "No direct formula match available",
-            "reason": "Consult Doctor for alternative class.",
-            "dosage": "N/A"
-        })
+# --- 7. Interactive Symptom Checker (Gemini LLM / Pretrained Integration) ---
+import os
+import requests
+import json
 
-# --- 7. Interactive Symptom Checker (Rule-Based Chatbot) ---
 @app.route('/symptom_chat', methods=['POST'])
 def symptom_chat():
     data = request.json
     if not data or 'messages' not in data:
         return jsonify({"error": "No message history provided"}), 400
         
-    messages = data['messages'] # List of dicts: {'role': 'user'|'assistant', 'content': '...'}
+    messages = data['messages']
     
-    # 1. First user message (Extract primary symptom)
-    first_user_msg = ""
-    for m in messages:
-        if m['role'] == 'user':
-            first_user_msg = m['content'].lower()
-            break
+    # 1. GEMINI AI / PRETRAINED LLM API INTEGRATION
+    # ------------------------------------------------------------------
+    # Now uses the medically usable Google Gemini API if the key is present.
+    gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
+    if gemini_api_key:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=gemini_api_key)
+            gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+            system_prompt = """You are an advanced medical clinical extraction engine for a hospital strictly operating in a clinical context.
+Your ONLY purpose is to assess medical symptoms, triage patients, and recommend the appropriate hospital department.
+You MUST ONLY speak in professional, medical, or clinical hospital language.
+If the user asks about ANYTHING non-medical (e.g., coding, general chat, jokes), you MUST refuse to answer and state: "I am a clinical AI assistant. I can only assist with medical symptom triage."
+Carefully review the user's symptoms. If unclear, ask a rapid follow-up question to clear all doubts using professional clinical terminology.
+If the symptoms are clear (e.g., 'lungs pain'), perform an immediate triage.
+Reply strictly in JSON format: {"reply": "...", "diagnosis": "...", "specialization": "...", "urgency": "High/Medium/Low", "finished": true/false}"""
+
+            prompt_msgs = system_prompt + "\n\nChat History:\n" + "\n".join([m['role'] + ": " + m['content'] for m in messages])
             
-    # 2. Latest user message
-    latest_user_msg = messages[-1]['content'].lower() if messages[-1]['role'] == 'user' else ""
-    
-    # 3. Determine turn count (pairs of user/assistant)
+            response = gemini_model.generate_content(prompt_msgs, generation_config={"response_mime_type": "application/json"})
+            ai_result = json.loads(response.text)
+            return jsonify(ai_result)
+        except Exception as e:
+            print(f"Gemini API Connection Failed: {e}. Falling back to internal engine.")
+
+    # ------------------------------------------------------------------
+    # 2. INTERNAL LOCAL PRETRAINED ML FALLBACK
+    # ------------------------------------------------------------------
     turn_count = len([m for m in messages if m['role'] == 'user'])
+    all_symptoms = " ".join([m['content'] for m in messages if m['role'] == 'user']).lower()
+    user_msgs = [m['content'] for m in messages if m['role'] == 'user']
+    latest_user_msg = user_msgs[-1].lower() if user_msgs else ""
     
-    # --- HARDCODED DECISION TREES ---
+    # 2.A: Strict Non-Medical Filter for Local Engine
+    medical_keywords = [
+        # Symptoms
+        "pain", "ache", "fever", "cough", "head", "stomach", "breath", "blood", "skin",
+        "hurt", "eye", "ear", "leg", "heart", "sick", "ill", "doctor", "hospital",
+        "medicine", "pill", "symptom", "disease", "vomit", "nausea", "dizzy", "fatigue",
+        "weak", "cold", "flu", "rash", "itch", "swelling", "burn", "lung", "chest",
+        "throat", "nose", "back", "arm", "joint", "bone", "muscle", "kidney", "liver",
+        "urine", "stool", "bleed", "infection", "injury", "wound", "allerg", "cramp",
+        "discharge", "numbness", "tremor", "palpitation", "breathless", "wheez",
+        # Disease names (cardiac/vascular)
+        "angina", "arrhythmia", "hypertension", "hypotension", "cholesterol", "dvt",
+        "varicose", "pericarditis", "cardiomyopathy", "atrial fibrillation",
+        # Endocrine
+        "diabetes", "diabetic", "thyroid", "hypothyroid", "hyperthyroid", "goiter",
+        "adrenal", "cushing", "addison", "obesity", "pcos", "pcod", "gout",
+        # Respiratory
+        "asthma", "tuberculosis", "pneumonia", "bronchitis", "copd", "emphysema",
+        "pleurisy", "pleuritis", "sinusitis", "rhinitis", "tonsil", "laryngitis",
+        "pertussis", "whooping", "fibrosis", "apnea",
+        # GI
+        "gastritis", "gastroenteritis", "appendicitis", "ulcer", "ibs", "colitis",
+        "crohn", "diverticulitis", "pancreatitis", "gallstone", "cholecystitis",
+        "jaundice", "hepatitis", "cirrhosis", "hernia", "piles", "haemorrhoid",
+        "hemorrhoid", "fistula", "celiac", "constipation", "diarrhea", "gerd",
+        "reflux", "achalasia", "nafld",
+        # Neurological
+        "migraine", "epilepsy", "seizure", "stroke", "paralysis", "parkinson",
+        "alzheimer", "dementia", "vertigo", "meningitis", "encephalitis", "palsy",
+        "multiple sclerosis", "neuropathy", "trigeminal", "hydrocephalus", "meniere",
+        "guillain", "als", "motor neuron",
+        # Musculoskeletal
+        "arthritis", "rheumatoid", "osteoporosis", "sciatica", "slip disc",
+        "spondylitis", "fracture", "bursitis", "tendinitis", "carpal tunnel",
+        "fibromyalgia", "myositis", "rotator cuff", "plantar fasciitis", "acl",
+        "meniscus", "osteoarthritis",
+        # Dermatology
+        "psoriasis", "eczema", "fungal", "urticaria", "hives", "acne", "vitiligo",
+        "shingles", "alopecia", "cellulitis", "impetigo", "rosacea", "scabies",
+        # Mental health
+        "depression", "anxiety", "insomnia", "ocd", "ptsd", "bipolar", "schizophrenia",
+        "adhd", "panic", "autism", "phobia", "anorexia", "bulimia", "burnout",
+        # Urological/Renal
+        "kidney stone", "uti", "renal", "cystitis", "prostatitis", "prostate",
+        "bph", "incontinence", "nephrotic", "nephritis", "glomerulo", "hydronephrosis",
+        # Ophthalmology
+        "cataract", "glaucoma", "conjunctivitis", "retinal", "macular", "uveitis",
+        "strabismus", "keratoconus", "blepharitis", "amblyopia",
+        # ENT
+        "otitis", "tinnitus", "hearing loss", "deafness", "epistaxis", "nosebleed",
+        # Gynaecology
+        "endometriosis", "fibroid", "menstrual", "dysmenorrhea", "amenorrhea",
+        "ovarian cyst", "cervical", "vaginitis", "preeclampsia", "ectopic", "menopause",
+        # Haematology
+        "leukemia", "lymphoma", "sickle cell", "thalassemia", "hemophilia",
+        "haemophilia", "thrombocytopenia", "myeloma", "anemia", "anaemia",
+        # Oncology
+        "cancer", "tumour", "tumor", "melanoma", "carcinoma", "metastasis",
+        # Infectious
+        "malaria", "dengue", "typhoid", "covid", "influenza", "chickenpox",
+        "measles", "mumps", "rubella", "chikungunya", "leptospirosis", "typhus",
+        "rabies", "tetanus", "hiv", "aids", "hepatitis", "herpes", "sepsis",
+        "food poisoning", "hpv",
+    ]
     
-    # --- Tree: HEADACHE ---
-    if "head" in first_user_msg or "migraine" in first_user_msg:
-        if turn_count == 1:
-            return jsonify({
-                "reply": "I see you have a headache. Which side of your head hurts the most? (e.g., Left, Right, Both, Front, Back)",
-                "finished": False
-            })
-        elif turn_count == 2:
-            if "one" in latest_user_msg or "left" in latest_user_msg or "right" in latest_user_msg:
-                return jsonify({
-                    "reply": "Do you also feel nauseous or have sensitivity to light?",
-                    "finished": False
-                })
-            else:
-                return jsonify({
-                    "reply": "Does it feel like a tight band wrapped around your head?",
-                    "finished": False
-                })
-        elif turn_count >= 3:
-            # Final Diagnosis for Headache branch
-            if "yes" in latest_user_msg or "nausea" in latest_user_msg or "light" in latest_user_msg:
-                return jsonify({
-                    "reply": "Based on your symptoms (one-sided headache, nausea/light sensitivity), you might be experiencing a **Migraine**. Please consult a Neurologist or General Physician for proper medication.",
-                    "diagnosis": "Migraine",
-                    "urgency": "Medium",
-                    "finished": True
-                })
-            else:
-                return jsonify({
-                    "reply": "This sounds like a standard **Tension Headache**. Resting, drinking water, and over-the-counter pain relievers (like Paracetamol) usually help. If it persists, see a doctor.",
-                    "diagnosis": "Tension Headache",
-                    "urgency": "Low",
-                    "finished": True
-                })
+    if not any(kw in all_symptoms for kw in medical_keywords) and len(all_symptoms.split()) > 0:
+        return jsonify({
+            "reply": "I am a clinical AI assistant. I can only assist with medical symptom triage and hospital department routing. Please describe your medical symptoms.",
+            "finished": False
+        })
+    
+    # 2.B: Dynamic Questionnaire State Machine
+    questions = []
 
-    # --- Tree: CHEST / HEART ---
-    elif "chest" in first_user_msg or "heart" in first_user_msg or "breath" in first_user_msg:
-        if turn_count == 1:
-            return jsonify({
-                "reply": "Chest symptoms can be serious. Is the pain radiating to your left arm, jaw, or back, OR are you having severe shortness of breath?",
-                "finished": False
-            })
-        elif turn_count >= 2:
-            if "yes" in latest_user_msg or "severe" in latest_user_msg or "arm" in latest_user_msg:
-                # Immediate red flag
-                return jsonify({
-                    "reply": "⚠️ **CRITICAL ALERT:** Your symptoms (chest pain radiating, severe shortness of breath) strongly suggest a cardiac event (Heart Attack). **Seek emergency medical care immediately.** Do not wait.",
-                    "diagnosis": "Myocardial Infarction / Cardiac Arrest Risk",
-                    "urgency": "Critical",
-                    "finished": True
-                })
-            else:
-                return jsonify({
-                    "reply": "Since there is no severe radiation or shortness of breath, it might be muscle strain or acidity, but **chest pain should always be evaluated by a doctor**. Please visit the OPD today.",
-                    "diagnosis": "Unspecified Chest Pain",
-                    "urgency": "High",
-                    "finished": True
-                })
+    body_parts = [
+        "chest", "stomach", "abdomen", "head", "back", "neck", "shoulder", "arm", "elbow",
+        "wrist", "hand", "finger", "hip", "leg", "knee", "ankle", "foot", "toe",
+        "throat", "ear", "eye", "nose", "lung", "heart", "liver", "kidney", "spine",
+        "lower back", "upper back", "right side", "left side", "whole body", "joints"
+    ]
+    severity_words = [
+        "mild", "moderate", "severe", "sharp", "dull", "constant", "intermittent",
+        "unbearable", "slight", "intense", "terrible", "little", "lot", "bad",
+        "worst", "tolerable", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+    ]
 
-    # --- Tree: STOMACH / ABDOMEN ---
-    elif "stomach" in first_user_msg or "belly" in first_user_msg or "abdom" in first_user_msg or "vomit" in first_user_msg or "pain" in first_user_msg:
-        if turn_count == 1:
-            return jsonify({
-                "reply": "Where exactly is the stomach pain located? (e.g., Upper, Lower, Right side, Left side, All over)",
-                "finished": False
-            })
-        elif turn_count == 2:
-            if "right" in latest_user_msg and "lower" in latest_user_msg:
-                return jsonify({
-                    "reply": "Do you also have a fever, or does the pain get worse with movement?",
-                    "finished": False
-                })
-            elif "upper" in latest_user_msg or "burn" in latest_user_msg:
-                return jsonify({
-                    "reply": "Does it feel like a burning sensation, especially after eating?",
-                    "finished": False
-                })
-            else:
-                return jsonify({
-                    "reply": "Are you experiencing any nausea, vomiting, or diarrhea?",
-                    "finished": False
-                })
-        elif turn_count >= 3:
-            # Final abdomen diagnosis
-            if "right" in [m['content'].lower() for m in messages] and "yes" in latest_user_msg:
-                 return jsonify({
-                    "reply": "⚠️ **HIGH PRIORITY:** Pain in the lower right abdomen along with fever/worsening pain could indicate **Appendicitis**. Please visit the Emergency Room immediately.",
-                    "diagnosis": "Possible Appendicitis",
-                    "urgency": "Critical",
-                    "finished": True
-                })
-            elif "burn" in [m['content'].lower() for m in messages] or "yes" in latest_user_msg:
-                return jsonify({
-                    "reply": "This sounds like **Gastritis or Acid Reflux** (Acidity). Try to avoid spicy food and consider an antacid. Consult a General Physician if it persists.",
-                    "diagnosis": "Gastritis/Acidity",
-                    "urgency": "Low",
-                    "finished": True
-                })
-            else:
-                return jsonify({
-                    "reply": "You might have a mild gastrointestinal infection or food poisoning. Stay hydrated! See a doctor if symptoms worsen.",
-                    "diagnosis": "Gastroenteritis",
-                    "urgency": "Medium",
-                    "finished": True
-                })
+    # Q1: Where does it hurt / which part is affected?
+    if any(w in all_symptoms for w in ["pain", "ache", "hurt", "swelling", "numb", "burn", "cramp", "discomfort"]):
+        if not any(part in all_symptoms for part in body_parts):
+            questions.append("Which part of your body is affected or hurting? (e.g., Chest, Stomach, Head, Back, Leg, Joints)")
+
+    # Q2: How long have you had this?
+    if not any(word in all_symptoms for word in ["day", "days", "week", "weeks", "month", "months", "hour", "hours", "since", "yesterday", "today", "ago", "morning", "night"]):
+        questions.append("How long have you been experiencing these symptoms? (e.g. 2 days, 1 week, since yesterday)")
+
+    # Q3: How severe is it?
+    if not any(word in all_symptoms for word in severity_words):
+        questions.append("How severe are your symptoms on a scale of 1–10, or would you describe them as mild, moderate, or severe?")
+
+    # Q4: Fever temperature (if fever mentioned without reading)
+    if "fever" in all_symptoms and not any(word in all_symptoms for word in ["degree", "high", "low", "100", "101", "102", "103", "104"]):
+        questions.append("Do you know your approximate body temperature? Is it a high-grade fever (above 101°F)?")
+
+    # If there are unanswered clinical questions, ask the first one
+    if questions:
+        return jsonify({
+            "reply": f"I see. {questions[0]}",
+            "finished": False
+        })
+        
+    try:
+        disease = engine_predict_disease(latest_user_msg, all_symptoms)
+        
+        if "lung" in all_symptoms:
+            disease = "Pulmonary / Respiratory Condition"
+        elif "leg" in all_symptoms or "arm" in all_symptoms or "joint" in all_symptoms:
+            disease = "Musculoskeletal / Orthopedic Issue"
+        elif "stomach" in all_symptoms or "abdom" in all_symptoms:
+            disease = "Gastrointestinal Condition"
+            
+        spec = get_specialization_for_condition(disease)
+        
+        # Explicit type cast to string for JSON serialization
+        text_vec = vectorizer.transform([all_symptoms])
+        urgency = str(model.predict(text_vec)[0])
+        
+        return jsonify({
+            "reply": f"Thank you for the detailed information. Based on your symptoms, our AI concludes a **{disease}**. The recommended department for this condition is **{spec}**. Would you like to proceed with booking an appointment?",
+            "diagnosis": disease,
+            "specialization": spec,
+            "urgency": urgency,
+            "finished": True
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "reply": "I've noted your symptoms. Let's redirect you to a General Physician for a professional assessment.",
+            "diagnosis": "Unspecified Symptoms",
+            "specialization": "General Medicine",
+            "urgency": "Medium",
+            "finished": True
+        })
+
+# --- Blood Expiration ML Predictor ---
+blood_model_ml = None
+
+def train_blood_model():
+    global blood_model_ml
+    try:
+        from sklearn.tree import DecisionTreeRegressor
+        import numpy as np
+        # Simple data for blood component shelf life
+        # 1: Whole Blood (42 days)
+        # 2: PRBC (42 days)
+        # 3: Platelets (5 days)
+        # 4: Plasma (365 days)
+        X = np.array([[1], [2], [3], [4]])
+        y = np.array([42, 42, 5, 365])
+        
+        blood_model_ml = DecisionTreeRegressor()
+        blood_model_ml.fit(X, y)
+        print("Blood expiration model trained.")
+    except Exception as e:
+        print("Could not train blood model:", e)
+
+@app.route('/predict_blood_expiry', methods=['POST'])
+def predict_blood_expiry():
+    data = request.json or {}
+    collection_date_str = data.get('collection_date', '')
+    component = data.get('component', 'Whole Blood')
     
-    # --- Generic Fallback ---
+    import datetime
+    try:
+        if collection_date_str:
+            col_date = datetime.datetime.strptime(collection_date_str, "%Y-%m-%d")
+        else:
+            col_date = datetime.datetime.now()
+    except:
+        col_date = datetime.datetime.now()
+        
+    comp_map = {"Whole Blood": 1, "PRBC": 2, "Platelets": 3, "Plasma": 4}
+    enc = comp_map.get(component, 1)
+    
+    if blood_model_ml:
+        days = int(blood_model_ml.predict([[enc]])[0])
     else:
-        if turn_count == 1:
-            return jsonify({
-                "reply": "Could you provide a few more details? How long have you been experiencing this, and are there any other symptoms?",
-                "finished": False
-            })
-        elif turn_count >= 2:
-            # Use the existing ML predict model locally!
-            try:
-                # Compile all user messages into one symptom string
-                all_symptoms = " ".join([m['content'] for m in messages if m['role'] == 'user'])
-                
-                # Mock a request to the predict function internally
-                text_input = f"{all_symptoms}"
-                text_vec = vectorizer.transform([text_input])
-                probs = model.predict_proba(text_vec)[0]
-                classes = model.classes_
-                sorted_probs = sorted(zip(classes, probs), key=lambda x: x[1], reverse=True)
-                
-                prediction = sorted_probs[0][0] if sorted_probs else "General Malaise"
-                
-                return jsonify({
-                    "reply": f"Based on our model analysis of all your symptoms, this aligns with **{prediction}**. Please consult a doctor for a professional diagnosis.",
-                    "diagnosis": prediction,
-                    "urgency": "Medium",
-                    "finished": True
-                })
-            except Exception as e:
-                return jsonify({
-                    "reply": "Thank you for the information. Please consult a doctor for a proper diagnosis.",
-                    "diagnosis": "General symptoms",
-                    "urgency": "Medium",
-                    "finished": True
-                })
+        days = 42
+        
+    exp_date = col_date + datetime.timedelta(days=days)
+    
+    return jsonify({
+        "calculated_days": days,
+        "expiry_date": exp_date.strftime("%Y-%m-%d")
+    })
 
 if __name__ == '__main__':
     load_med_db()
     train_model()
+    train_blood_model()
     app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
 

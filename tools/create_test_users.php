@@ -1,6 +1,8 @@
 <?php
-// tools/create_test_users.php
+// tools/create_test_users.php — Admin-only tool
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/auth_session.php';
+check_role(['admin']);
 
 echo "--- Creating Test Users for Verification ---\n";
 

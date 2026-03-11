@@ -12,6 +12,9 @@ $success = '';
 
 // Handle Add/Update Stock
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $medication_name = $_POST['medication_name'];
     $quantity = $_POST['quantity'];
     $unit_price = $_POST['unit_price'];
@@ -38,6 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         db_insert('pharmacy_inventory', $data);
         $success = "New medication added successfully.";
     }
+    } // end CSRF check
 }
 
 // Fetch Inventory
@@ -57,6 +61,7 @@ $inventory = db_select("SELECT * FROM pharmacy_inventory ORDER BY medication_nam
     <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
         <h5>Add / Update Stock</h5>
         <form method="POST" action="" style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+            <?php echo csrf_input(); ?>
             <div style="flex: 2; min-width: 200px;">
                 <label>Medication Name</label>
                 <input type="text" name="medication_name" class="form-control" required>

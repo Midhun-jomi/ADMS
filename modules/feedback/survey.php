@@ -1,42 +1,39 @@
 <?php
-session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_session.php';
-
-// Access: Patient, Admin
-$allowed_roles = ['patient', 'admin'];
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], $allowed_roles)) {
-    header("Location: /index.php");
-    exit();
-}
+check_role(['patient', 'admin']);
 
 $page_title = "Patient Feedback";
 require_once '../../includes/header.php';
 
 $success_msg = '';
+$error_msg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
-    try {
-        $patient_id = null;
-        if ($_SESSION['role'] === 'patient') {
-            $user_id = $_SESSION['user_id'];
-            $patient = db_select("SELECT id FROM patients WHERE user_id = '$user_id'");
-            if ($patient) $patient_id = $patient[0]['id'];
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error_msg = "Invalid request. Please refresh and try again.";
+    } else {
+        try {
+            $patient_id = null;
+            if ($_SESSION['role'] === 'patient') {
+                $pat = db_select_one("SELECT id FROM patients WHERE user_id = $1", [$_SESSION['user_id']]);
+                $patient_id = $pat['id'] ?? null;
+            }
+
+            // Handle Tags
+            $tags = isset($_POST['tags']) ? implode(', ', array_map('htmlspecialchars', $_POST['tags'])) : '';
+            $comments = $_POST['comments'];
+            $final_comments = $tags ? "[$tags] " . $comments : $comments;
+
+            db_insert('patient_feedback', [
+                'patient_id' => $patient_id,
+                'rating' => (int)$_POST['rating'],
+                'comments' => $final_comments
+            ]);
+            $success_msg = "Thank you for your feedback!";
+        } catch (Exception $e) {
+            $error_msg = "Submission failed. Please try again.";
         }
-
-        // Handle Tags
-        $tags = isset($_POST['tags']) ? implode(', ', $_POST['tags']) : '';
-        $comments = $_POST['comments'];
-        $final_comments = $tags ? "[$tags] " . $comments : $comments;
-
-        db_insert('patient_feedback', [
-            'patient_id' => $patient_id,
-            'rating' => $_POST['rating'],
-            'comments' => $final_comments
-        ]);
-        $success_msg = "Thank you for your feedback!";
-    } catch (Exception $e) {
-        $error_msg = $e->getMessage();
     }
 }
 
@@ -44,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
 $feedbacks = [];
 if ($_SESSION['role'] === 'admin') {
     $feedbacks = db_select("
-        SELECT f.*, p.first_name, p.last_name 
-        FROM patient_feedback f 
         SELECT f.*, p.first_name, p.last_name
         FROM patient_feedback f
         LEFT JOIN patients p ON f.patient_id = p.id
@@ -152,7 +147,12 @@ if ($_SESSION['role'] === 'admin') {
 
     <?php if ($success_msg): ?>
         <div class="alert alert-success" style="max-width: 600px; margin: 20px auto; border-radius: 12px;">
-            <i class="fas fa-check-circle"></i> <?php echo $success_msg; ?>
+            <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success_msg); ?>
+        </div>
+    <?php endif; ?>
+    <?php if ($error_msg): ?>
+        <div class="alert alert-danger" style="max-width: 600px; margin: 20px auto; border-radius: 12px;">
+            <?php echo htmlspecialchars($error_msg); ?>
         </div>
     <?php endif; ?>
 
@@ -162,6 +162,7 @@ if ($_SESSION['role'] === 'admin') {
         <p style="color: #666; margin-bottom: 30px;">Your feedback helps us improve our services.</p>
 
         <form method="POST">
+            <?php echo csrf_input(); ?>
             <div class="rating-group">
                 <input type="radio" name="rating" value="5" id="r5"><label for="r5" title="Excellent">★</label>
                 <input type="radio" name="rating" value="4" id="r4"><label for="r4" title="Good">★</label>

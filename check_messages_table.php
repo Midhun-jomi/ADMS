@@ -1,5 +1,8 @@
 <?php
+// check_messages_table.php — Admin-only debug tool
 require_once 'includes/db.php';
+require_once 'includes/auth_session.php';
+check_role(['admin']);
 
 $tables = db_select("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
 $found = false;

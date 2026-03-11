@@ -12,6 +12,9 @@ $success = '';
 
 // Handle Add Bed
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_bed'])) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $room_num = trim($_POST['room_number']);
     $type = $_POST['room_type'];
     $floor = trim($_POST['floor']);
@@ -39,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_bed'])) {
             }
         }
     }
+    } // end CSRF check
 }
 
 // Fetch all rooms
@@ -66,6 +70,7 @@ $rooms = db_select("SELECT * FROM rooms ORDER BY room_number");
             <?php endif; ?>
 
             <form method="POST" action="" class="staff-grid-form" style="display: block;">
+                <?php echo csrf_input(); ?>
                 <input type="hidden" name="add_bed" value="1">
                 
                 <div class="form-group mb-3">

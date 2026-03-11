@@ -9,6 +9,9 @@ $success = '';
 
 // Handle Admission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $patient_id = $_POST['patient_id'];
     $room_id = $_POST['room_id'];
     $diagnosis = $_POST['diagnosis'];
@@ -34,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $error = "Please select both patient and room.";
     }
+    } // end CSRF check
 }
 
 $page_title = "Admit Patient";
@@ -61,6 +65,7 @@ $rooms = db_select("SELECT id, room_number, room_type FROM rooms WHERE status = 
     <?php else: ?>
 
     <form method="POST" action="">
+        <?php echo csrf_input(); ?>
         <div class="form-group">
             <label>Select Patient</label>
             <select name="patient_id" class="form-control" required>

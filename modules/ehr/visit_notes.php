@@ -213,7 +213,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
             // Log for debug
             error_log("Sending AI Feedback: " . json_encode($learning_data));
             
-            $url = 'http://localhost:5001/learn';
+            $url = 'http://127.0.0.1:5001/learn';
             // Simple fire-and-forget logic using stream context with small timeout
             $options = [
                 'http' => [
@@ -987,12 +987,33 @@ function callPatient() {
                 <!-- Current Visit Note -->
                 <div class="form-group">
                     <label style="font-weight: 600; color: #2c3e50; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Add New Clinical Note / Diagnosis</span>
+                        <span>Add New Clinical Note / Findings</span>
                         <button type="button" class="btn btn-sm btn-outline-primary" style="border-radius: 20px;" onclick="getAIInsights()">
                             <i class="fas fa-magic"></i> AI Assist
                         </button>
                     </label>
-                    <textarea name="notes" id="clinicalNotes" class="form-control" rows="6" placeholder="Enter clinical observations, symptoms, diagnosis..." style="border: 2px solid #e0e0e0; font-family: 'Inter', sans-serif;" required></textarea>
+                    <textarea name="notes" id="clinicalNotes" class="form-control" rows="4" placeholder="Enter clinical observations, symptoms..." style="border: 2px solid #e0e0e0; font-family: 'Inter', sans-serif;" required></textarea>
+                </div>
+
+                <!-- AI Learning Feedback Loop -->
+                <div style="background: #eef2f7; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #dce8f5;">
+                    <div style="margin-bottom: 15px; font-weight: 700; color: #004085;"><i class="fas fa-brain text-primary"></i> Final Clinical Assessment</div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label style="font-size: 0.9em; font-weight: 600; color: #555;">Final Verified Diagnosis <span class="text-danger">*</span></label>
+                            <input type="text" name="final_diagnosis" id="final_diagnosis" class="form-control" placeholder="e.g. Acute Bronchitis" required>
+                            <small class="form-text text-muted">This confirms the AI prediction or corrects it to improve future accuracy.</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label style="font-size: 0.9em; font-weight: 600; color: #555;">Urgency Level <span class="text-danger">*</span></label>
+                            <select name="urgency_rating" id="urgency_rating" class="form-control" required>
+                                <option value="Low">Low (Routine)</option>
+                                <option selected value="Medium">Medium (Attention Needed)</option>
+                                <option value="High">High (Urgent)</option>
+                                <option value="Critical">Critical (Emergency)</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Uniform Action Grid -->
@@ -1177,7 +1198,7 @@ function callPatient() {
                                     html += `
                                     <div style="margin-bottom: 8px;">
                                         <div style="display:flex; justify-content:space-between; font-size:0.9em; font-weight:600; margin-bottom:2px;">
-                                            <span>${p.condition}</span>
+                                            <span>${p.label}</span>
                                             <span>${p.probability}%</span>
                                         </div>
                                         <div style="background:#e9ecef; height:6px; border-radius:3px; overflow:hidden;">
@@ -1195,17 +1216,15 @@ function callPatient() {
                                 <h6 style="font-size: 0.9em; text-transform:uppercase; color:#888;">Analysis</h6>
                                 <div style="margin-bottom:10px;">
                                     <strong>Urgency:</strong> 
-                                    <span class="badge badge-${(data.urgency === 'Critical' || data.urgency === 'High') ? 'danger' : 'success'}">${data.urgency || 'Unknown'}</span>
+                            if (data.disease) {
+                                html += `<div style="margin-top: 15px;">
+                                    <strong>AI Diagnosis:</strong> <span style="color: #2b6cb0;">${data.disease}</span>
                                 </div>`;
-                                
-                            if (data.vitals_analysis && data.vitals_analysis.length > 0) {
-                                html += `<ul style="font-size:0.85em; color:#e74a3b; padding-left:15px; margin-bottom:0;">`;
-                                data.vitals_analysis.forEach(v => {
-                                    html += `<li>${v}</li>`;
-                                });
-                                html += `</ul>`;
-                            } else {
-                                html += `<div style="font-size:0.85em; color:#1cc88a;"><i class="fas fa-check"></i> Vitals within normal range</div>`;
+                            }
+                            if (data.specialization) {
+                                html += `<div style="margin-top: 5px;">
+                                    <strong>Recommended Dept:</strong> <span style="color: #047857;">${data.specialization}</span>
+                                </div>`;
                             }
                             
                             html += `</div></div>`; // End row

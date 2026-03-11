@@ -25,27 +25,31 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = trim($_POST['name']);
-    $head = trim($_POST['head_of_dept']);
-    $desc = trim($_POST['description']);
-    $status = $_POST['status'];
-
-    if (empty($name)) {
-        $error = "Department name is required.";
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
     } else {
-        try {
-            db_update('departments', [
-                'name' => $name,
-                'head_of_dept' => $head,
-                'description' => $desc,
-                'status' => $status,
-                'updated_at' => date('Y-m-d H:i:s')
-            ], ['id' => $id]);
-            
-            $success = "Department updated successfully.";
-            $dept = db_select_one("SELECT * FROM departments WHERE id = $1", [$id]); // Refresh
-        } catch (Exception $e) {
-            $error = "Update failed: " . $e->getMessage();
+        $name = trim($_POST['name']);
+        $head = trim($_POST['head_of_dept']);
+        $desc = trim($_POST['description']);
+        $status = $_POST['status'];
+
+        if (empty($name)) {
+            $error = "Department name is required.";
+        } else {
+            try {
+                db_update('departments', [
+                    'name' => $name,
+                    'head_of_dept' => $head,
+                    'description' => $desc,
+                    'status' => $status,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ], ['id' => $id]);
+
+                $success = "Department updated successfully.";
+                $dept = db_select_one("SELECT * FROM departments WHERE id = $1", [$id]); // Refresh
+            } catch (Exception $e) {
+                $error = "Update failed: " . $e->getMessage();
+            }
         }
     }
 }
@@ -67,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="">
+                    <?php echo csrf_input(); ?>
                     <div class="form-group mb-3">
                         <label>Department Name</label>
                         <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($dept['name']); ?>" required>

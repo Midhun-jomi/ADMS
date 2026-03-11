@@ -24,6 +24,12 @@ if (!$report) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        echo "<div class='alert alert-danger'>Invalid request. Please refresh and try again.</div>";
+        include '../../includes/footer.php';
+        exit();
+    }
+
     $findings = $_POST['findings'];
     
     // Existing URLs parsing (backward compatible string or JSON array)
@@ -37,26 +43,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_FILES['scan_file'])) {
         $upload_dir = __DIR__ . '/../../assets/uploads/radiology/';
         if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
+            mkdir($upload_dir, 0755, true);
         }
-        
+
+        $allowed_exts  = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
+        $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+        $max_file_size = 10 * 1024 * 1024; // 10 MB
+
         $total = count($_FILES['scan_file']['name']);
         for ($i = 0; $i < $total; $i++) {
             if ($_FILES['scan_file']['error'][$i] == 0) {
-                $ext = strtolower(pathinfo($_FILES['scan_file']['name'][$i], PATHINFO_EXTENSION));
-                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
-                
-                if (in_array($ext, $allowed)) {
-                    $filename = "rad_" . $report_id . "_" . time() . "_" . $i . "." . $ext;
-                    $target_file = $upload_dir . $filename;
-                    
-                    if (move_uploaded_file($_FILES['scan_file']['tmp_name'][$i], $target_file)) {
-                        $urls[] = "/assets/uploads/radiology/" . $filename;
-                    } else {
-                        echo "<div class='alert alert-danger'>Failed to upload " . htmlspecialchars($_FILES['scan_file']['name'][$i]) . ".</div>";
-                    }
+                $original_name = $_FILES['scan_file']['name'][$i];
+                $ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+
+                // Check file size
+                if ($_FILES['scan_file']['size'][$i] > $max_file_size) {
+                    echo "<div class='alert alert-danger'>File too large (max 10 MB): " . htmlspecialchars($original_name) . "</div>";
+                    continue;
+                }
+
+                // Check extension
+                if (!in_array($ext, $allowed_exts)) {
+                    echo "<div class='alert alert-danger'>Invalid file type for " . htmlspecialchars($original_name) . ". Allowed: JPG, PNG, GIF, PDF.</div>";
+                    continue;
+                }
+
+                // Check actual MIME type to prevent disguised executables
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime_type = finfo_file($finfo, $_FILES['scan_file']['tmp_name'][$i]);
+                finfo_close($finfo);
+
+                if (!in_array($mime_type, $allowed_mimes)) {
+                    echo "<div class='alert alert-danger'>File content does not match allowed types: " . htmlspecialchars($original_name) . "</div>";
+                    continue;
+                }
+
+                // Safe filename — strip non-alphanumeric chars from report_id
+                $report_id_safe = preg_replace('/[^a-zA-Z0-9\-]/', '', $report_id);
+                $filename = "rad_" . $report_id_safe . "_" . time() . "_" . $i . "." . $ext;
+                $target_file = $upload_dir . $filename;
+
+                if (move_uploaded_file($_FILES['scan_file']['tmp_name'][$i], $target_file)) {
+                    $urls[] = "/assets/uploads/radiology/" . $filename;
                 } else {
-                    echo "<div class='alert alert-danger'>Invalid file type for " . htmlspecialchars($_FILES['scan_file']['name'][$i]) . ".</div>";
+                    echo "<div class='alert alert-danger'>Failed to upload " . htmlspecialchars($original_name) . ".</div>";
                 }
             }
         }
@@ -101,7 +131,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <form method="POST" action="" enctype="multipart/form-data">
-                    <?php 
+                    <?php echo csrf_input(); ?>
+                    <?php
                         $existing_json = $report['image_url'] ?? '';
                         $saved_urls = json_decode($existing_json, true);
                         if (!is_array($saved_urls) && !empty($existing_json)) {

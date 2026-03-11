@@ -139,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     <?php endif; ?>
 
-    <form method="POST" action="">
+    <form id="bookingForm" method="POST" action="">
         <!-- Specialization -->
         <div class="form-group">
             <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">Select Specialization</label>
@@ -329,11 +329,91 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </script>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn" style="background-color: #333; color: white; padding: 12px 25px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer;">
-            Confirm Booking
+        <button type="button" onclick="initiatePayment()" class="btn" style="background-color: #333; color: white; padding: 12px 25px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fas fa-credit-card"></i> Proceed to Pay & Book
         </button>
     </form>
 </div>
+
+<!-- PAYMENT MODAL -->
+<div id="paymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+    <div style="background:#fff; width:100%; max-width:400px; border-radius:16px; overflow:hidden; box-shadow:0 25px 50px rgba(0,0,0,0.2);">
+        <div style="background:linear-gradient(135deg, #10b981, #059669); padding:20px; color:white; text-align:center;">
+            <i class="fas fa-shield-alt fa-2x" style="margin-bottom:10px;"></i>
+            <h3 style="margin:0; font-weight:700;">Secure Checkout</h3>
+        </div>
+        <div style="padding:25px;">
+            <div style="text-align:center; margin-bottom:20px; padding-bottom:15px; border-bottom:1px dashed #e5e7eb;">
+                <p style="margin:0; color:#6b7280; font-size:0.9em;">Consultation Fee</p>
+                <h2 style="margin:5px 0 0; color:#111827; font-weight:800;">₹500.00</h2>
+            </div>
+            
+            <div style="margin-bottom:15px;">
+                <label style="display:block; font-size:0.85em; font-weight:600; color:#4b5563; margin-bottom:5px;">Card Number</label>
+                <div style="position:relative;">
+                    <i class="far fa-credit-card" style="position:absolute; left:12px; top:14px; color:#9ca3af;"></i>
+                    <input type="text" class="form-control" placeholder="**** **** **** ****" value="4111 1111 1111 1111" style="padding-left:38px; border-radius:8px;">
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:15px; margin-bottom:25px;">
+                <div style="flex:1;">
+                    <label style="display:block; font-size:0.85em; font-weight:600; color:#4b5563; margin-bottom:5px;">Expiry Date</label>
+                    <input type="text" class="form-control" placeholder="MM/YY" value="12/25" style="border-radius:8px;">
+                </div>
+                <div style="flex:1;">
+                    <label style="display:block; font-size:0.85em; font-weight:600; color:#4b5563; margin-bottom:5px;">CVV</label>
+                    <input type="text" class="form-control" placeholder="123" value="123" style="border-radius:8px;">
+                </div>
+            </div>
+            
+            <button type="button" id="payBtn" onclick="processPayment()" style="width:100%; background:#10b981; color:white; border:none; padding:12px; border-radius:8px; font-weight:700; font-size:1.05em; cursor:pointer; transition:0.2s; display:flex; justify-content:center; align-items:center; gap:8px;">
+                <i class="fas fa-lock"></i> Pay Securely
+            </button>
+            <button type="button" onclick="document.getElementById('paymentModal').style.display='none'" style="width:100%; background:transparent; color:#6b7280; border:none; padding:12px; border-radius:8px; font-weight:600; font-size:0.95em; cursor:pointer; margin-top:8px;">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function initiatePayment() {
+    const form = document.getElementById('bookingForm');
+    // Check browser native HTML5 validity
+    if(!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Check specific required logic
+    const doctor = document.getElementById('doctor_id').value;
+    const date = document.getElementById('appointment_date').value;
+    const time = document.getElementById('selected_time').value;
+    const reason = document.getElementById('reason').value;
+    
+    if(!doctor || !date || !time) {
+        alert("Please ensure Doctor, Date, and Time slots are selected.");
+        return;
+    }
+    
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+
+function processPayment() {
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+    btn.style.background = '#059669';
+    
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Payment Successful!';
+        setTimeout(() => {
+            document.getElementById('bookingForm').submit();
+        }, 800);
+    }, 1500);
+}
+</script>
 
 <style>
     .time-slot-container {
@@ -577,7 +657,56 @@ function selectSlot(element, time) {
 // Initialize with disabled slots
 document.addEventListener('DOMContentLoaded', function() {
     updateDateGrid(); // Initial render
-    renderSlots(null); 
+    renderSlots(null);
+
+    // Pre-select specialization + doctor if passed from symptom checker
+    const params = new URLSearchParams(window.location.search);
+    const preDocId = params.get('doctor_id');
+    const preSpec = params.get('spec');
+
+    if (preDocId) {
+        const docSelect = document.getElementById('doctor_id');
+        const specSelect = document.getElementById('specialization');
+
+        // Step 1: Find the doctor option and get its exact data-spec
+        let targetIndex = -1;
+        let targetSpec = preSpec || '';
+        for (let i = 0; i < docSelect.options.length; i++) {
+            if (docSelect.options[i].value === preDocId) {
+                targetIndex = i;
+                targetSpec = docSelect.options[i].getAttribute('data-spec') || targetSpec;
+                break;
+            }
+        }
+
+        // Step 2: Set specialization dropdown to exact matched value
+        for (let i = 0; i < specSelect.options.length; i++) {
+            if (specSelect.options[i].value === targetSpec) {
+                specSelect.selectedIndex = i;
+                break;
+            }
+        }
+
+        // Step 3: Filter doctors (this resets doctor select but shows correct options)
+        filterDoctors();
+
+        // Step 4: Re-select the doctor (now the option is visible and enabled)
+        if (targetIndex !== -1) {
+            docSelect.options[targetIndex].disabled = false;
+            docSelect.options[targetIndex].style.display = '';
+            docSelect.selectedIndex = targetIndex;
+        }
+    } else if (preSpec) {
+        // Only spec provided — just filter by specialization
+        const specSelect = document.getElementById('specialization');
+        for (let i = 0; i < specSelect.options.length; i++) {
+            if (specSelect.options[i].value === preSpec) {
+                specSelect.selectedIndex = i;
+                break;
+            }
+        }
+        filterDoctors();
+    }
 });
 
 function updateDateGrid() {

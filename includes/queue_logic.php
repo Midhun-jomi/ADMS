@@ -23,35 +23,24 @@ function get_estimated_wait_time($appointment_id) {
     $avg_time = $stats['avg_consult_time'] ?? 10; // Default 10 min
 
     // 3. Count patients ahead
-    // "Ahead" means:
-    // - Active status (scheduled, waiting, ready)
-    // - NOT cancelled, completed
-    // - Higher priority OR (Same priority AND Earlier time)
-    // - Exclude self
-    
-    // We treat 'scheduled' same as 'waiting' for queue purposes if they are checked in?
-    // Assumption: All appointments for today are in the queue.
-    // Filter by TODAY? Usually queue is for the current session.
-    // Let's assume we look at all active appointments for the day.
-    
     $date_start = date('Y-m-d 00:00:00', strtotime($current_time)); // specific day
     $date_end   = date('Y-m-d 23:59:59', strtotime($current_time));
 
-    // Simple sorting: Emergency first, then time.
-    $sql = "SELECT id, priority, appointment_time FROM appointments 
-            WHERE doctor_id = $1 
-            AND appointment_time >= '$date_start' AND appointment_time <= '$date_end'
+    // FIX: Use parameterized queries for date ranges (was SQL injection risk)
+    $sql = "SELECT id, priority, appointment_time FROM appointments
+            WHERE doctor_id = $1
+            AND appointment_time >= $3 AND appointment_time <= $4
             AND status IN ('scheduled', 'waiting', 'ready', 'consulting')
             AND id != $2";
-            
-    $queue = db_select($sql, [$doctor_id, $current_id]);
-    
+
+    $queue = db_select($sql, [$doctor_id, $current_id, $date_start, $date_end]);
+
     $ahead_count = 0;
     foreach ($queue as $q) {
         // Is $q ahead of $appt?
         $q_prio = strtolower($q['priority'] ?? 'normal');
         $my_prio = strtolower($appt['priority'] ?? 'normal');
-        
+
         $is_q_emergency = in_array($q_prio, ['emergency', 'high', 'high-risk']);
         $is_my_emergency = in_array($my_prio, ['emergency', 'high', 'high-risk']); // Should be false here due to top check
 
@@ -67,15 +56,14 @@ function get_estimated_wait_time($appointment_id) {
 
     // 4. Calculate
     // Formula: (Patients Ahead * Avg Consult) + (Nurse Prep if not ready)
-    $nurse_prep_time = ($appt['status'] === 'waiting' || $appt['status'] === 'scheduled') ? 5 : 0; 
-    // Assuming 'waiting' is default. 'ready' means nurse is done.
-    
+    $nurse_prep_time = ($appt['status'] === 'waiting' || $appt['status'] === 'scheduled') ? 5 : 0;
+
     if ($ahead_count == 0) {
         $est_wait = 0;
     } else {
         $est_wait = ($ahead_count * $avg_time) + $nurse_prep_time;
     }
-    
+
     return $est_wait;
 }
 
@@ -83,7 +71,7 @@ function update_appointment_status($id, $new_status) {
     // Valid statuses: scheduled, waiting, ready, consulting, completed, cancelled
     $sql = "UPDATE appointments SET status = $1";
     $params = [$new_status];
-    
+
     if ($new_status === 'waiting') {
          $sql .= ", checked_in_at = NOW()";
     }
@@ -93,12 +81,12 @@ function update_appointment_status($id, $new_status) {
     elseif ($new_status === 'completed') {
         $sql .= ", consultation_end = NOW()";
     }
-    
+
     $sql .= " WHERE id = $" . (count($params) + 1);
     $params[] = $id;
-    
+
     db_query($sql, $params);
-    
+
     // Trigger auto-update of avg time on completion
     if ($new_status === 'completed') {
         // Get doctor_id
@@ -111,36 +99,33 @@ function update_appointment_status($id, $new_status) {
 
 function recalculate_doctor_avg($doctor_id) {
     if (!$doctor_id) return;
-    
-    // Avg of last 50 completed consultations ? Or all? 
-    // Let's take last 20 for responsiveness
-    $sql = "SELECT consultation_start, consultation_end FROM appointments 
-            WHERE doctor_id = $1 AND status = 'completed' 
+
+    // Take last 20 completed consultations for responsiveness
+    $sql = "SELECT consultation_start, consultation_end FROM appointments
+            WHERE doctor_id = $1 AND status = 'completed'
             AND consultation_start IS NOT NULL AND consultation_end IS NOT NULL
             ORDER BY consultation_end DESC LIMIT 20";
-            
+
     $history = db_select($sql, [$doctor_id]);
-    
+
     if (empty($history)) return;
-    
+
     $total_minutes = 0;
     $count = 0;
-    
+
     foreach ($history as $h) {
         $start = strtotime($h['consultation_start']);
         $end = strtotime($h['consultation_end']);
         $duration =  ($end - $start) / 60; // minutes
-        
+
         if ($duration > 0 && $duration < 120) { // Filter outliers (e.g. forgot to close)
             $total_minutes += $duration;
             $count++;
         }
     }
-    
+
     if ($count > 0) {
         $new_avg = round($total_minutes / $count);
-        // Update stats
-        // Check if exists
         $exists = db_select_one("SELECT doctor_id FROM doctor_stats WHERE doctor_id = $1", [$doctor_id]);
         if ($exists) {
             db_query("UPDATE doctor_stats SET avg_consult_time = $1 WHERE doctor_id = $2", [$new_avg, $doctor_id]);
@@ -149,27 +134,28 @@ function recalculate_doctor_avg($doctor_id) {
         }
     }
 }
+
 // Returns detailed queue info: wait time, patients ahead, token number
 function get_queue_details($appointment_id) {
     if (!$appointment_id) return ['wait_time' => 0, 'patients_ahead' => 0, 'token' => 0];
 
     $appt = db_select_one("SELECT id, doctor_id, appointment_time, priority, status FROM appointments WHERE id = $1", [$appointment_id]);
     if (!$appt) return ['wait_time' => 0, 'patients_ahead' => 0, 'token' => 0];
-    
+
     $doctor_id = $appt['doctor_id'];
     $current_time = $appt['appointment_time'];
     $current_id = $appt['id'];
     $date_start = date('Y-m-d 00:00:00', strtotime($current_time));
     $date_end   = date('Y-m-d 23:59:59', strtotime($current_time));
 
-    // 1. Calculate Token Number (Rank based on creation/time for the day)
-    // We assume token is assigned based on appointment_time for the day
-    $daily_appts = db_select("SELECT id FROM appointments 
-                              WHERE doctor_id = $1 
-                              AND appointment_time >= '$date_start' AND appointment_time <= '$date_end'
+    // 1. Calculate Token Number (Rank based on appointment_time for the day)
+    // FIX: Use parameterized queries for date ranges
+    $daily_appts = db_select("SELECT id FROM appointments
+                              WHERE doctor_id = $1
+                              AND appointment_time >= $2 AND appointment_time <= $3
                               AND status != 'cancelled'
-                              ORDER BY appointment_time ASC, id ASC", [$doctor_id]);
-                              
+                              ORDER BY appointment_time ASC, id ASC", [$doctor_id, $date_start, $date_end]);
+
     $token = 0;
     foreach ($daily_appts as $index => $row) {
         if ($row['id'] == $current_id) {
@@ -180,21 +166,20 @@ function get_queue_details($appointment_id) {
 
     // 2. Calculate Patients Ahead & Wait Time
     // --- SMART PREDICTIVE LOGIC ---
-    // Calculate today's actual pace
-    $today_completed = db_select("SELECT consultation_start, consultation_end FROM appointments 
-                                  WHERE doctor_id = $1 
-                                  AND appointment_time >= '$date_start' AND appointment_time <= '$date_end'
+    // FIX: Use parameterized queries for date ranges
+    $today_completed = db_select("SELECT consultation_start, consultation_end FROM appointments
+                                  WHERE doctor_id = $1
+                                  AND appointment_time >= $2 AND appointment_time <= $3
                                   AND status = 'completed'
-                                  AND consultation_start IS NOT NULL AND consultation_end IS NOT NULL", [$doctor_id]);
+                                  AND consultation_start IS NOT NULL AND consultation_end IS NOT NULL",
+                                  [$doctor_id, $date_start, $date_end]);
 
     $historical_stats = db_select_one("SELECT avg_consult_time FROM doctor_stats WHERE doctor_id = $1", [$doctor_id]);
     $historical_avg = $historical_stats['avg_consult_time'] ?? 10;
-    
+
     $current_avg = $historical_avg;
-    
-    // If we have data from today, use a weighted average
+
     // Weight: 70% Today's Pace, 30% Historical
-    // This adapts to the doctor being slow/fast *today*
     $today_minutes = 0;
     $today_count = 0;
     foreach ($today_completed as $tc) {
@@ -206,21 +191,22 @@ function get_queue_details($appointment_id) {
             $today_count++;
         }
     }
-    
+
     if ($today_count >= 2) { // Need at least 2 samples to trust today's data
         $today_avg_calculated = $today_minutes / $today_count;
         $current_avg = round(($today_avg_calculated * 0.7) + ($historical_avg * 0.3));
     }
     // -----------------------------
 
-    $sql = "SELECT id, priority, appointment_time FROM appointments 
-            WHERE doctor_id = $1 
-            AND appointment_time >= '$date_start' AND appointment_time <= '$date_end'
+    // FIX: Use parameterized queries for date ranges
+    $sql = "SELECT id, priority, appointment_time FROM appointments
+            WHERE doctor_id = $1
+            AND appointment_time >= $3 AND appointment_time <= $4
             AND status IN ('scheduled', 'waiting', 'ready', 'consulting')
             AND id != $2";
-            
-    $queue = db_select($sql, [$doctor_id, $current_id]);
-    
+
+    $queue = db_select($sql, [$doctor_id, $current_id, $date_start, $date_end]);
+
     $ahead_count = 0;
     $my_prio = strtolower($appt['priority'] ?? 'normal');
     $is_my_emergency = in_array($my_prio, ['emergency', 'high', 'high-risk']);
@@ -241,7 +227,7 @@ function get_queue_details($appointment_id) {
     }
 
     $nurse_prep_time = ($appt['status'] === 'waiting' || $appt['status'] === 'scheduled') ? 5 : 0;
-    
+
     if ($ahead_count == 0) {
         $est_wait = 0;
     } else {

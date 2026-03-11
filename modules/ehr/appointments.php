@@ -6,6 +6,36 @@ check_auth();
 
 $role = get_user_role();
 $user_id = get_user_id();
+
+// Handle Cancellation (Patient or Doctor)
+$cancel_error = '';
+$cancel_success = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_appointment_id'])) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $cancel_error = "Invalid request. Please refresh and try again.";
+    } else {
+        $appt_id = $_POST['cancel_appointment_id'];
+        // Verify ownership
+        $appt = db_select_one("SELECT a.*, p.user_id as patient_user_id, s.user_id as doctor_user_id
+                               FROM appointments a
+                               JOIN patients p ON a.patient_id = p.id
+                               LEFT JOIN staff s ON a.doctor_id = s.id
+                               WHERE a.id = $1", [$appt_id]);
+        $can_cancel = false;
+        if ($appt && $appt['status'] === 'scheduled') {
+            if ($role === 'admin') $can_cancel = true;
+            elseif ($role === 'patient' && $appt['patient_user_id'] == $user_id) $can_cancel = true;
+            elseif ($role === 'doctor' && $appt['doctor_user_id'] == $user_id) $can_cancel = true;
+        }
+        if ($can_cancel) {
+            db_update('appointments', ['status' => 'cancelled'], ['id' => $appt_id]);
+            $cancel_success = "Appointment cancelled successfully.";
+        } else {
+            $cancel_error = "Unable to cancel this appointment.";
+        }
+    }
+}
+
 $page_title = "My Schedule";
 include '../../includes/header.php';
 
@@ -249,6 +279,13 @@ if (empty($labels) && $role === 'doctor') {
     }
 </style>
 
+<?php if ($cancel_success): ?>
+    <div class="alert alert-success" style="border-radius: 8px; margin-bottom: 15px;"><?php echo htmlspecialchars($cancel_success); ?></div>
+<?php endif; ?>
+<?php if ($cancel_error): ?>
+    <div class="alert alert-danger" style="border-radius: 8px; margin-bottom: 15px;"><?php echo htmlspecialchars($cancel_error); ?></div>
+<?php endif; ?>
+
 <div class="page-header-row">
     <div>
         <h1 style="margin: 0;">My Schedule</h1>
@@ -352,6 +389,7 @@ if (empty($labels) && $role === 'doctor') {
                         </span>
                     </td>
                     <td style="text-align: right;">
+                        <div style="display: inline-flex; gap: 8px; align-items: center;">
                         <?php if ($role === 'doctor'): ?>
                             <a href="visit_notes.php?appointment_id=<?php echo $appt['id']; ?>" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.85rem;">
                                 Consult <i class="fas fa-arrow-right" style="margin-left: 5px;"></i>
@@ -361,6 +399,16 @@ if (empty($labels) && $role === 'doctor') {
                                 Details
                             </a>
                         <?php endif; ?>
+                        <?php if ($appt['status'] === 'scheduled' && ($role === 'patient' || $role === 'doctor' || $role === 'admin')): ?>
+                            <form method="POST" style="display:inline;" onsubmit="return confirm('Cancel this appointment?');">
+                                <?php echo csrf_input(); ?>
+                                <input type="hidden" name="cancel_appointment_id" value="<?php echo htmlspecialchars($appt['id']); ?>">
+                                <button type="submit" class="btn btn-light" style="font-size: 0.85rem; border: 1px solid #ddd; color: #dc3545;">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </form>
+                        <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

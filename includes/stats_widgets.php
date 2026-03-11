@@ -60,9 +60,11 @@ try {
         // 2. My Prescriptions (Mock count for now as we don't have a prescriptions table linked easily, or use 0)
         $stats['card2'] = ['label' => 'Prescriptions', 'value' => 0, 'icon' => 'fa-pills', 'color' => 'card-blue', 'trend' => 'Active', 'sub' => 'Active medications'];
 
-        // 3. My Medical Records/History
-        $history = db_select_one("SELECT COUNT(*) as c FROM appointments WHERE patient_id = $1 AND status = 'completed'", [$user_id])['c'] ?? 0;
-        $stats['card3'] = ['label' => 'Past Visits', 'value' => $history, 'icon' => 'fa-history', 'color' => 'card-yellow', 'trend' => 'Total', 'sub' => 'Completed appointments'];
+        // 3. My Medical Records/History (Current Month)
+        $month_start = date('Y-m-01 00:00:00');
+        $month_end = date('Y-m-t 23:59:59');
+        $history = db_select_one("SELECT COUNT(*) as c FROM appointments WHERE patient_id = $1 AND status = 'completed' AND appointment_time >= $2 AND appointment_time <= $3", [$user_id, $month_start, $month_end])['c'] ?? 0;
+        $stats['card3'] = ['label' => 'Past Visits', 'value' => $history, 'icon' => 'fa-history', 'color' => 'card-yellow', 'trend' => 'This Month', 'sub' => 'Completed this month'];
 
         // 4. Pending Bills
         $pending_bills = db_select_one("SELECT COUNT(*) as c FROM billing WHERE patient_id = $1 AND status = 'unpaid'", [$user_id])['c'] ?? 0;

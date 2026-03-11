@@ -29,13 +29,7 @@ $patients = db_select($sql, $params);
 
 <div class="card">
     <div class="card-header">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span>Patient List</span>
-            <form method="GET" action="" style="display: flex; gap: 10px;">
-                <input type="text" name="search" class="form-control" placeholder="Search name or phone..." value="<?php echo htmlspecialchars($search); ?>">
-                <button type="submit" class="btn btn-primary">Search</button>
-            </form>
-        </div>
+        Patient List
     </div>
     
     <table style="width: 100%; border-collapse: collapse;">
@@ -70,7 +64,9 @@ $patients = db_select($sql, $params);
                         <td style="padding: 10px;"><?php echo htmlspecialchars($p['phone'] ?? 'N/A'); ?></td>
                         <td style="padding: 10px;">
                             <a href="history.php?patient_id=<?php echo $p['id']; ?>" class="btn btn-sm" style="background: #17a2b8; color: white;">History</a>
-                            <a href="book_appointment.php?patient_id=<?php echo $p['id']; ?>" class="btn btn-sm" style="background: #007bff; color: white;">Book Appt</a>
+                            <?php if ($role !== 'doctor'): ?>
+                                <a href="book_appointment.php?patient_id=<?php echo $p['id']; ?>" class="btn btn-sm" style="background: #007bff; color: white;">Book Appt</a>
+                            <?php endif; ?>
                             <?php if ($role === 'admin'): ?>
                                 <a href="edit_profile.php?id=<?php echo $p['id']; ?>" class="btn btn-sm" style="background: #ffc107; color: black;">Edit</a>
                             <?php endif; ?>

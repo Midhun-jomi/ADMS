@@ -1,59 +1,56 @@
 <?php
 // auth/signup.php
 require_once '../includes/db.php';
-session_start();
+require_once '../includes/auth_session.php';
 
 $error = '';
 $success = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-    $dob = $_POST['dob'];
-
-    if ($password !== $confirm_password) {
-        $error = "Passwords do not match.";
+    // CSRF check
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh the page and try again.";
     } else {
-        // Check if email exists
-        $existing_user = db_select_one("SELECT id FROM users WHERE email = $1", [$email]);
-        if ($existing_user) {
-            $error = "Email already registered.";
+        $first_name = trim($_POST['first_name']);
+        $last_name  = trim($_POST['last_name']);
+        $email      = trim($_POST['email']);
+        $password   = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+        $dob        = $_POST['dob'];
+
+        if (strlen($password) < 8) {
+            $error = "Password must be at least 8 characters.";
+        } elseif ($password !== $confirm_password) {
+            $error = "Passwords do not match.";
         } else {
-            // Hash password
-            $password_hash = password_hash($password, PASSWORD_DEFAULT);
-
-            // Start transaction manually since we are using raw pg_query in wrappers (simplified)
-            // Ideally use pg_query("BEGIN")
-            
-            // Insert into users
-            $user_data = [
-                'email' => $email,
-                'password_hash' => $password_hash,
-                'role' => 'patient'
-            ];
-            
-            // We need the ID, so we'll use a custom query with RETURNING id
-            $sql = "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id";
-            $result = db_query($sql, [$email, $password_hash, 'patient']);
-            $user_row = pg_fetch_assoc($result);
-            $user_id = $user_row['id'];
-
-            if ($user_id) {
-                // Insert into patients
-                $patient_data = [
-                    'user_id' => $user_id,
-                    'first_name' => $first_name,
-                    'last_name' => $last_name,
-                    'date_of_birth' => $dob
-                ];
-                db_insert('patients', $patient_data);
-                
-                $success = "Registration successful! You can now login.";
+            // Check if email exists
+            $existing_user = db_select_one("SELECT id FROM users WHERE email = $1", [$email]);
+            if ($existing_user) {
+                $error = "Email already registered.";
             } else {
-                $error = "Registration failed. Please try again.";
+                // Hash password
+                $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+                // Insert into users with RETURNING id
+                $sql = "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id";
+                $result = db_query($sql, [$email, $password_hash, 'patient']);
+                $user_row = pg_fetch_assoc($result);
+                $user_id = $user_row['id'];
+
+                if ($user_id) {
+                    // Insert into patients
+                    $patient_data = [
+                        'user_id'       => $user_id,
+                        'first_name'    => $first_name,
+                        'last_name'     => $last_name,
+                        'date_of_birth' => $dob
+                    ];
+                    db_insert('patients', $patient_data);
+
+                    $success = "Registration successful! You can now login.";
+                } else {
+                    $error = "Registration failed. Please try again.";
+                }
             }
         }
     }
@@ -74,14 +71,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="circle-deco circle-1"></div>
             <div class="circle-deco circle-2"></div>
             <div class="circle-deco circle-3"></div>
-            
             <div class="login-left-content">
                 <h1>JOIN US <span style="color: #00cba9;">!</span></h1>
                 <p>Create your account to access healthcare services</p>
             </div>
             <img src="../assets/images/doctor_3d.png" alt="Doctor" class="doctor-img">
         </div>
-        
+
         <div class="login-right">
             <div class="login-logo">
                 <span>ADMS</span> Hospital
@@ -98,20 +94,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php else: ?>
 
             <form method="POST" action="">
+                <?php echo csrf_input(); ?>
                 <div style="display: flex; gap: 15px;">
                     <div class="login-form-group" style="flex: 1;">
                         <label for="first_name" class="login-label">First Name</label>
-                        <input type="text" id="first_name" name="first_name" class="login-input" required>
+                        <input type="text" id="first_name" name="first_name" class="login-input" required maxlength="100">
                     </div>
                     <div class="login-form-group" style="flex: 1;">
                         <label for="last_name" class="login-label">Last Name</label>
-                        <input type="text" id="last_name" name="last_name" class="login-input" required>
+                        <input type="text" id="last_name" name="last_name" class="login-input" required maxlength="100">
                     </div>
                 </div>
 
                 <div class="login-form-group">
                     <label for="email" class="login-label">Email Address</label>
-                    <input type="email" id="email" name="email" class="login-input" required>
+                    <input type="email" id="email" name="email" class="login-input" required maxlength="255">
                 </div>
 
                 <div class="login-form-group">
@@ -120,13 +117,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div class="login-form-group">
-                    <label for="password" class="login-label">Password</label>
-                    <input type="password" id="password" name="password" class="login-input" required>
+                    <label for="password" class="login-label">Password (min 8 characters)</label>
+                    <input type="password" id="password" name="password" class="login-input" required minlength="8">
                 </div>
 
                 <div class="login-form-group">
                     <label for="confirm_password" class="login-label">Confirm Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="login-input" required>
+                    <input type="password" id="confirm_password" name="confirm_password" class="login-input" required minlength="8">
                 </div>
 
                 <button type="submit" class="login-btn">Register</button>

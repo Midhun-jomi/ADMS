@@ -1,25 +1,16 @@
 Loaded 12 medicines from database.
-Training model on 200 records...
-Model training complete.
+Loading dataset from: ai/ai_triage_queue_dataset_200.xlsx
+Training urgency model on 200 records...
+Urgency model training complete.
+Blood expiration model trained.
  * Serving Flask app 'app'
  * Debug mode: on
 [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
- * Running on http://192.0.0.2:5001
+ * Running on http://127.0.0.1:5001
 [33mPress CTRL+C to quit[0m
-127.0.0.1 - - [03/Mar/2026 14:56:27] "[33mGET / HTTP/1.1[0m" 404 -
-127.0.0.1 - - [03/Mar/2026 14:56:28] "[33mGET /apple-touch-icon-precomposed.png HTTP/1.1[0m" 404 -
-127.0.0.1 - - [03/Mar/2026 14:56:28] "[33mGET /apple-touch-icon.png HTTP/1.1[0m" 404 -
-127.0.0.1 - - [03/Mar/2026 14:56:28] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-127.0.0.1 - - [03/Mar/2026 14:56:28] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-127.0.0.1 - - [03/Mar/2026 15:00:15] "OPTIONS /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:00:15] "POST /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:00:18] "POST /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:00:51] "OPTIONS /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:00:51] "POST /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:00:55] "POST /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:01:30] "OPTIONS /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:01:30] "POST /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:02:38] "OPTIONS /symptom_chat HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:02:38] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [10/Mar/2026 14:23:05] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [10/Mar/2026 14:23:05] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [10/Mar/2026 19:07:02] "POST /symptom_chat HTTP/1.1" 200 -
+127.0.0.1 - - [10/Mar/2026 19:07:05] "POST /symptom_chat HTTP/1.1" 200 -

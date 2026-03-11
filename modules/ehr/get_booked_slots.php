@@ -8,9 +8,6 @@ ini_set('display_errors', 0);
 
 header('Content-Type: application/json');
 
-// Log request for debugging
-file_put_contents('debug_slots.log', date('Y-m-d H:i:s') . " Request: " . print_r($_GET, true) . "\n", FILE_APPEND);
-
 if (!isset($_GET['doctor_id']) || !isset($_GET['date'])) {
     echo json_encode(['error' => 'Missing parameters']);
     exit;
@@ -37,8 +34,7 @@ try {
     
     echo json_encode(['booked_slots' => $booked_slots]);
 } catch (Exception $e) {
-    file_put_contents('debug_slots.log', $e->getMessage() . "\n" . $e->getTraceAsString());
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => 'An error occurred.']);
 }
 ?>

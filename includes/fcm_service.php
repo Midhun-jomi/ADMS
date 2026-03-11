@@ -59,7 +59,7 @@ class FCMService {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 
         $result = curl_exec($ch);
@@ -131,8 +131,8 @@ class FCMService {
             'assertion' => $jwt
         ]));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
         $result = curl_exec($ch);
         curl_close($ch);
         

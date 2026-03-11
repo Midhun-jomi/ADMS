@@ -15,6 +15,9 @@ $success = '';
 
 // Handle New Invoice Generation (Admin/Receptionist)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && ($role === 'admin' || $role === 'receptionist')) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $patient_id = $_POST['patient_id'];
     $amount = $_POST['amount'];
     $service_description = $_POST['service_description'];
@@ -40,6 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($role === 'admin' || $role === 'rec
     } catch (Exception $e) {
         $error = "Failed to generate invoice: " . $e->getMessage();
     }
+    } // end CSRF check
 }
 
 // Fetch Invoices
@@ -147,6 +151,7 @@ if ($role === 'patient') {
             </div>
             <div class="card-body" style="padding: 25px;">
                 <form method="POST" action="" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end;">
+                    <?php echo csrf_input(); ?>
                     <div>
                         <label style="font-weight: 500; color: #4b5563; display: block; margin-bottom: 8px;">Patient</label>
                         <select name="patient_id" class="form-control" required style="border-radius: 8px; height: 45px;">
@@ -251,6 +256,7 @@ if ($role === 'patient') {
                                             if ($has_insurance): 
                                             ?>
                                                 <form method="POST" action="submit_claim.php" onsubmit="return confirm('Submit claim for this invoice?');">
+                                                    <?php echo csrf_input(); ?>
                                                     <input type="hidden" name="bill_id" value="<?php echo $inv['id']; ?>">
                                                     <input type="hidden" name="insurance_id" value="<?php echo $has_insurance['id']; ?>">
                                                     <button type="submit" class="btn btn-outline-secondary btn-sm" style="padding: 6px 14px; font-size: 0.85em; background: white; border: 1px solid #d1d5db; color: #374151;">

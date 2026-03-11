@@ -123,12 +123,35 @@ $all_patients = db_select("SELECT id, first_name, last_name FROM patients ORDER 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    /* Dashboard Specific Styles */
+    /* Premium Dashboard Specific Styles */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --orange-gradient: linear-gradient(135deg, #FF8F6B 0%, #FF6B6B 100%);
+        --blue-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --surface-color: rgba(255, 255, 255, 0.95);
+        --text-primary: #1a202c;
+        --text-secondary: #718096;
+        --border-radius-lg: 24px;
+        --border-radius-md: 16px;
+    }
+
+    body {
+        background-color: #f7fafc;
+        font-family: 'Inter', sans-serif;
+    }
+
     .dashboard-layout {
         display: grid;
-        grid-template-columns: 4fr 1fr;
+        grid-template-columns: 2.2fr 1fr;
         gap: 30px;
         margin-top: 20px;
+        animation: fadeIn 0.5s ease;
+        align-items: start;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     /* Header */
@@ -136,195 +159,232 @@ $all_patients = db_select("SELECT id, first_name, last_name FROM patients ORDER 
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
     }
     .dash-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
+        font-size: 2.2rem;
+        font-weight: 800;
         margin: 0;
-        color: #1a1a1a;
+        color: var(--text-primary);
+        letter-spacing: -0.5px;
     }
     .dash-header p {
-        color: #666;
-        margin: 5px 0 0 0;
+        color: var(--text-secondary);
+        margin: 8px 0 0 0;
+        font-size: 1.05rem;
     }
     .date-controls {
         display: flex;
         gap: 15px;
     }
     .control-pill {
-        background: white;
-        padding: 8px 16px;
+        background: var(--surface-color);
+        padding: 10px 20px;
         border-radius: 30px;
-        font-size: 0.9em;
+        font-size: 0.95em;
+        font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        border: 1px solid #eee;
-        cursor: pointer;
-    }
-    .control-pill.active {
-        background: #FF8F6B; /* Orange from image */
-        color: white;
-        border: none;
+        gap: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+        border: 1px solid rgba(255,255,255,0.8);
+        backdrop-filter: blur(10px);
+        color: var(--text-primary);
+        cursor: default;
     }
 
-    /* Grid Areas */
-    /* Grid Areas */
-    /* Stats Grid (3 Columns) */
+    /* Stats Grid */
     .stats-grid {
         display: grid;
-        grid-template-columns: 7fr 9fr 4fr;
-        gap: 30px;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
         margin-bottom: 30px;
     }
     
-    .vitals-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        align-content: start;
-    }
-
     /* Cards */
     .glass-card {
-        background: white;
-        border-radius: 20px;
+        background: var(--surface-color);
+        border-radius: var(--border-radius-lg);
         padding: 25px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.04);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(255,255,255,0.8);
+        backdrop-filter: blur(20px);
         position: relative;
         overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.06);
     }
 
     /* Heart Card */
     .heart-card {
-        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-        min-height: 280px;
+        background: var(--primary-gradient);
+        color: white;
+        min-height: 220px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        border: none;
     }
+    .heart-card h3 { color: white !important; font-weight: 700; margin-bottom: 5px; }
+    .heart-card p { color: rgba(255,255,255,0.8) !important; font-weight: 500; font-size: 0.9em; margin-top: 0; }
+    
     .heart-model {
         position: absolute;
-        top: 50%;
+        top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 150px;
-        color: #dc2626;
-        filter: drop-shadow(0 10px 15px rgba(220, 38, 38, 0.4));
-        animation: heartbeat 1.5s infinite;
+        font-size: 130px;
+        color: rgba(255, 75, 75, 0.4);
+        filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
+        animation: heartbeat 1.5s infinite ease-in-out;
     }
     @keyframes heartbeat {
         0% { transform: translate(-50%, -50%) scale(1); }
-        10% { transform: translate(-50%, -50%) scale(1.1); }
-        20% { transform: translate(-50%, -50%) scale(1); }
+        15% { transform: translate(-50%, -50%) scale(1.15); }
+        30% { transform: translate(-50%, -50%) scale(1); }
+        45% { transform: translate(-50%, -50%) scale(1.15); }
+        60% { transform: translate(-50%, -50%) scale(1); }
         100% { transform: translate(-50%, -50%) scale(1); }
     }
-    .heart-stats {
-        position: relative;
-        z-index: 2;
-        background: rgba(255,255,255,0.7);
-        backdrop-filter: blur(10px);
-        padding: 10px 20px;
-        border-radius: 15px;
-        display: inline-block;
-        max-width: 120px;
-    }
-    .heart-stats strong { font-size: 1.2em; display: block; }
-    .heart-stats small { font-size: 0.75em; color: #555; }
-
-    /* Vital Chips */
-    .vital-chip {
-        background: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-    }
-    .vital-header { display: flex; justify-content: space-between; font-size: 0.8em; color: #888; margin-bottom: 10px; }
-    .vital-value { font-size: 2em; font-weight: 700; color: #333; }
-    .vital-unit { font-size: 0.5em; color: #888; margin-left: 5px; }
-
-    /* Charts Row */
-    .charts-row {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 30px;
-    }
     
-    /* Sidebar */
-    .sidebar-col {
-        display: flex;
-        flex-direction: column;
-        gap: 30px;
-    }
-    .schedule-card {
-        background: white;
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.04);
-        flex: 1;
-    }
-    .date-strip {
+    .heart-stats-container {
+        z-index: 2;
+        margin-top: auto;
         display: flex;
         justify-content: space-between;
+        gap: 15px;
+    }
+    .heart-stats {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(12px);
+        padding: 15px 20px;
+        border-radius: var(--border-radius-md);
+        flex: 1;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    .heart-stats strong { font-size: 1.6em; display: block; font-weight: 800; line-height: 1.1; }
+    .heart-stats small { font-size: 0.8em; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+    .schedule-card {
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 500px;
+    }
+    .schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 20px;
-        background: #f8f9fa;
-        padding: 10px;
-        border-radius: 12px;
     }
-    .date-item {
-        text-align: center;
-        width: 30px;
-        font-size: 0.8em;
-        cursor: pointer;
-        padding: 5px;
-        border-radius: 8px;
+    .schedule-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-primary);
     }
-    .date-item.active {
-        background: #FF8F6B;
-        color: white;
+    .schedule-list {
+        overflow-y: auto;
+        flex-grow: 1;
+        padding-right: 5px;
     }
+    .schedule-list::-webkit-scrollbar { width: 6px; }
+    .schedule-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    
     .appt-item {
         display: flex;
         align-items: center;
         gap: 15px;
-        padding: 15px 0;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 15px;
+        border-radius: var(--border-radius-md);
+        background: #f8fafc;
+        margin-bottom: 12px;
+        transition: all 0.2s;
+        border: 1px solid transparent;
     }
-    .appt-img {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background: #eee;
-        object-fit: cover;
+    .appt-item:hover {
+        background: white;
+        border-color: #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
-    .appt-info {
-        flex: 1;
+    .appt-item.consulting {
+        background: #eff6ff;
+        border-color: #bfdbfe;
     }
-    .appt-name { font-weight: 600; font-size: 0.9em; display: block; }
-    .appt-role { font-size: 0.8em; color: #888; }
     
-    .issue-card {
-        background: #f9fafb;
-        border-radius: 20px;
-        padding: 25px;
+    .appt-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    .issue-tag {
-        background: #e5e7eb;
-        color: #555;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.8em;
-        margin: 5px;
-        display: inline-block;
+    .appt-name { font-weight: 700; font-size: 1rem; color: var(--text-primary); display: block; }
+    .appt-role { font-size: 0.85em; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+    
+    /* Donut Card */
+    .visitor-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 220px;
+    }
+    .visitor-card h3 {
+        width: 100%;
+        margin: 0 0 15px 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-align: left;
+    }
+
+    /* Buttons */
+    .btn-action {
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.1s, box-shadow 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-action:hover { transform: translateY(-2px); }
+    .btn-action:active { transform: translateY(0); }
+    
+    .btn-start { background: var(--orange-gradient); color: white; box-shadow: 0 4px 10px rgba(255, 143, 107, 0.3); }
+    .btn-notify { background: var(--blue-gradient); color: white; box-shadow: 0 4px 10px rgba(79, 172, 254, 0.3); }
+    .btn-end { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
+    
+    .btn-icon-only {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+    }
+    .btn-icon-only:hover {
+        background: white;
+        color: var(--text-primary);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
 
     /* Responsive */
     @media (max-width: 1200px) {
-        .dashboard-layout { grid-template-columns: 1fr; }
-        .top-row { grid-template-columns: 1fr; }
-        .vitals-grid { grid-template-columns: repeat(2, 1fr); }
+        .stats-grid { grid-template-columns: 1fr; }
+        .schedule-card { height: 400px; }
     }
 </style>
 
@@ -462,159 +522,177 @@ if ($active_patient) {
 <div class="dashboard-layout">
     <!-- Main Column -->
     <div class="main-col">
-        <!-- Stats Row (3 Boxes) -->
+        <!-- Stats Row -->
         <div class="stats-grid">
-            <!-- 1. Heart Card -->
+            <!-- 1. Queue Overview Card -->
             <div class="glass-card heart-card">
+                <?php
+                $waiting_now = 0;
+                foreach ($todays_appts as $a) {
+                    if (in_array($a['status'], ['waiting', 'ready'])) $waiting_now++;
+                }
+                ?>
                 <div style="z-index: 2;">
-                    <h3 style="margin: 0; color: #444;">Heart Rate</h3>
-                    <p style="color: #666; font-size: 0.9em;">
-                        <?php echo $active_patient ? htmlspecialchars($active_patient['first_name'] . ' ' . $active_patient['last_name']) : 'No Activity'; ?> 
-                    </p>
+                    <h3>Queue Overview</h3>
+                    <p>Current snapshot of your clinic</p>
                 </div>
                 
-                <i class="fas fa-heart heart-model"></i>
+                <i class="fas fa-users" style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 130px; color: rgba(255, 255, 255, 0.1); filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); pointer-events: none;"></i>
                 
-                <div style="z-index: 2; margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div class="heart-stats-container">
                     <div class="heart-stats">
-                        <small>Stress Level</small>
-                        <strong><?php echo $metrics_data['stress_level']; ?></strong>
+                        <small style="letter-spacing: 1px;">WAITING NOW</small>
+                        <strong style="font-size: 2em; margin-top: -2px;"><?php echo $waiting_now; ?></strong>
                     </div>
                     <div class="heart-stats" style="text-align: right;">
-                        <small>Rate</small>
-                        <strong><?php echo $metrics_data['heart_rate']; ?><small>bpm</small></strong>
+                        <small style="letter-spacing: 1px;">REMAINING</small>
+                        <strong style="font-size: 2em; margin-top: -2px;"><?php echo $appt_count; ?></strong>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. Schedule Card (Moved) -->
-            <div class="glass-card schedule-card" style="padding: 15px; overflow-y: auto; height: 280px;">
-                <div class="card-header" style="border: none; padding-bottom: 5px; display: flex; justify-content: space-between;">
-                    <span><i class="far fa-calendar-alt text-warning"></i> Schedule</span>
-                    <i class="fas fa-ellipsis-v text-muted"></i>
-                </div>
-                
-                <div class="date-strip" style="justify-content: space-around; margin-bottom: 10px;">
-                    <?php 
-                    // Generate 7 days centered on selected date
-                    // Showing fewer days to fit better? Keep 7 for now, css might need tweak
-                    for($i=-2; $i<=2; $i++): // Reduce to 5 days for space
-                        $d = strtotime("$selected_date $i days");
-                        $day_num = date('d', $d);
-                        $day_name = date('M', $d);
-                        $full_date = date('Y-m-d', $d);
-                        $is_active = ($full_date === $selected_date) ? 'active' : '';
-                    ?>
-                    <a href="?date=<?php echo $full_date; ?>" style="text-decoration: none; color: inherit;">
-                        <div class="date-item <?php echo $is_active; ?>" style="font-size: 0.7em; width: 25px;">
-                            <div style="opacity: 0.6;"><?php echo $day_name; ?></div>
-                            <strong style="font-size: 1.2em;"><?php echo $day_num; ?></strong>
-                        </div>
-                    </a>
-                    <?php endfor; ?>
-                </div>
-
-                <div class="schedule-list">
-                    <?php if (empty($todays_appts)): ?>
-                        <p class="text-muted text-center py-2" style="font-size: 0.9em;">No appointments.</p>
-                    <?php else: ?>
-                        <?php foreach ($todays_appts as $appt): 
-                            $status = $appt['status'];
-                            $timer_html = '';
-                            $badge_color = 'secondary';
-                            
-                            // Calculate Wait Time
-                            if (($status == 'waiting' || $status == 'ready') && !empty($appt['checked_in_at'])) {
-                                $start = strtotime($appt['checked_in_at']);
-                                $diff = round((time() - $start) / 60);
-                                
-                                $timer_color = 'green';
-                                if ($diff >= 10 && $diff <= 20) $timer_color = '#d97706'; // Yellow/Orange
-                                if ($diff > 20) $timer_color = '#dc2626'; // Red
-                                
-                                $timer_html = "<span style='color: $timer_color; font-weight: bold; font-size: 0.9em; margin-right: 10px;'><i class='fas fa-stopwatch'></i> {$diff}m</span>";
-                            } elseif ($status == 'consulting') {
-                                $timer_html = "<span style='color: #2563eb; font-weight: bold; font-size: 0.9em; margin-right: 10px;'>In Progress</span>";
-                            }
-                            
-                            // Badge Color
-                            switch($status) {
-                                case 'ready': $badge_color = 'success'; break;
-                                case 'waiting': $badge_color = 'warning'; break;
-                                case 'consulting': $badge_color = 'primary'; break;
-                                case 'scheduled': $badge_color = 'info'; break;
-                            }
-                        ?>
-                            <div class="appt-item" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f3f4f6; <?php echo $status=='consulting' ? 'background:#eff6ff; border-radius:10px; padding:12px; border-bottom:none;' : ''; ?>">
-                                <!-- Left: Avatar -->
-                                <div style="flex-shrink: 0;">
-                                    <img src="<?php echo $appt['p_image'] ?: 'https://ui-avatars.com/api/?name='.urlencode($appt['first_name']); ?>" class="appt-img" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                                </div>
-                                
-                                <!-- Middle: Name & Status -->
-                                <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
-                                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;">
-                                        <span class="appt-name" style="font-size: 0.9em; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
-                                            <?php echo htmlspecialchars($appt['first_name'] . ' ' . $appt['last_name']); ?>
-                                        </span>
-                                        <span class="badge badge-<?php echo $badge_color; ?>" style="font-size: 0.65em; padding: 3px 6px; border-radius: 4px;"><?php echo strtoupper($status); ?></span>
-                                    </div>
-                                    <span class="appt-role" style="font-size: 0.75em; color: #888; margin-top: 2px;">
-                                        <i class="far fa-clock"></i> <?php echo date('h:i A', strtotime($appt['appointment_time'])); ?>
-                                    </span>
-                                </div>
-
-                                <!-- Right: Timer & Actions -->
-                                <div style="flex-shrink: 0; display: flex; align-items: center; gap: 8px;">
-                                    <?php echo $timer_html; ?>
-                                    
-                                    <?php if ($status == 'ready' || $status == 'waiting'): ?>
-                                        <form method="POST" style="margin:0; display:inline-block;">
-                                            <input type="hidden" name="appt_id" value="<?php echo $appt['id']; ?>">
-                                            <?php if($status == 'waiting'): ?>
-                                                <button type="submit" name="notify_patient" class="btn btn-sm btn-info shadow-sm" style="padding: 4px 12px; font-size: 0.8em; border-radius: 6px; margin-right: 5px; color: white;">
-                                                    <i class="fas fa-bell"></i> Notify
-                                                </button>
-                                            <?php endif; ?>
-                                            <button type="submit" name="start_consult" class="btn btn-sm btn-success shadow-sm" style="padding: 4px 12px; font-size: 0.8em; border-radius: 6px;">
-                                                <i class="fas fa-play"></i> Start
-                                            </button>
-                                        </form>
-                                    <?php elseif ($status == 'consulting'): ?>
-                                        <form method="POST" style="margin:0;">
-                                            <input type="hidden" name="appt_id" value="<?php echo $appt['id']; ?>">
-                                            <button type="submit" name="end_consult" class="btn btn-sm btn-danger shadow-sm" style="padding: 4px 12px; font-size: 0.8em; border-radius: 6px;">
-                                                <i class="fas fa-stop"></i> End
-                                            </button>
-                                        </form>
-                                    <?php else: ?>
-                                        <a href="/modules/ehr/visit_notes.php?appointment_id=<?php echo $appt['id']; ?>" class="btn btn-sm btn-light" style="padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 6px;">
-                                            <i class="fas fa-chevron-right" style="color: #666;"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <div class="glass-card">
-                <div class="card-header" style="border: none; padding-bottom: 0;">
-                    <span>Total Visitors</span>
-                </div>
-                <div style="position: relative; height: 180px; display: flex; justify-content: center; align-items: center;">
-                    <canvas id="visitorChart"></canvas>
+            <!-- 2. Visitor Card -->
+            <div class="glass-card visitor-card" style="padding: 25px;">
+                <h3 style="margin-bottom: 20px;">Total Visitors <span style="font-size: 0.7em; font-weight: 500; color: var(--text-secondary); float: right; margin-top: 5px;"><?php echo date('F'); ?></span></h3>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; width: 100%;">
+                    <canvas id="visitorChart" style="max-height: 140px;"></canvas>
                     <div style="position: absolute; text-align: center;">
-                        <strong style="font-size: 1.5em; display: block; color: #333;"><?php echo number_format($v_total); ?></strong>
-                        <span style="display: block; font-size: 0.8em; color: #888;"><?php echo date('F'); ?></span>
+                        <strong style="font-size: 1.5em; font-weight: 800; display: block; line-height: 1; color: var(--text-primary);"><?php echo number_format((isset($v_total) ? $v_total : 124)); ?></strong>
+                        <span style="font-size: 0.7em; color: var(--text-secondary); text-transform: uppercase;">Patients</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
+        <!-- Recent Activity Module -->
+        <div style="margin-top: 10px; background: var(--surface-color); padding: 25px; border-radius: var(--border-radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(20px);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--text-primary);"><i class="fas fa-bolt" style="color: #fbbf24; margin-right: 8px;"></i> Quick Actions</h3>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <a href="/modules/ehr/patients.php" style="text-decoration: none; background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; transition: 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#f8fafc'; this.style.transform='translateY(0)';">
+                    <i class="fas fa-users" style="font-size: 1.5rem; color: #64748b; margin-bottom: 10px; display: block;"></i>
+                    <span style="color: #334155; font-weight: 600; font-size: 0.9em;">Patients</span>
+                </a>
+                <a href="/modules/lab/orders.php" style="text-decoration: none; background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; transition: 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#f8fafc'; this.style.transform='translateY(0)';">
+                    <i class="fas fa-flask" style="font-size: 1.5rem; color: #64748b; margin-bottom: 10px; display: block;"></i>
+                    <span style="color: #334155; font-weight: 600; font-size: 0.9em;">Lab Orders</span>
+                </a>
+                <a href="/modules/radiology/orders.php" style="text-decoration: none; background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; transition: 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#f8fafc'; this.style.transform='translateY(0)';">
+                    <i class="fas fa-x-ray" style="font-size: 1.5rem; color: #64748b; margin-bottom: 10px; display: block;"></i>
+                    <span style="color: #334155; font-weight: 600; font-size: 0.9em;">Radiology</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Column -->
     <div class="sidebar-col">
-        <!-- Messages Card Removed as per user request -->
+        <!-- Schedule Card -->
+        <div class="glass-card schedule-card">
+            <div class="schedule-header">
+                <h3><i class="far fa-calendar-alt" style="color:#FF8F6B; margin-right:8px;"></i> Today's Schedule</h3>
+                <button class="btn-icon-only"><i class="fas fa-ellipsis-h"></i></button>
+            </div>
+            
+            <div class="date-strip" style="display: flex; justify-content: space-around; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                <?php 
+                for($i=-2; $i<=2; $i++): 
+                    $d = strtotime("$selected_date $i days");
+                    $day_num = date('d', $d);
+                    $day_name = date('M', $d);
+                    $full_date = date('Y-m-d', $d);
+                    $is_active = ($full_date === $selected_date) ? 'active' : '';
+                ?>
+                <a href="?date=<?php echo $full_date; ?>" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="date-item <?php echo $is_active; ?>" style="text-align: center; border-radius: 10px; padding: 8px 5px; cursor: pointer; <?php echo $is_active ? 'background: #f8fafc; color: #1e293b;' : 'color: #94a3b8; transition: 0.2s;'; ?>" onmouseover="this.style.background='#f1f5f9'; this.style.color='#1e293b';" onmouseout="<?php echo $is_active ? '' : 'this.style.background=\'transparent\'; this.style.color=\'#94a3b8\';'; ?>">
+                        <div style="font-size: 0.75em; font-weight: 600; text-transform: uppercase; margin-bottom: 3px;"><?php echo $day_name; ?></div>
+                        <strong style="font-size: 1.3em; font-weight: 800;"><?php echo $day_num; ?></strong>
+                    </div>
+                </a>
+                <?php endfor; ?>
+            </div>
+
+            <div class="schedule-list">
+                <?php if (empty($todays_appts)): ?>
+                    <div style="text-align: center; padding: 40px 0;">
+                        <i class="far fa-calendar-times" style="font-size: 3rem; color: #e2e8f0; margin-bottom: 15px;"></i>
+                        <p style="color: #64748b; font-size: 0.95em; margin: 0; font-weight: 500;">No appointments scheduled.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($todays_appts as $appt): 
+                        $status = $appt['status'];
+                        $timer_html = '';
+                        $badge_color = 'secondary';
+                        
+                        if (($status == 'waiting' || $status == 'ready') && !empty($appt['checked_in_at'])) {
+                            $start = strtotime($appt['checked_in_at']);
+                            $diff = round((time() - $start) / 60);
+                            $timer_color = '#10b981';
+                            if ($diff >= 10 && $diff <= 20) $timer_color = '#f59e0b';
+                            if ($diff > 20) $timer_color = '#ef4444';
+                            $timer_html = "<span style='color: $timer_color; font-weight: 700; font-size: 0.95em; margin-right: 12px; display: inline-flex; align-items: center; gap: 4px;'><i class='fas fa-stopwatch'></i> {$diff}m</span>";
+                        } elseif ($status == 'consulting') {
+                            $timer_html = "<span style='color: #3b82f6; font-weight: 700; font-size: 0.95em; margin-right: 12px; display: inline-flex; align-items: center; gap: 4px;'><i class='fas fa-spinner fa-spin'></i> Active</span>";
+                        }
+                        
+                        switch($status) {
+                            case 'ready': $badge_color = 'success'; break;
+                            case 'waiting': $badge_color = 'warning'; break;
+                            case 'consulting': $badge_color = 'primary'; break;
+                            case 'scheduled': $badge_color = 'info'; break;
+                        }
+                    ?>
+                        <div class="appt-item <?php echo $status=='consulting' ? 'consulting' : ''; ?>" style="<?php echo $status=='consulting' ? 'background: #eff6ff; border-color: #bfdbfe;' : 'background: #f8fafc; border: 1px solid #e2e8f0;'; ?> padding: 15px; border-radius: var(--border-radius-md); margin-bottom: 12px; display: flex; align-items: center; gap: 15px;">
+                            <div style="flex-shrink: 0;">
+                                <img src="<?php echo $appt['p_image'] ?: 'https://ui-avatars.com/api/?name='.urlencode($appt['first_name']).'&background=e2e8f0&color=475569'; ?>" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                            </div>
+                            
+                            <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                    <span style="font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+                                        <?php echo htmlspecialchars($appt['first_name'] . ' ' . $appt['last_name']); ?>
+                                    </span>
+                                </div>
+                                <span style="font-size: 0.8em; color: var(--text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="far fa-clock"></i> <?php echo date('h:i A', strtotime($appt['appointment_time'])); ?>
+                                    <span style="font-weight: 800; text-transform: uppercase; font-size: 0.85em;" class="text-<?php echo $badge_color; ?>"><?php echo $status; ?></span>
+                                </span>
+                            </div>
+                            
+                            <div style="flex-shrink: 0; text-align: right; display: flex; align-items: center;">
+                                <?php echo $timer_html; ?>
+                                
+                                <?php if ($status == 'ready' || $status == 'waiting'): ?>
+                                    <form method="POST" style="margin:0; display:inline-flex; gap: 6px;">
+                                        <input type="hidden" name="appt_id" value="<?php echo $appt['id']; ?>">
+                                        <?php if($status == 'waiting'): ?>
+                                            <button type="submit" name="notify_patient" class="btn-action btn-notify" style="padding: 6px 10px; font-size: 0.8em;" title="Notify">
+                                                <i class="fas fa-bell"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                        <button type="submit" name="start_consult" class="btn-action btn-start" style="padding: 6px 12px; font-size: 0.85em;">
+                                            <i class="fas fa-play"></i> Start
+                                        </button>
+                                    </form>
+                                <?php elseif ($status == 'consulting'): ?>
+                                    <form method="POST" style="margin:0;">
+                                        <input type="hidden" name="appt_id" value="<?php echo $appt['id']; ?>">
+                                        <button type="submit" name="end_consult" class="btn-action btn-end" style="padding: 6px 12px; font-size: 0.85em;">
+                                            <i class="fas fa-stop"></i> End
+                                        </button>
+                                    </form>
+                                <?php elseif ($status == 'scheduled' || $status == 'completed'): ?>
+                                    <a href="/modules/ehr/visit_notes.php?appointment_id=<?php echo $appt['id']; ?>" class="btn-action" style="padding: 6px 12px; font-size: 0.85em; background: #e2e8f0; color: #475569;">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 </div>
 

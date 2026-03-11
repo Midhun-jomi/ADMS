@@ -12,40 +12,48 @@ $success = '';
 
 // Handle Add Staff
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
-    $role_sel = $_POST['role'];
-    $specialization = $_POST['specialization'];
-    $password = $_POST['password'];
-
-    // Check email
-    $exists = db_select_one("SELECT id FROM users WHERE email = $1", [$email]);
-    if ($exists) {
-        $error = "Email already exists.";
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
     } else {
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-        
-        // Insert User
-        $sql_user = "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id";
-        try {
-            $res = db_query($sql_user, [$email, $password_hash, $role_sel]);
-            $user_row = pg_fetch_assoc($res);
-            $user_id = $user_row['id'];
-            
-            // Insert Staff
-            $staff_data = [
-                'user_id' => $user_id,
-                'first_name' => $first_name,
-                'last_name' => $last_name,
-                'role' => $role_sel,
-                'specialization' => $specialization,
-                'department' => 'General' // Default for now
-            ];
-            db_insert('staff', $staff_data);
-            $success = "Staff member added successfully.";
-        } catch (Exception $e) {
-            $error = "Failed to add staff: " . $e->getMessage();
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $email = $_POST['email'];
+        $role_sel = $_POST['role'];
+        $specialization = $_POST['specialization'];
+        $password = $_POST['password'];
+
+        if (strlen($password) < 8) {
+            $error = "Password must be at least 8 characters.";
+        } else {
+            // Check email
+            $exists = db_select_one("SELECT id FROM users WHERE email = $1", [$email]);
+            if ($exists) {
+                $error = "Email already exists.";
+            } else {
+                $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+                // Insert User
+                $sql_user = "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id";
+                try {
+                    $res = db_query($sql_user, [$email, $password_hash, $role_sel]);
+                    $user_row = pg_fetch_assoc($res);
+                    $user_id = $user_row['id'];
+
+                    // Insert Staff
+                    $staff_data = [
+                        'user_id' => $user_id,
+                        'first_name' => $first_name,
+                        'last_name' => $last_name,
+                        'role' => $role_sel,
+                        'specialization' => $specialization,
+                        'department' => 'General' // Default for now
+                    ];
+                    db_insert('staff', $staff_data);
+                    $success = "Staff member added successfully.";
+                } catch (Exception $e) {
+                    $error = "Failed to add staff: " . $e->getMessage();
+                }
+            }
         }
     }
 }
@@ -66,6 +74,7 @@ $staff_list = db_select("SELECT * FROM staff ORDER BY role, last_name");
             <div class="staff-form-container">
                 <h4 class="mb-4"><i class="fas fa-plus-circle"></i> Add New Staff Member</h4>
                 <form method="POST" action="" class="staff-grid-form">
+                    <?php echo csrf_input(); ?>
                     <div class="form-row">
                         <div class="form-group">
                             <label>First Name</label>
@@ -112,7 +121,7 @@ $staff_list = db_select("SELECT * FROM staff ORDER BY role, last_name");
                         </div>
                         <div class="form-group">
                             <label>Default Password</label>
-                            <input type="text" name="password" class="form-control" value="Staff123!" required>
+                            <input type="password" name="password" class="form-control" placeholder="Min 8 characters" required minlength="8">
                         </div>
                     </div>
 

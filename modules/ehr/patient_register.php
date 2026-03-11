@@ -11,10 +11,13 @@ $error = '';
 $success = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
     $email = $_POST['email'];
-    $password = $_POST['password']; // In real app, auto-generate or email link
+    $password = $_POST['password'];
     $dob = $_POST['dob'];
     $gender = $_POST['gender'];
     $blood_group = $_POST['blood_group'];
@@ -61,6 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error = "Registration failed: " . $e->getMessage();
         }
     }
+    } // end CSRF check
 }
 ?>
 
@@ -74,6 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php endif; ?>
 
     <form method="POST" action="">
+        <?php echo csrf_input(); ?>
         <div class="form-row" style="display: flex; gap: 20px;">
             <div class="form-group" style="flex: 1;">
                 <label for="first_name">First Name</label>
@@ -92,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div class="form-group" style="flex: 1;">
                 <label for="password">Temporary Password</label>
-                <input type="text" id="password" name="password" value="Patient123!" required>
+                <input type="password" id="password" name="password" placeholder="Min 8 characters" required minlength="8">
             </div>
         </div>
 

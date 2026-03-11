@@ -30,6 +30,7 @@ if ($role === 'admin') {
     </div>
 
     <form method="POST" action="process_triage.php">
+        <?php echo csrf_input(); ?>
         <?php if ($role === 'patient'): ?>
             <input type="hidden" name="patient_id" value="<?php echo $patient_id; ?>">
         <?php else: ?>

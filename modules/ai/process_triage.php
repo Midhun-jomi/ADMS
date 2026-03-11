@@ -5,7 +5,20 @@ require_once '../../includes/auth_session.php';
 check_role(['patient', 'admin']);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // CSRF check
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        die("Invalid request. Please refresh and try again.");
+    }
+
     $patient_id = $_POST['patient_id'];
+
+    // Patients can only submit for themselves
+    if (get_user_role() === 'patient') {
+        $own = db_select_one("SELECT id FROM patients WHERE user_id = $1", [get_user_id()]);
+        if (!$own || $own['id'] !== $patient_id) {
+            die("Unauthorized.");
+        }
+    }
     
     // Construct JSON payload from form data
     $symptoms_data = [
@@ -76,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         db_insert('triage_analysis', $data);
         // Redirect to results page (or dashboard with success message)
-        header("Location: /dashboards/patient_dashboard.php?triage_success=1");
+        header("Location: " . BASE_URL . "/dashboards/patient_dashboard.php?triage_success=1");
         exit();
     } catch (Exception $e) {
         die("Error saving triage data: " . $e->getMessage());

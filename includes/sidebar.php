@@ -133,10 +133,55 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 
 
+        <?php if ($role === 'admin' || $role === 'receptionist' || $role === 'patient'): ?>
+        <li><a href="<?php echo BASE_URL; ?>/modules/billing/cost_estimator.php" class="<?php echo $current_page == 'cost_estimator.php' ? 'active' : ''; ?>">
+            <i class="fas fa-calculator"></i> Cost Estimator
+        </a></li>
+        <?php endif; ?>
+
+        <?php if ($role === 'admin' || $role === 'pharmacist'): ?>
+        <li><a href="<?php echo BASE_URL; ?>/modules/pharmacy/low_stock_alerts.php" class="<?php echo $current_page == 'low_stock_alerts.php' ? 'active' : ''; ?>">
+            <i class="fas fa-exclamation-triangle"></i> Stock Alerts
+        </a></li>
+        <?php endif; ?>
+
         <div class="menu-category">Enterprise & AI</div>
         <?php if (in_array($_SESSION['role'], ['admin', 'doctor', 'nurse'])): ?>
         <li><a href="<?php echo BASE_URL; ?>/modules/ai/diagnosis_assist.php">
             <i class="fas fa-robot"></i> AI Assist
+        </a></li>
+        <?php endif; ?>
+
+        <?php if (in_array($role, ['admin', 'doctor', 'nurse', 'receptionist'])): ?>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/drug_interactions.php" class="<?php echo $current_page == 'drug_interactions.php' ? 'active' : ''; ?>">
+            <i class="fas fa-capsules"></i> Drug Interactions
+        </a></li>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/health_analytics.php" class="<?php echo $current_page == 'health_analytics.php' ? 'active' : ''; ?>">
+            <i class="fas fa-chart-line"></i> Health Analytics
+        </a></li>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/discharge_summary.php" class="<?php echo $current_page == 'discharge_summary.php' ? 'active' : ''; ?>">
+            <i class="fas fa-file-medical"></i> Discharge Summary
+        </a></li>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/timeline.php" class="<?php echo $current_page == 'timeline.php' ? 'active' : ''; ?>">
+            <i class="fas fa-stream"></i> Health Timeline
+        </a></li>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/patient_qr.php" class="<?php echo $current_page == 'patient_qr.php' ? 'active' : ''; ?>">
+            <i class="fas fa-id-card"></i> Patient QR Card
+        </a></li>
+        <?php endif; ?>
+
+        <?php if ($role === 'patient'): ?>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/health_analytics.php" class="<?php echo $current_page == 'health_analytics.php' ? 'active' : ''; ?>">
+            <i class="fas fa-chart-line"></i> My Analytics
+        </a></li>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/timeline.php" class="<?php echo $current_page == 'timeline.php' ? 'active' : ''; ?>">
+            <i class="fas fa-stream"></i> My Timeline
+        </a></li>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/patient_qr.php" class="<?php echo $current_page == 'patient_qr.php' ? 'active' : ''; ?>">
+            <i class="fas fa-id-card"></i> My QR Card
+        </a></li>
+        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/drug_interactions.php" class="<?php echo $current_page == 'drug_interactions.php' ? 'active' : ''; ?>">
+            <i class="fas fa-capsules"></i> Drug Interactions
         </a></li>
         <?php endif; ?>
 

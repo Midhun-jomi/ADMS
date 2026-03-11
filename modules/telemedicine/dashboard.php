@@ -3,11 +3,7 @@ session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_session.php';
 
-$allowed_roles = ['admin', 'doctor', 'patient'];
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], $allowed_roles)) {
-    header("Location: /index.php");
-    exit();
-}
+check_role(['admin', 'doctor', 'patient']);
 
 $page_title = "Telemedicine Console";
 require_once '../../includes/header.php';
@@ -16,6 +12,9 @@ $success_msg = '';
 
 // Doctor creates a session
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_session'])) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        die("Invalid request. Please refresh and try again.");
+    }
     $appt_id = $_POST['appointment_id'];
     $room_name = 'ADMS_' . uniqid(); // Just the room name, not full URL
     $link = $room_name; // Storing room name in DB column 'meeting_link' for simplicity (schema abuse, but works)
@@ -38,25 +37,27 @@ $user_id = $_SESSION['user_id'];
 $role = $_SESSION['role'];
 
 if ($role === 'doctor') {
-    $doctor_id = db_select("SELECT id FROM staff WHERE user_id = '$user_id'")[0]['id'];
-    $appointments = db_select("
-        SELECT a.*, p.first_name, p.last_name, t.meeting_link 
-        FROM appointments a 
-        JOIN patients p ON a.patient_id = p.id 
+    $doc = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$user_id]);
+    $doctor_id = $doc['id'] ?? null;
+    $appointments = $doctor_id ? db_select("
+        SELECT a.*, p.first_name, p.last_name, t.meeting_link
+        FROM appointments a
+        JOIN patients p ON a.patient_id = p.id
         LEFT JOIN telemedicine_sessions t ON a.id = t.appointment_id
-        WHERE a.doctor_id = '$doctor_id' AND a.status = 'scheduled'
+        WHERE a.doctor_id = $1 AND a.status = 'scheduled'
         ORDER BY a.appointment_time ASC
-    ");
+    ", [$doctor_id]) : [];
 } elseif ($role === 'patient') {
-    $patient_id = db_select("SELECT id FROM patients WHERE user_id = '$user_id'")[0]['id'];
-    $appointments = db_select("
-        SELECT a.*, s.first_name, s.last_name, t.meeting_link 
-        FROM appointments a 
-        JOIN staff s ON a.doctor_id = s.id 
+    $pat = db_select_one("SELECT id FROM patients WHERE user_id = $1", [$user_id]);
+    $patient_id = $pat['id'] ?? null;
+    $appointments = $patient_id ? db_select("
+        SELECT a.*, s.first_name, s.last_name, t.meeting_link
+        FROM appointments a
+        JOIN staff s ON a.doctor_id = s.id
         LEFT JOIN telemedicine_sessions t ON a.id = t.appointment_id
-        WHERE a.patient_id = '$patient_id' AND a.status = 'scheduled'
+        WHERE a.patient_id = $1 AND a.status = 'scheduled'
         ORDER BY a.appointment_time ASC
-    ");
+    ", [$patient_id]) : [];
 } else {
     // Admin sees all
     $appointments = db_select("
@@ -76,7 +77,7 @@ if ($role === 'doctor') {
         <h1><i class="fas fa-video"></i> Telemedicine Console</h1>
     </div>
 
-    <?php if ($success_msg): ?> <div class="alert alert-success"><?php echo $success_msg; ?></div> <?php endif; ?>
+    <?php if ($success_msg): ?> <div class="alert alert-success"><?php echo htmlspecialchars($success_msg); ?></div> <?php endif; ?>
 
     <div class="card">
         <div class="card-header">
@@ -112,12 +113,13 @@ if ($role === 'doctor') {
                         </td>
                         <td>
                             <?php if ($appt['meeting_link']): ?>
-                                <a href="video_chat.php?room=<?php echo $appt['meeting_link']; ?>" class="btn-primary">
+                                <a href="video_chat.php?room=<?php echo htmlspecialchars($appt['meeting_link']); ?>" class="btn-primary">
                                     <i class="fas fa-video"></i> Join Call
                                 </a>
                             <?php elseif ($role === 'doctor' || $role === 'admin'): ?>
                                 <form method="POST" style="display:inline;">
-                                    <input type="hidden" name="appointment_id" value="<?php echo $appt['id']; ?>">
+                                    <?php echo csrf_input(); ?>
+                                    <input type="hidden" name="appointment_id" value="<?php echo htmlspecialchars($appt['id']); ?>">
                                     <button type="submit" name="create_session" class="btn-secondary">Generate Link</button>
                                 </form>
                             <?php else: ?>

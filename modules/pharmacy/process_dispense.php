@@ -38,6 +38,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_alternative'])
 
 // --- Normal Dispense Flow ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!isset($_POST['confirm_alternative']) && !verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        header("Location: dispense.php?error=" . urlencode("Invalid request. Please refresh and try again."));
+        exit();
+    }
     $prescription_id = $_POST['prescription_id'];
     
     // Fetch prescription details

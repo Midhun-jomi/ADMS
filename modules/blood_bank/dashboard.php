@@ -13,13 +13,16 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], $allowed_roles)
 $page_title = "Blood Bank Dashboard";
 require_once '../../includes/header.php';
 
+// Auto-expire stock past expiry date
+db_query("UPDATE blood_inventory SET status = 'expired' WHERE status = 'available' AND expiry_date < CURRENT_DATE");
+
 // Stats
-$total_units = db_select("SELECT SUM(quantity) as total FROM blood_inventory")[0]['total'] ?: 0;
+$total_units = db_select("SELECT SUM(quantity) as total FROM blood_inventory WHERE status = 'available'")[0]['total'] ?: 0;
 $donors = count(db_select("SELECT id FROM blood_donors"));
 $pending_requests = count(db_select("SELECT id FROM blood_requests WHERE status = 'pending'"));
 
 // Blood Group Breakdown
-$inventory = db_select("SELECT blood_group, quantity, status FROM blood_inventory ORDER BY blood_group");
+$inventory = db_select("SELECT blood_group, quantity, status FROM blood_inventory WHERE status = 'available' ORDER BY blood_group");
 $stock = [];
 foreach ($inventory as $item) {
     if (!isset($stock[$item['blood_group']])) $stock[$item['blood_group']] = 0;

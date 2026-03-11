@@ -1,0 +1,31 @@
+# Sensitive credentials — NEVER commit these
+includes/secrets.php
+service_account.json
+.env
+.env.*
+
+# Log files — may contain sensitive data
+*.log
+ai/ai_server.log
+modules/ehr/debug_slots.log
+modules/ehr/debug_med_post.log
+php_server.log
+ai_server.log
+
+# Backup files
+*.bak
+
+# macOS metadata
+.DS_Store
+**/.DS_Store
+
+# Python virtual environment
+.venv/
+
+# Vendor folder macOS junk
+vendor/.DS_Store
+assets/.DS_Store
+
+# Uploaded patient files (do not commit real patient data to git)
+assets/uploads/profiles/
+assets/uploads/radiology/

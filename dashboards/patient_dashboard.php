@@ -25,8 +25,27 @@ $next_appt = db_select_one("SELECT id, status, appointment_time FROM appointment
                             ORDER BY appointment_time ASC LIMIT 1", [$patient_id]);
 $wait_time_display = ''; // Legacy variable if needed elsewhere
 
-// 2. Active Prescriptions (Total for now, as schema lacks status)
-$rx_count = db_select_one("SELECT COUNT(*) as c FROM prescriptions WHERE patient_id = $1", [$patient_id])['c'];
+// 2. Active Prescriptions — calculated from quantity and dosage frequency (e.g. "1-0-1")
+function rx_doses_per_day($dosage) {
+    $parts = explode('-', preg_replace('/[^0-9\-]/', '', $dosage));
+    $total = array_sum(array_map('intval', $parts));
+    return $total > 0 ? $total : 1;
+}
+$all_rx = db_select("SELECT medication_details, created_at FROM prescriptions WHERE patient_id = $1", [$patient_id]);
+$rx_count = 0;
+foreach ($all_rx as $rx) {
+    $meds = json_decode($rx['medication_details'], true);
+    if (!is_array($meds)) continue;
+    $created = strtotime($rx['created_at']);
+    foreach ($meds as $med) {
+        $qty = (int)($med['quantity'] ?? 0);
+        $dpd = rx_doses_per_day($med['dosage'] ?? '1');
+        if ($qty > 0) {
+            $expiry = $created + (ceil($qty / $dpd) * 86400);
+            if ($expiry >= time()) { $rx_count++; break; }
+        }
+    }
+}
 
 // 3. Past Visits (Completed or Past)
 $past_count = db_select_one("SELECT COUNT(*) as c FROM appointments 

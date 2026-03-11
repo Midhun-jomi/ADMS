@@ -12,29 +12,33 @@ $success = '';
 
 // Handle Add Department
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_department'])) {
-    $name = trim($_POST['name']);
-    $head = trim($_POST['head_of_dept']);
-    $desc = trim($_POST['description']);
-    $status = $_POST['status'];
-
-    if (empty($name)) {
-        $error = "Department name is required.";
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
     } else {
-        // Check duplicate
-        $exists = db_select_one("SELECT id FROM departments WHERE name = $1", [$name]);
-        if ($exists) {
-            $error = "Department '$name' already exists.";
+        $name = trim($_POST['name']);
+        $head = trim($_POST['head_of_dept']);
+        $desc = trim($_POST['description']);
+        $status = $_POST['status'];
+
+        if (empty($name)) {
+            $error = "Department name is required.";
         } else {
-            try {
-                db_insert('departments', [
-                    'name' => $name,
-                    'head_of_dept' => $head,
-                    'description' => $desc,
-                    'status' => $status
-                ]);
-                $success = "Department added successfully.";
-            } catch (Exception $e) {
-                $error = "Failed to add department: " . $e->getMessage();
+            // Check duplicate
+            $exists = db_select_one("SELECT id FROM departments WHERE name = $1", [$name]);
+            if ($exists) {
+                $error = "Department '$name' already exists.";
+            } else {
+                try {
+                    db_insert('departments', [
+                        'name' => $name,
+                        'head_of_dept' => $head,
+                        'description' => $desc,
+                        'status' => $status
+                    ]);
+                    $success = "Department added successfully.";
+                } catch (Exception $e) {
+                    $error = "Failed to add department: " . $e->getMessage();
+                }
             }
         }
     }
@@ -64,6 +68,7 @@ $departments = db_select("SELECT * FROM departments ORDER BY name ASC");
             <?php endif; ?>
 
             <form method="POST" action="" class="staff-grid-form" style="display: block;">
+                <?php echo csrf_input(); ?>
                 <input type="hidden" name="add_department" value="1">
                 
                 <div class="form-group mb-3">

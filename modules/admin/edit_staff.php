@@ -27,12 +27,15 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
     $email = $_POST['email'];
     $role = $_POST['role'];
     $specialization = $_POST['specialization'];
-    
+
     try {
         // Update Staff Table
         db_update('staff', [
@@ -56,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } catch (Exception $e) {
         $error = "Update failed: " . $e->getMessage();
     }
+    } // end CSRF check
 }
 ?>
 
@@ -69,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php if ($error): ?><div class="alert alert-danger"><?php echo $error; ?></div><?php endif; ?>
 
         <form method="POST" action="">
+            <?php echo csrf_input(); ?>
             <div class="form-group">
                 <label>First Name</label>
                 <input type="text" name="first_name" class="form-control" value="<?php echo htmlspecialchars($staff['first_name']); ?>" required>

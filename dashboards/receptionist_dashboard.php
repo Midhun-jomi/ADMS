@@ -9,7 +9,7 @@ include '../includes/header.php';
 
 // Stats
 $today = date('Y-m-d');
-$todays_appts = db_select_one("SELECT COUNT(*) as c FROM appointments WHERE DATE(appointment_time) = '$today'")['c'];
+$todays_appts = db_select_one("SELECT COUNT(*) as c FROM appointments WHERE DATE(appointment_time) = $1", [$today])['c'];
 $pending_invoices = db_select_one("SELECT COUNT(*) as c FROM billing WHERE status = 'pending'")['c'];
 ?>
 
@@ -42,8 +42,8 @@ $pending_invoices = db_select_one("SELECT COUNT(*) as c FROM billing WHERE statu
                            FROM appointments a 
                            JOIN patients p ON a.patient_id = p.id 
                            LEFT JOIN staff s ON a.doctor_id = s.id
-                           WHERE DATE(a.appointment_time) = '$today' 
-                           ORDER BY a.appointment_time ASC");
+                           WHERE DATE(a.appointment_time) = $1 
+                           ORDER BY a.appointment_time ASC", [$today]);
     ?>
     <table style="width: 100%; border-collapse: collapse;">
         <thead>

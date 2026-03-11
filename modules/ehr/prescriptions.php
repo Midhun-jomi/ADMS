@@ -15,14 +15,22 @@ $patient_id = null;
 // Get Patient ID
 if ($role === 'patient') {
     $patient = db_select_one("SELECT id FROM patients WHERE user_id = $1", [$user_id]);
-    $patient_id = $patient['id'];
-} elseif (isset($_GET['patient_id'])) {
-    // Allow doctors/admins to view specific patient prescriptions
+    $patient_id = $patient['id'] ?? null;
+} elseif (in_array($role, ['doctor', 'admin', 'nurse', 'pharmacist']) && isset($_GET['patient_id'])) {
+    // Verify patient exists and UUID format (prevents injection and type errors)
     $patient_id = $_GET['patient_id'];
+    if (!preg_match('/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/', $patient_id)) {
+        $patient_id = null;
+    } else {
+        $patient_check = db_select_one("SELECT id FROM patients WHERE id = $1", [$patient_id]);
+        if (!$patient_check) {
+            $patient_id = null;
+        }
+    }
 }
 
 if (!$patient_id) {
-    echo "<div class='alert alert-danger'>Patient not identified.</div>";
+    echo "<div class='alert alert-danger'>Patient not identified or not found.</div>";
     include '../../includes/footer.php';
     exit();
 }

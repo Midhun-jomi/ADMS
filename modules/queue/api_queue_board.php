@@ -32,11 +32,11 @@ $active_sql = "
     JOIN staff s ON a.doctor_id = s.id
     LEFT JOIN rooms r ON s.primary_room_id = r.id
     JOIN patients p ON a.patient_id = p.id
-    WHERE a.appointment_time::date = '$today'
+    WHERE a.appointment_time::date = $1
     AND a.status = 'consulting'
     ORDER BY a.consultation_start DESC
 ";
-$active_rows = db_select($active_sql);
+$active_rows = db_select($active_sql, [$today]);
 
 $active_data = [];
 foreach($active_rows as $row) {
@@ -65,12 +65,12 @@ $next_sql = "
     JOIN staff s ON a.doctor_id = s.id
     LEFT JOIN rooms r ON s.primary_room_id = r.id
     JOIN patients p ON a.patient_id = p.id
-    WHERE a.appointment_time::date = '$today'
+    WHERE a.appointment_time::date = $1
     AND a.status IN ('waiting', 'ready')
     ORDER BY a.appointment_time ASC
     LIMIT 10
 ";
-$next_rows = db_select($next_sql);
+$next_rows = db_select($next_sql, [$today]);
 
 $next_data = [];
 foreach($next_rows as $row) {

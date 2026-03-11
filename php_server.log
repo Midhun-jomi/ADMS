@@ -1,189 +1,2495 @@
-[Tue Mar  3 14:54:05 2026] PHP 8.4.13 Development Server (http://localhost:8000) started
-[Tue Mar  3 14:55:14 2026] 127.0.0.1:59082 Accepted
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59082 [200]: GET /dashboards/patient_dashboard.php
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59082 Closing
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59084 Accepted
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59087 Accepted
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59084 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59088 Accepted
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59087 [200]: GET /assets/css/style.css
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59089 Accepted
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59088 [200]: GET /assets/js/main.js
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59084 Closing
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59089 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59087 Closing
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59088 Closing
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59089 Closing
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59090 Accepted
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59090 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772529916
-[Tue Mar  3 14:55:17 2026] 127.0.0.1:59090 Closing
-[Tue Mar  3 14:55:20 2026] 127.0.0.1:59096 Accepted
-[Tue Mar  3 14:55:20 2026] 127.0.0.1:59097 Accepted
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59096 [200]: GET /modules/patient_management/symptom_checker.php
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59096 Closing
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59098 Accepted
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59097 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59099 Accepted
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59098 [200]: GET /assets/css/style.css
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59101 Accepted
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59099 [200]: GET /assets/js/main.js
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59097 Closing
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59101 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59098 Closing
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59099 Closing
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59101 Closing
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59103 Accepted
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59103 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772529922
-[Tue Mar  3 14:55:22 2026] 127.0.0.1:59103 Closing
-[Tue Mar  3 14:57:33 2026] 127.0.0.1:59130 Accepted
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59130 [200]: GET /modules/patient_management/symptom_checker.php
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59130 Closing
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59132 Accepted
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59133 Accepted
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59132 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59134 Accepted
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59133 [200]: GET /assets/css/style.css
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59135 Accepted
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59134 [200]: GET /assets/js/main.js
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59132 Closing
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59135 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59133 Closing
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59134 Closing
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59135 Closing
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59136 Accepted
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59136 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772530056
-[Tue Mar  3 14:57:36 2026] 127.0.0.1:59136 Closing
-[Tue Mar  3 14:58:02 2026] 127.0.0.1:59140 Accepted
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59140 [200]: GET /dashboards/patient_dashboard.php
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59140 Closing
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59141 Accepted
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59142 Accepted
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59141 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59143 Accepted
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59142 [200]: GET /assets/css/style.css
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59145 Accepted
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59143 [200]: GET /assets/js/main.js
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59141 Closing
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59145 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59142 Closing
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59143 Closing
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59145 Closing
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59146 Accepted
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59146 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772530085
-[Tue Mar  3 14:58:06 2026] 127.0.0.1:59146 Closing
-[Tue Mar  3 15:00:08 2026] 127.0.0.1:59163 Accepted
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59163 [200]: GET /modules/patient_management/symptom_checker.php
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59163 Closing
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59164 Accepted
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59165 Accepted
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59164 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59166 Accepted
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59165 [200]: GET /assets/css/style.css
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59168 Accepted
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59166 [200]: GET /assets/js/main.js
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59164 Closing
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59168 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59165 Closing
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59166 Closing
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59168 Closing
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59169 Accepted
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59169 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772530210
-[Tue Mar  3 15:00:10 2026] 127.0.0.1:59169 Closing
-[Tue Mar  3 15:02:58 2026] 127.0.0.1:59220 Accepted
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59220 [200]: GET /dashboards/patient_dashboard.php
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59220 Closing
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59221 Accepted
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59222 Accepted
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59221 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59223 Accepted
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59222 [200]: GET /assets/css/style.css
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59225 Accepted
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59223 [200]: GET /assets/js/main.js
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59221 Closing
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59225 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59222 Closing
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59223 Closing
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59225 Closing
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59226 Accepted
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59226 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772530380
-[Tue Mar  3 15:03:02 2026] 127.0.0.1:59226 Closing
-[Tue Mar  3 15:07:36 2026] 127.0.0.1:59256 Accepted
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59256 [200]: GET /modules/ehr/book_appointment.php
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59256 Closing
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59257 Accepted
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59258 Accepted
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59257 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59259 Accepted
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59258 [200]: GET /assets/css/style.css
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59262 Accepted
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59259 [200]: GET /assets/js/main.js
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59257 Closing
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59262 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59258 Closing
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59259 Closing
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59262 Closing
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59263 Accepted
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59263 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772530658
-[Tue Mar  3 15:07:38 2026] 127.0.0.1:59263 Closing
-[Tue Mar  3 15:07:46 2026] 127.0.0.1:59265 Accepted
-[Tue Mar  3 15:07:48 2026] 127.0.0.1:59265 [200]: GET /modules/ehr/get_booked_slots.php?doctor_id=83e347e8-9607-450b-b69a-da551bc384bd&date=2026-03-03
-[Tue Mar  3 15:07:48 2026] 127.0.0.1:59265 Closing
-[Tue Mar  3 15:07:56 2026] 127.0.0.1:59268 Accepted
-[Tue Mar  3 15:08:02 2026] FCM Token Exchange Failed: {"error":"invalid_grant","error_description":"Invalid JWT Signature."}
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59268 [200]: POST /modules/ehr/book_appointment.php
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59268 Closing
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59270 Accepted
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59271 Accepted
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59270 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59272 Accepted
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59271 [200]: GET /assets/css/style.css
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59273 Accepted
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59272 [200]: GET /assets/js/main.js
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59270 Closing
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59273 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59271 Closing
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59272 Closing
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59273 Closing
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59275 Accepted
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59275 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772530679
-[Tue Mar  3 15:08:02 2026] 127.0.0.1:59275 Closing
-[Tue Mar  3 15:08:05 2026] 127.0.0.1:59277 Accepted
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59277 [200]: GET /modules/ehr/book_appointment.php
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59277 Closing
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59278 Accepted
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59279 Accepted
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59278 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59280 Accepted
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59279 [200]: GET /assets/css/style.css
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59282 Accepted
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59280 [200]: GET /assets/js/main.js
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59278 Closing
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59282 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59279 Closing
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59280 Closing
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59282 Closing
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59283 Accepted
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59283 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772530687
-[Tue Mar  3 15:08:08 2026] 127.0.0.1:59283 Closing
-[Tue Mar  3 15:08:14 2026] 127.0.0.1:59285 Accepted
-[Tue Mar  3 15:08:16 2026] 127.0.0.1:59285 [200]: GET /modules/ehr/get_booked_slots.php?doctor_id=83e347e8-9607-450b-b69a-da551bc384bd&date=2026-03-03
-[Tue Mar  3 15:08:16 2026] 127.0.0.1:59285 Closing
-[Tue Mar  3 15:08:24 2026] 127.0.0.1:59290 Accepted
-[Tue Mar  3 15:08:29 2026] FCM Token Exchange Failed: {"error":"invalid_grant","error_description":"Invalid JWT Signature."}
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59290 [200]: POST /modules/ehr/book_appointment.php
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59290 Closing
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59292 Accepted
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59293 Accepted
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59292 [200]: GET /firebase-messaging-sw.js
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59294 Accepted
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59293 [200]: GET /assets/css/style.css
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59295 Accepted
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59294 [200]: GET /assets/js/main.js
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59292 Closing
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59295 [200]: GET /assets/js/fcm_init.js
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59293 Closing
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59294 Closing
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59295 Closing
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59299 Accepted
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59299 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1772530706
-[Tue Mar  3 15:08:29 2026] 127.0.0.1:59299 Closing
+[Tue Mar 10 10:26:19 2026] PHP 8.4.13 Development Server (http://0.0.0.0:8000) started
+[Tue Mar 10 10:26:41 2026] 127.0.0.1:56737 Accepted
+[Tue Mar 10 10:26:43 2026] 127.0.0.1:56737 [200]: GET /
+[Tue Mar 10 10:26:43 2026] 127.0.0.1:56737 Closing
+[Tue Mar 10 10:26:57 2026] 127.0.0.1:56741 Accepted
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56741 [200]: GET /
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56741 Closing
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56743 Accepted
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56743 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56743 Closing
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56745 Accepted
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56745 [200]: GET /assets/css/login_style.css
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56746 Accepted
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56745 Closing
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56746 [200]: GET /assets/images/doctor_3d.png
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56746 Closing
+[Tue Mar 10 10:27:00 2026] 127.0.0.1:56748 Accepted
+[Tue Mar 10 10:27:03 2026] 127.0.0.1:56748 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:27:03 2026] 127.0.0.1:56748 Closing
+[Tue Mar 10 10:27:03 2026] 127.0.0.1:56751 Accepted
+[Tue Mar 10 10:27:05 2026] 127.0.0.1:56751 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:27:05 2026] 127.0.0.1:56751 Closing
+[Tue Mar 10 10:27:05 2026] 127.0.0.1:56754 Accepted
+[Tue Mar 10 10:27:07 2026] 127.0.0.1:56754 [200]: GET /favicon.ico
+[Tue Mar 10 10:27:07 2026] 127.0.0.1:56754 Closing
+[Tue Mar 10 10:27:07 2026] 127.0.0.1:56757 Accepted
+[Tue Mar 10 10:27:07 2026] 127.0.0.1:56758 Accepted
+[Tue Mar 10 10:27:13 2026] 127.0.0.1:56757 [302]: POST /
+[Tue Mar 10 10:27:13 2026] 127.0.0.1:56757 Closing
+[Tue Mar 10 10:27:13 2026] 127.0.0.1:56758 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:27:13 2026] 127.0.0.1:56758 Closing
+[Tue Mar 10 10:27:13 2026] 127.0.0.1:56761 Accepted
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56761 [200]: GET /dashboards/doctor_dashboard.php
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56761 Closing
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56763 Accepted
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56764 Accepted
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56763 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56765 Accepted
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56764 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56766 Accepted
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56765 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56763 Closing
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56766 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56764 Closing
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56765 Closing
+[Tue Mar 10 10:27:19 2026] 127.0.0.1:56766 Closing
+[Tue Mar 10 10:27:20 2026] 127.0.0.1:56768 Accepted
+[Tue Mar 10 10:27:21 2026] 127.0.0.1:56768 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:27:21 2026] 127.0.0.1:56768 Closing
+[Tue Mar 10 10:27:21 2026] 127.0.0.1:56771 Accepted
+[Tue Mar 10 10:27:24 2026] 127.0.0.1:56771 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:27:24 2026] 127.0.0.1:56771 Closing
+[Tue Mar 10 10:27:24 2026] 127.0.0.1:56774 Accepted
+[Tue Mar 10 10:27:31 2026] 127.0.0.1:56774 [200]: GET /modules/ehr/patients.php
+[Tue Mar 10 10:27:31 2026] 127.0.0.1:56774 Closing
+[Tue Mar 10 10:27:31 2026] 127.0.0.1:56777 Accepted
+[Tue Mar 10 10:27:31 2026] 127.0.0.1:56778 Accepted
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56777 [200]: GET /favicon.ico
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56777 Closing
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56779 Accepted
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56778 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56780 Accepted
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56779 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56781 Accepted
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56780 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56778 Closing
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56781 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56779 Closing
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56780 Closing
+[Tue Mar 10 10:27:33 2026] 127.0.0.1:56781 Closing
+[Tue Mar 10 10:27:40 2026] 127.0.0.1:56784 Accepted
+[Tue Mar 10 10:27:40 2026] 127.0.0.1:56785 Accepted
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56785 [200]: GET /modules/ehr/history.php?patient_id=70ffccf1-c340-4cf5-9499-2d3c9486f385
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56785 Closing
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56787 Accepted
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56784 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56788 Accepted
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56787 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56789 Accepted
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56788 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56784 Closing
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56789 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56787 Closing
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56788 Closing
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56789 Closing
+[Tue Mar 10 10:27:45 2026] 127.0.0.1:56791 Accepted
+[Tue Mar 10 10:27:47 2026] 127.0.0.1:56791 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:27:47 2026] 127.0.0.1:56791 Closing
+[Tue Mar 10 10:27:47 2026] 127.0.0.1:56794 Accepted
+[Tue Mar 10 10:27:49 2026] 127.0.0.1:56794 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:27:49 2026] 127.0.0.1:56794 Closing
+[Tue Mar 10 10:27:49 2026] 127.0.0.1:56797 Accepted
+[Tue Mar 10 10:27:51 2026] 127.0.0.1:56797 [200]: GET /favicon.ico
+[Tue Mar 10 10:27:51 2026] 127.0.0.1:56797 Closing
+[Tue Mar 10 10:28:03 2026] 127.0.0.1:56800 Accepted
+[Tue Mar 10 10:28:03 2026] 127.0.0.1:56801 Accepted
+[Tue Mar 10 10:28:03 2026] 127.0.0.1:56802 Accepted
+[Tue Mar 10 10:28:06 2026] 127.0.0.1:56802 [302]: GET /auth/logout.php
+[Tue Mar 10 10:28:06 2026] 127.0.0.1:56802 Closing
+[Tue Mar 10 10:28:06 2026] 127.0.0.1:56800 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:28:06 2026] 127.0.0.1:56800 Closing
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56801 [200]: GET /index.php
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56801 Closing
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56805 Accepted
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56805 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56805 Closing
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56806 Accepted
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56807 Accepted
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56806 [200]: GET /assets/css/login_style.css
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56806 Closing
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56807 [200]: GET /assets/images/doctor_3d.png
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56807 Closing
+[Tue Mar 10 10:28:07 2026] 127.0.0.1:56809 Accepted
+[Tue Mar 10 10:28:09 2026] 127.0.0.1:56809 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:28:09 2026] 127.0.0.1:56809 Closing
+[Tue Mar 10 10:28:09 2026] 127.0.0.1:56812 Accepted
+[Tue Mar 10 10:28:11 2026] 127.0.0.1:56812 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:28:11 2026] 127.0.0.1:56812 Closing
+[Tue Mar 10 10:28:11 2026] 127.0.0.1:56815 Accepted
+[Tue Mar 10 10:28:15 2026] 127.0.0.1:56815 [302]: POST /index.php
+[Tue Mar 10 10:28:15 2026] 127.0.0.1:56815 Closing
+[Tue Mar 10 10:28:15 2026] 127.0.0.1:56818 Accepted
+[Tue Mar 10 10:28:15 2026] 127.0.0.1:56819 Accepted
+[Tue Mar 10 10:28:18 2026] 127.0.0.1:56818 [200]: GET /favicon.ico
+[Tue Mar 10 10:28:18 2026] 127.0.0.1:56818 Closing
+[Tue Mar 10 10:28:18 2026] 127.0.0.1:56821 Accepted
+[Tue Mar 10 10:28:18 2026] 127.0.0.1:56819 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56821 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56821 Closing
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56823 Accepted
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56824 Accepted
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56823 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56819 Closing
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56825 Accepted
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56824 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56825 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56823 Closing
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56824 Closing
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56825 Closing
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56826 Accepted
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56826 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773118700
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56826 Closing
+[Tue Mar 10 10:28:22 2026] 127.0.0.1:56828 Accepted
+[Tue Mar 10 10:28:25 2026] 127.0.0.1:56828 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:28:25 2026] 127.0.0.1:56828 Closing
+[Tue Mar 10 10:28:25 2026] 127.0.0.1:56831 Accepted
+[Tue Mar 10 10:28:27 2026] 127.0.0.1:56831 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:28:27 2026] 127.0.0.1:56831 Closing
+[Tue Mar 10 10:28:27 2026] 127.0.0.1:56834 Accepted
+[Tue Mar 10 10:28:29 2026] 127.0.0.1:56834 [200]: GET /favicon.ico
+[Tue Mar 10 10:28:29 2026] 127.0.0.1:56834 Closing
+[Tue Mar 10 10:28:35 2026] 127.0.0.1:56837 Accepted
+[Tue Mar 10 10:28:35 2026] 127.0.0.1:56838 Accepted
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56838 [200]: GET /modules/ehr/book_appointment.php
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56838 Closing
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56840 Accepted
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56837 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56841 Accepted
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56840 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56842 Accepted
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56841 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56837 Closing
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56842 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56840 Closing
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56841 Closing
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56842 Closing
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56843 Accepted
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56843 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773118718
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56843 Closing
+[Tue Mar 10 10:28:39 2026] 127.0.0.1:56845 Accepted
+[Tue Mar 10 10:28:42 2026] 127.0.0.1:56845 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:28:42 2026] 127.0.0.1:56845 Closing
+[Tue Mar 10 10:28:42 2026] 127.0.0.1:56848 Accepted
+[Tue Mar 10 10:28:45 2026] 127.0.0.1:56848 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:28:45 2026] 127.0.0.1:56848 Closing
+[Tue Mar 10 10:28:45 2026] 127.0.0.1:56851 Accepted
+[Tue Mar 10 10:28:47 2026] 127.0.0.1:56851 [200]: GET /favicon.ico
+[Tue Mar 10 10:28:47 2026] 127.0.0.1:56851 Closing
+[Tue Mar 10 10:28:47 2026] 127.0.0.1:56854 Accepted
+[Tue Mar 10 10:28:49 2026] 127.0.0.1:56854 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Tue Mar 10 10:28:49 2026] 127.0.0.1:56854 Closing
+[Tue Mar 10 10:29:44 2026] 127.0.0.1:56858 Accepted
+[Tue Mar 10 10:29:47 2026] 127.0.0.1:56858 [200]: GET /modules/ehr/get_booked_slots.php?doctor_id=315efb57-216f-46a2-a631-e80a0e504d30&date=2026-03-12
+[Tue Mar 10 10:29:47 2026] 127.0.0.1:56858 Closing
+[Tue Mar 10 10:29:52 2026] 127.0.0.1:56861 Accepted
+[Tue Mar 10 10:29:55 2026] 127.0.0.1:56861 [200]: GET /modules/ehr/get_booked_slots.php?doctor_id=315efb57-216f-46a2-a631-e80a0e504d30&date=2026-03-10
+[Tue Mar 10 10:29:55 2026] 127.0.0.1:56861 Closing
+[Tue Mar 10 10:30:16 2026] 127.0.0.1:56866 Accepted
+[Tue Mar 10 10:30:22 2026] FCM Token Exchange Failed: {"error":"invalid_grant","error_description":"Invalid JWT Signature."}
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56866 [200]: POST /modules/ehr/book_appointment.php
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56866 Closing
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56868 Accepted
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56869 Accepted
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56868 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56870 Accepted
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56869 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56871 Accepted
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56870 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56868 Closing
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56871 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56869 Closing
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56870 Closing
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56871 Closing
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56873 Accepted
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56873 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773118818
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56873 Closing
+[Tue Mar 10 10:30:22 2026] 127.0.0.1:56875 Accepted
+[Tue Mar 10 10:30:25 2026] 127.0.0.1:56875 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:30:25 2026] 127.0.0.1:56875 Closing
+[Tue Mar 10 10:30:25 2026] 127.0.0.1:56878 Accepted
+[Tue Mar 10 10:30:27 2026] 127.0.0.1:56878 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:30:27 2026] 127.0.0.1:56878 Closing
+[Tue Mar 10 10:30:27 2026] 127.0.0.1:56881 Accepted
+[Tue Mar 10 10:30:27 2026] 127.0.0.1:56882 Accepted
+[Tue Mar 10 10:30:27 2026] 127.0.0.1:56883 Accepted
+[Tue Mar 10 10:30:30 2026] 127.0.0.1:56882 [302]: GET /auth/logout.php
+[Tue Mar 10 10:30:30 2026] 127.0.0.1:56882 Closing
+[Tue Mar 10 10:30:30 2026] 127.0.0.1:56886 Accepted
+[Tue Mar 10 10:30:30 2026] 127.0.0.1:56881 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:30:32 2026] 127.0.0.1:56886 [200]: GET /favicon.ico
+[Tue Mar 10 10:30:32 2026] 127.0.0.1:56886 Closing
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56883 [200]: GET /index.php
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56883 Closing
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56881 Closing
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56894 Accepted
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56894 [200]: GET /assets/css/login_style.css
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56894 Closing
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56895 Accepted
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56895 [200]: GET /assets/images/doctor_3d.png
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56895 Closing
+[Tue Mar 10 10:30:34 2026] 127.0.0.1:56897 Accepted
+[Tue Mar 10 10:30:36 2026] 127.0.0.1:56897 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:30:36 2026] 127.0.0.1:56897 Closing
+[Tue Mar 10 10:30:36 2026] 127.0.0.1:56900 Accepted
+[Tue Mar 10 10:30:38 2026] 127.0.0.1:56900 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:30:38 2026] 127.0.0.1:56900 Closing
+[Tue Mar 10 10:30:38 2026] 127.0.0.1:56903 Accepted
+[Tue Mar 10 10:30:39 2026] 127.0.0.1:56903 [200]: GET /favicon.ico
+[Tue Mar 10 10:30:39 2026] 127.0.0.1:56903 Closing
+[Tue Mar 10 10:30:41 2026] 127.0.0.1:56906 Accepted
+[Tue Mar 10 10:30:44 2026] 127.0.0.1:56906 [302]: POST /index.php
+[Tue Mar 10 10:30:44 2026] 127.0.0.1:56906 Closing
+[Tue Mar 10 10:30:44 2026] 127.0.0.1:56908 Accepted
+[Tue Mar 10 10:30:44 2026] 127.0.0.1:56908 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:30:44 2026] 127.0.0.1:56908 Closing
+[Tue Mar 10 10:30:44 2026] 127.0.0.1:56910 Accepted
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56910 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56910 Closing
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56912 Accepted
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56913 Accepted
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56912 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56914 Accepted
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56913 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56915 Accepted
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56914 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56912 Closing
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56915 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56913 Closing
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56914 Closing
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56915 Closing
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56916 Accepted
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56916 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773118846
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56916 Closing
+[Tue Mar 10 10:30:52 2026] 127.0.0.1:56918 Accepted
+[Tue Mar 10 10:30:53 2026] 127.0.0.1:56918 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:30:53 2026] 127.0.0.1:56918 Closing
+[Tue Mar 10 10:30:53 2026] 127.0.0.1:56921 Accepted
+[Tue Mar 10 10:30:55 2026] 127.0.0.1:56921 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:30:55 2026] 127.0.0.1:56921 Closing
+[Tue Mar 10 10:30:55 2026] 127.0.0.1:56924 Accepted
+[Tue Mar 10 10:30:57 2026] 127.0.0.1:56924 [200]: GET /favicon.ico
+[Tue Mar 10 10:30:57 2026] 127.0.0.1:56924 Closing
+[Tue Mar 10 10:31:37 2026] 127.0.0.1:56928 Accepted
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56928 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56928 Closing
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56930 Accepted
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56932 Accepted
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56930 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56933 Accepted
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56932 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56934 Accepted
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56933 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56930 Closing
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56934 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56932 Closing
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56933 Closing
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56934 Closing
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56935 Accepted
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56935 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773118899
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56935 Closing
+[Tue Mar 10 10:31:40 2026] 127.0.0.1:56937 Accepted
+[Tue Mar 10 10:31:43 2026] 127.0.0.1:56937 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:31:43 2026] 127.0.0.1:56937 Closing
+[Tue Mar 10 10:31:43 2026] 127.0.0.1:56940 Accepted
+[Tue Mar 10 10:31:45 2026] 127.0.0.1:56940 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:31:45 2026] 127.0.0.1:56940 Closing
+[Tue Mar 10 10:31:45 2026] 127.0.0.1:56943 Accepted
+[Tue Mar 10 10:31:47 2026] 127.0.0.1:56943 [200]: GET /favicon.ico
+[Tue Mar 10 10:31:47 2026] 127.0.0.1:56943 Closing
+[Tue Mar 10 10:31:48 2026] 127.0.0.1:56950 Accepted
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56950 [200]: GET /modules/ehr/visit_notes.php?appointment_id=59f360ec-c551-49e9-950d-b9aa34e094b1
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56950 Closing
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56952 Accepted
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56953 Accepted
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56952 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56954 Accepted
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56953 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56955 Accepted
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56954 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56952 Closing
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56955 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56953 Closing
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56954 Closing
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56955 Closing
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56956 Accepted
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56957 Accepted
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56956 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773118916
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56957 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56957 Closing
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56956 Closing
+[Tue Mar 10 10:31:56 2026] 127.0.0.1:56959 Accepted
+[Tue Mar 10 10:31:59 2026] 127.0.0.1:56959 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:31:59 2026] 127.0.0.1:56959 Closing
+[Tue Mar 10 10:31:59 2026] 127.0.0.1:56962 Accepted
+[Tue Mar 10 10:32:01 2026] 127.0.0.1:56962 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:32:01 2026] 127.0.0.1:56962 Closing
+[Tue Mar 10 10:32:01 2026] 127.0.0.1:56965 Accepted
+[Tue Mar 10 10:32:03 2026] 127.0.0.1:56965 [200]: GET /favicon.ico
+[Tue Mar 10 10:32:03 2026] 127.0.0.1:56965 Closing
+[Tue Mar 10 10:33:02 2026] 127.0.0.1:56968 Accepted
+[Tue Mar 10 10:33:02 2026] 127.0.0.1:56969 Accepted
+[Tue Mar 10 10:33:02 2026] 127.0.0.1:56970 Accepted
+[Tue Mar 10 10:33:02 2026] 127.0.0.1:56971 Accepted
+[Tue Mar 10 10:33:02 2026] 127.0.0.1:56972 Accepted
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56969 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56969 Closing
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56968 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56970 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56971 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56972 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56968 Closing
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56970 Closing
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56971 Closing
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56972 Closing
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56974 Accepted
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56974 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773118985
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56974 Closing
+[Tue Mar 10 10:33:06 2026] 127.0.0.1:56976 Accepted
+[Tue Mar 10 10:33:07 2026] 127.0.0.1:56976 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:33:07 2026] 127.0.0.1:56976 Closing
+[Tue Mar 10 10:33:07 2026] 127.0.0.1:56979 Accepted
+[Tue Mar 10 10:33:09 2026] 127.0.0.1:56979 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:33:09 2026] 127.0.0.1:56979 Closing
+[Tue Mar 10 10:33:09 2026] 127.0.0.1:56982 Accepted
+[Tue Mar 10 10:33:10 2026] 127.0.0.1:56982 [200]: GET /favicon.ico
+[Tue Mar 10 10:33:10 2026] 127.0.0.1:56982 Closing
+[Tue Mar 10 10:33:11 2026] 127.0.0.1:56985 Accepted
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56985 [200]: GET /modules/ehr/visit_notes.php?appointment_id=6ea050d3-b83a-431d-bea5-dd566b8fc266
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56985 Closing
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56987 Accepted
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56988 Accepted
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56987 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56989 Accepted
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56988 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56990 Accepted
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56989 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56987 Closing
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56990 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56988 Closing
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56989 Closing
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56990 Closing
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56991 Accepted
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56992 Accepted
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56991 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773118997
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56992 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56991 Closing
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56992 Closing
+[Tue Mar 10 10:33:17 2026] 127.0.0.1:56994 Accepted
+[Tue Mar 10 10:33:19 2026] 127.0.0.1:56994 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:33:19 2026] 127.0.0.1:56994 Closing
+[Tue Mar 10 10:33:19 2026] 127.0.0.1:56997 Accepted
+[Tue Mar 10 10:33:22 2026] 127.0.0.1:56997 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:33:22 2026] 127.0.0.1:56997 Closing
+[Tue Mar 10 10:33:22 2026] 127.0.0.1:57000 Accepted
+[Tue Mar 10 10:33:24 2026] 127.0.0.1:57000 [200]: GET /favicon.ico
+[Tue Mar 10 10:33:24 2026] 127.0.0.1:57000 Closing
+[Tue Mar 10 10:42:59 2026] 127.0.0.1:57017 Accepted
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57017 [200]: GET /search_results.php?q=midhun
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57017 Closing
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57019 Accepted
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57020 Accepted
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57019 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57021 Accepted
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57020 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57022 Accepted
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57021 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57019 Closing
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57022 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57020 Closing
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57021 Closing
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57022 Closing
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57023 Accepted
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57023 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773119584
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57023 Closing
+[Tue Mar 10 10:43:04 2026] 127.0.0.1:57025 Accepted
+[Tue Mar 10 10:43:06 2026] 127.0.0.1:57025 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:43:06 2026] 127.0.0.1:57025 Closing
+[Tue Mar 10 10:43:06 2026] 127.0.0.1:57028 Accepted
+[Tue Mar 10 10:43:08 2026] 127.0.0.1:57028 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:43:08 2026] 127.0.0.1:57028 Closing
+[Tue Mar 10 10:43:09 2026] 127.0.0.1:57031 Accepted
+[Tue Mar 10 10:43:11 2026] 127.0.0.1:57031 [200]: GET /favicon.ico
+[Tue Mar 10 10:43:11 2026] 127.0.0.1:57031 Closing
+[Tue Mar 10 10:48:27 2026] 127.0.0.1:57081 Accepted
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57081 [200]: GET /search_results.php?q=midhun
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57081 Closing
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57083 Accepted
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57084 Accepted
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57083 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57085 Accepted
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57084 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57086 Accepted
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57085 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57083 Closing
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57086 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57084 Closing
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57085 Closing
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57086 Closing
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57088 Accepted
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57088 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773119910
+[Tue Mar 10 10:48:30 2026] 127.0.0.1:57088 Closing
+[Tue Mar 10 10:48:31 2026] 127.0.0.1:57090 Accepted
+[Tue Mar 10 10:48:33 2026] 127.0.0.1:57090 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:48:33 2026] 127.0.0.1:57090 Closing
+[Tue Mar 10 10:48:33 2026] 127.0.0.1:57093 Accepted
+[Tue Mar 10 10:48:36 2026] 127.0.0.1:57093 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:48:36 2026] 127.0.0.1:57093 Closing
+[Tue Mar 10 10:48:36 2026] 127.0.0.1:57096 Accepted
+[Tue Mar 10 10:48:38 2026] 127.0.0.1:57096 [200]: GET /favicon.ico
+[Tue Mar 10 10:48:38 2026] 127.0.0.1:57096 Closing
+[Tue Mar 10 10:49:18 2026] 127.0.0.1:57099 Accepted
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57099 [200]: GET /search_results.php?q=midhun
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57099 Closing
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57101 Accepted
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57102 Accepted
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57101 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57103 Accepted
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57102 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57104 Accepted
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57103 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57101 Closing
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57104 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57102 Closing
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57103 Closing
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57104 Closing
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57105 Accepted
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57105 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773119961
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57105 Closing
+[Tue Mar 10 10:49:21 2026] 127.0.0.1:57107 Accepted
+[Tue Mar 10 10:49:23 2026] 127.0.0.1:57107 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:49:23 2026] 127.0.0.1:57107 Closing
+[Tue Mar 10 10:49:23 2026] 127.0.0.1:57110 Accepted
+[Tue Mar 10 10:49:25 2026] 127.0.0.1:57110 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:49:25 2026] 127.0.0.1:57110 Closing
+[Tue Mar 10 10:49:25 2026] 127.0.0.1:57113 Accepted
+[Tue Mar 10 10:49:28 2026] 127.0.0.1:57113 [200]: GET /favicon.ico
+[Tue Mar 10 10:49:28 2026] 127.0.0.1:57113 Closing
+[Tue Mar 10 10:49:47 2026] 127.0.0.1:57116 Accepted
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57116 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57116 Closing
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57118 Accepted
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57119 Accepted
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57118 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57120 Accepted
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57119 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57121 Accepted
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57120 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57118 Closing
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57121 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57119 Closing
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57120 Closing
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57121 Closing
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57122 Accepted
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57122 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773119990
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57122 Closing
+[Tue Mar 10 10:49:53 2026] 127.0.0.1:57124 Accepted
+[Tue Mar 10 10:49:54 2026] 127.0.0.1:57124 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:49:54 2026] 127.0.0.1:57124 Closing
+[Tue Mar 10 10:49:54 2026] 127.0.0.1:57127 Accepted
+[Tue Mar 10 10:49:56 2026] 127.0.0.1:57127 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:49:56 2026] 127.0.0.1:57127 Closing
+[Tue Mar 10 10:49:56 2026] 127.0.0.1:57130 Accepted
+[Tue Mar 10 10:49:58 2026] 127.0.0.1:57130 [200]: GET /favicon.ico
+[Tue Mar 10 10:49:58 2026] 127.0.0.1:57130 Closing
+[Tue Mar 10 10:50:00 2026] 127.0.0.1:57133 Accepted
+[Tue Mar 10 10:50:02 2026] 127.0.0.1:57133 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:50:02 2026] 127.0.0.1:57133 Closing
+[Tue Mar 10 10:50:02 2026] 127.0.0.1:57134 Accepted
+[Tue Mar 10 10:50:02 2026] 127.0.0.1:57135 Accepted
+[Tue Mar 10 10:50:03 2026] 127.0.0.1:57134 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:50:03 2026] 127.0.0.1:57134 Closing
+[Tue Mar 10 10:50:05 2026] 127.0.0.1:57135 [200]: GET /favicon.ico
+[Tue Mar 10 10:50:05 2026] 127.0.0.1:57135 Closing
+[Tue Mar 10 10:56:23 2026] 127.0.0.1:57175 Accepted
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57175 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57175 Closing
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57177 Accepted
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57178 Accepted
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57177 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57179 Accepted
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57178 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57180 Accepted
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57179 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57177 Closing
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57180 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57178 Closing
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57179 Closing
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57180 Closing
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57181 Accepted
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57181 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773120387
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57181 Closing
+[Tue Mar 10 10:56:30 2026] 127.0.0.1:57183 Accepted
+[Tue Mar 10 10:56:32 2026] 127.0.0.1:57183 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:56:32 2026] 127.0.0.1:57183 Closing
+[Tue Mar 10 10:56:32 2026] 127.0.0.1:57186 Accepted
+[Tue Mar 10 10:56:34 2026] 127.0.0.1:57186 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:56:34 2026] 127.0.0.1:57186 Closing
+[Tue Mar 10 10:56:34 2026] 127.0.0.1:57189 Accepted
+[Tue Mar 10 10:56:36 2026] 127.0.0.1:57189 [200]: GET /favicon.ico
+[Tue Mar 10 10:56:36 2026] 127.0.0.1:57189 Closing
+[Tue Mar 10 10:59:41 2026] 127.0.0.1:57210 Accepted
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57210 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57210 Closing
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57212 Accepted
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57213 Accepted
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57212 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57214 Accepted
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57213 [200]: GET /assets/css/style.css
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57215 Accepted
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57214 [200]: GET /assets/js/main.js
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57212 Closing
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57215 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57213 Closing
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57214 Closing
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57215 Closing
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57216 Accepted
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57216 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773120584
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57216 Closing
+[Tue Mar 10 10:59:49 2026] 127.0.0.1:57218 Accepted
+[Tue Mar 10 10:59:51 2026] 127.0.0.1:57218 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 10:59:51 2026] 127.0.0.1:57218 Closing
+[Tue Mar 10 10:59:51 2026] 127.0.0.1:57221 Accepted
+[Tue Mar 10 10:59:53 2026] 127.0.0.1:57221 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 10:59:53 2026] 127.0.0.1:57221 Closing
+[Tue Mar 10 10:59:53 2026] 127.0.0.1:57224 Accepted
+[Tue Mar 10 10:59:55 2026] 127.0.0.1:57224 [200]: GET /favicon.ico
+[Tue Mar 10 10:59:55 2026] 127.0.0.1:57224 Closing
+[Tue Mar 10 11:02:39 2026] 127.0.0.1:57252 Accepted
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57252 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57252 Closing
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57253 Accepted
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57255 Accepted
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57253 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57256 Accepted
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57255 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57257 Accepted
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57256 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57253 Closing
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57257 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57255 Closing
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57256 Closing
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57257 Closing
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57259 Accepted
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57259 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773120773
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57259 Closing
+[Tue Mar 10 11:02:59 2026] 127.0.0.1:57261 Accepted
+[Tue Mar 10 11:03:01 2026] 127.0.0.1:57261 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:03:01 2026] 127.0.0.1:57261 Closing
+[Tue Mar 10 11:03:01 2026] 127.0.0.1:57264 Accepted
+[Tue Mar 10 11:03:03 2026] 127.0.0.1:57264 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:03:03 2026] 127.0.0.1:57264 Closing
+[Tue Mar 10 11:03:03 2026] 127.0.0.1:57267 Accepted
+[Tue Mar 10 11:03:05 2026] 127.0.0.1:57267 [200]: GET /favicon.ico
+[Tue Mar 10 11:03:05 2026] 127.0.0.1:57267 Closing
+[Tue Mar 10 11:06:06 2026] 127.0.0.1:57275 Accepted
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57275 [200]: GET /modules/ehr/prescriptions.php
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57275 Closing
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57276 Accepted
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57277 Accepted
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57276 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57278 Accepted
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57277 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57281 Accepted
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57278 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57276 Closing
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57281 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57277 Closing
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57278 Closing
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57281 Closing
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57282 Accepted
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57282 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773120969
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57282 Closing
+[Tue Mar 10 11:06:09 2026] 127.0.0.1:57284 Accepted
+[Tue Mar 10 11:06:11 2026] 127.0.0.1:57284 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:06:11 2026] 127.0.0.1:57284 Closing
+[Tue Mar 10 11:06:11 2026] 127.0.0.1:57287 Accepted
+[Tue Mar 10 11:06:13 2026] 127.0.0.1:57287 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:06:13 2026] 127.0.0.1:57287 Closing
+[Tue Mar 10 11:06:13 2026] 127.0.0.1:57290 Accepted
+[Tue Mar 10 11:06:15 2026] 127.0.0.1:57290 [200]: GET /favicon.ico
+[Tue Mar 10 11:06:15 2026] 127.0.0.1:57290 Closing
+[Tue Mar 10 11:06:37 2026] 127.0.0.1:57293 Accepted
+[Tue Mar 10 11:06:37 2026] 127.0.0.1:57294 Accepted
+[Tue Mar 10 11:06:37 2026] 127.0.0.1:57295 Accepted
+[Tue Mar 10 11:06:37 2026] 127.0.0.1:57296 Accepted
+[Tue Mar 10 11:06:37 2026] 127.0.0.1:57297 Accepted
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57294 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57294 Closing
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57293 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57295 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57296 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57297 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57293 Closing
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57295 Closing
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57296 Closing
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57297 Closing
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57299 Accepted
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57299 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121000
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57299 Closing
+[Tue Mar 10 11:06:43 2026] 127.0.0.1:57301 Accepted
+[Tue Mar 10 11:06:44 2026] 127.0.0.1:57301 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:06:44 2026] 127.0.0.1:57301 Closing
+[Tue Mar 10 11:06:44 2026] 127.0.0.1:57304 Accepted
+[Tue Mar 10 11:06:44 2026] 127.0.0.1:57305 Accepted
+[Tue Mar 10 11:06:46 2026] 127.0.0.1:57304 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:06:46 2026] 127.0.0.1:57304 Closing
+[Tue Mar 10 11:06:46 2026] 127.0.0.1:57306 Accepted
+[Tue Mar 10 11:06:47 2026] 127.0.0.1:57305 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:06:47 2026] 127.0.0.1:57305 Closing
+[Tue Mar 10 11:06:47 2026] 127.0.0.1:57309 Accepted
+[Tue Mar 10 11:06:49 2026] 127.0.0.1:57306 [200]: GET /favicon.ico
+[Tue Mar 10 11:06:49 2026] 127.0.0.1:57306 Closing
+[Tue Mar 10 11:06:51 2026] 127.0.0.1:57309 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:06:51 2026] 127.0.0.1:57309 Closing
+[Tue Mar 10 11:06:51 2026] 127.0.0.1:57314 Accepted
+[Tue Mar 10 11:06:53 2026] 127.0.0.1:57314 [200]: GET /favicon.ico
+[Tue Mar 10 11:06:53 2026] 127.0.0.1:57314 Closing
+[Tue Mar 10 11:07:21 2026] 127.0.0.1:57320 Accepted
+[Tue Mar 10 11:07:21 2026] 127.0.0.1:57321 Accepted
+[Tue Mar 10 11:07:21 2026] 127.0.0.1:57322 Accepted
+[Tue Mar 10 11:07:21 2026] 127.0.0.1:57323 Accepted
+[Tue Mar 10 11:07:24 2026] 127.0.0.1:57321 [200]: GET /modules/ehr/prescriptions.php
+[Tue Mar 10 11:07:24 2026] 127.0.0.1:57321 Closing
+[Tue Mar 10 11:07:24 2026] 127.0.0.1:57325 Accepted
+[Tue Mar 10 11:07:24 2026] 127.0.0.1:57320 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57323 [200]: GET /modules/ehr/prescriptions.php
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57323 Closing
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57326 Accepted
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57325 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57322 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57326 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57320 Closing
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57325 Closing
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57322 Closing
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57326 Closing
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57330 Accepted
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57330 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121047
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57330 Closing
+[Tue Mar 10 11:07:30 2026] 127.0.0.1:57332 Accepted
+[Tue Mar 10 11:07:32 2026] 127.0.0.1:57332 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:07:32 2026] 127.0.0.1:57332 Closing
+[Tue Mar 10 11:07:32 2026] 127.0.0.1:57335 Accepted
+[Tue Mar 10 11:07:34 2026] 127.0.0.1:57335 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:07:34 2026] 127.0.0.1:57335 Closing
+[Tue Mar 10 11:07:34 2026] 127.0.0.1:57340 Accepted
+[Tue Mar 10 11:07:38 2026] 127.0.0.1:57340 [200]: GET /favicon.ico
+[Tue Mar 10 11:07:38 2026] 127.0.0.1:57340 Closing
+[Tue Mar 10 11:09:18 2026] 127.0.0.1:57348 Accepted
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57348 [200]: GET /modules/ehr/prescriptions.php
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57348 Closing
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57350 Accepted
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57351 Accepted
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57350 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57352 Accepted
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57351 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57353 Accepted
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57352 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57350 Closing
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57353 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57351 Closing
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57352 Closing
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57353 Closing
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57354 Accepted
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57354 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121162
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57354 Closing
+[Tue Mar 10 11:09:23 2026] 127.0.0.1:57356 Accepted
+[Tue Mar 10 11:09:25 2026] 127.0.0.1:57356 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:09:25 2026] 127.0.0.1:57356 Closing
+[Tue Mar 10 11:09:25 2026] 127.0.0.1:57359 Accepted
+[Tue Mar 10 11:09:27 2026] 127.0.0.1:57359 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:09:27 2026] 127.0.0.1:57359 Closing
+[Tue Mar 10 11:09:27 2026] 127.0.0.1:57362 Accepted
+[Tue Mar 10 11:09:29 2026] 127.0.0.1:57362 [200]: GET /favicon.ico
+[Tue Mar 10 11:09:29 2026] 127.0.0.1:57362 Closing
+[Tue Mar 10 11:13:10 2026] 127.0.0.1:57376 Accepted
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57376 [200]: GET /modules/ehr/prescriptions.php
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57376 Closing
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57378 Accepted
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57379 Accepted
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57378 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57380 Accepted
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57379 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57381 Accepted
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57380 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57378 Closing
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57381 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57379 Closing
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57380 Closing
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57381 Closing
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57382 Accepted
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57382 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121393
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57382 Closing
+[Tue Mar 10 11:13:13 2026] 127.0.0.1:57384 Accepted
+[Tue Mar 10 11:13:15 2026] 127.0.0.1:57384 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:13:15 2026] 127.0.0.1:57384 Closing
+[Tue Mar 10 11:13:15 2026] 127.0.0.1:57387 Accepted
+[Tue Mar 10 11:13:15 2026] 127.0.0.1:57388 Accepted
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57387 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57387 Closing
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57389 Accepted
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57388 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57390 Accepted
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57389 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57393 Accepted
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57390 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57394 Accepted
+[Tue Mar 10 11:13:22 2026] 127.0.0.1:57388 Closing
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57393 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57393 Closing
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57396 Accepted
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57389 Closing
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57394 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57396 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121398
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57390 Closing
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57394 Closing
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57396 Closing
+[Tue Mar 10 11:13:24 2026] 127.0.0.1:57398 Accepted
+[Tue Mar 10 11:13:25 2026] 127.0.0.1:57398 [200]: GET /favicon.ico
+[Tue Mar 10 11:13:25 2026] 127.0.0.1:57398 Closing
+[Tue Mar 10 11:13:33 2026] 127.0.0.1:57401 Accepted
+[Tue Mar 10 11:13:33 2026] 127.0.0.1:57402 Accepted
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57402 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57402 Closing
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57404 Accepted
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57401 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57405 Accepted
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57404 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57406 Accepted
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57405 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57401 Closing
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57406 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57404 Closing
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57405 Closing
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57406 Closing
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57407 Accepted
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57407 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121416
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57407 Closing
+[Tue Mar 10 11:13:38 2026] 127.0.0.1:57409 Accepted
+[Tue Mar 10 11:13:40 2026] 127.0.0.1:57409 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:13:40 2026] 127.0.0.1:57409 Closing
+[Tue Mar 10 11:13:40 2026] 127.0.0.1:57412 Accepted
+[Tue Mar 10 11:13:42 2026] 127.0.0.1:57412 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:13:42 2026] 127.0.0.1:57412 Closing
+[Tue Mar 10 11:13:42 2026] 127.0.0.1:57415 Accepted
+[Tue Mar 10 11:13:44 2026] 127.0.0.1:57415 [200]: GET /favicon.ico
+[Tue Mar 10 11:13:44 2026] 127.0.0.1:57415 Closing
+[Tue Mar 10 11:13:52 2026] 127.0.0.1:57418 Accepted
+[Tue Mar 10 11:13:52 2026] 127.0.0.1:57419 Accepted
+[Tue Mar 10 11:13:52 2026] 127.0.0.1:57420 Accepted
+[Tue Mar 10 11:13:52 2026] 127.0.0.1:57421 Accepted
+[Tue Mar 10 11:13:52 2026] 127.0.0.1:57422 Accepted
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57419 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57419 Closing
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57418 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57420 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57421 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57422 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57418 Closing
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57420 Closing
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57421 Closing
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57422 Closing
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57424 Accepted
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57424 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121435
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57424 Closing
+[Tue Mar 10 11:13:59 2026] 127.0.0.1:57426 Accepted
+[Tue Mar 10 11:14:01 2026] 127.0.0.1:57426 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:14:01 2026] 127.0.0.1:57426 Closing
+[Tue Mar 10 11:14:02 2026] 127.0.0.1:57429 Accepted
+[Tue Mar 10 11:14:03 2026] 127.0.0.1:57429 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:14:03 2026] 127.0.0.1:57429 Closing
+[Tue Mar 10 11:14:03 2026] 127.0.0.1:57432 Accepted
+[Tue Mar 10 11:14:05 2026] 127.0.0.1:57432 [200]: GET /favicon.ico
+[Tue Mar 10 11:14:05 2026] 127.0.0.1:57432 Closing
+[Tue Mar 10 11:22:01 2026] 127.0.0.1:57451 Accepted
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57451 [200]: GET /modules/lab/results.php
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57451 Closing
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57453 Accepted
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57454 Accepted
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57453 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57455 Accepted
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57454 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57456 Accepted
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57455 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57453 Closing
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57456 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57454 Closing
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57455 Closing
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57456 Closing
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57457 Accepted
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57457 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121924
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57457 Closing
+[Tue Mar 10 11:22:04 2026] 127.0.0.1:57459 Accepted
+[Tue Mar 10 11:22:06 2026] 127.0.0.1:57459 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:22:06 2026] 127.0.0.1:57459 Closing
+[Tue Mar 10 11:22:06 2026] 127.0.0.1:57462 Accepted
+[Tue Mar 10 11:22:08 2026] 127.0.0.1:57462 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:22:08 2026] 127.0.0.1:57462 Closing
+[Tue Mar 10 11:22:08 2026] 127.0.0.1:57465 Accepted
+[Tue Mar 10 11:22:08 2026] 127.0.0.1:57466 Accepted
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57465 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57465 Closing
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57467 Accepted
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57466 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57468 Accepted
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57467 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57471 Accepted
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57468 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57472 Accepted
+[Tue Mar 10 11:22:13 2026] 127.0.0.1:57466 Closing
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57471 [200]: GET /favicon.ico
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57471 Closing
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57474 Accepted
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57467 Closing
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57472 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57474 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773121930
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57468 Closing
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57472 Closing
+[Tue Mar 10 11:22:14 2026] 127.0.0.1:57474 Closing
+[Tue Mar 10 11:22:15 2026] 127.0.0.1:57476 Accepted
+[Tue Mar 10 11:22:17 2026] 127.0.0.1:57476 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:22:17 2026] 127.0.0.1:57476 Closing
+[Tue Mar 10 11:22:17 2026] 127.0.0.1:57481 Accepted
+[Tue Mar 10 11:22:18 2026] 127.0.0.1:57481 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:22:18 2026] 127.0.0.1:57481 Closing
+[Tue Mar 10 11:22:18 2026] 127.0.0.1:57484 Accepted
+[Tue Mar 10 11:22:20 2026] 127.0.0.1:57484 [200]: GET /favicon.ico
+[Tue Mar 10 11:22:20 2026] 127.0.0.1:57484 Closing
+[Tue Mar 10 11:24:59 2026] 127.0.0.1:57493 Accepted
+[Tue Mar 10 11:24:59 2026] 127.0.0.1:57494 Accepted
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57494 [200]: GET /modules/ehr/request_certificate.php
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57494 Closing
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57496 Accepted
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57493 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57497 Accepted
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57496 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57498 Accepted
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57497 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57493 Closing
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57498 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57496 Closing
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57497 Closing
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57498 Closing
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57499 Accepted
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57499 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122101
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57499 Closing
+[Tue Mar 10 11:25:02 2026] 127.0.0.1:57501 Accepted
+[Tue Mar 10 11:25:03 2026] 127.0.0.1:57501 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:25:03 2026] 127.0.0.1:57501 Closing
+[Tue Mar 10 11:25:03 2026] 127.0.0.1:57504 Accepted
+[Tue Mar 10 11:25:05 2026] 127.0.0.1:57504 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:25:05 2026] 127.0.0.1:57504 Closing
+[Tue Mar 10 11:25:05 2026] 127.0.0.1:57507 Accepted
+[Tue Mar 10 11:25:07 2026] 127.0.0.1:57507 [200]: GET /favicon.ico
+[Tue Mar 10 11:25:07 2026] 127.0.0.1:57507 Closing
+[Tue Mar 10 11:25:22 2026] 127.0.0.1:57510 Accepted
+[Tue Mar 10 11:25:24 2026] 127.0.0.1:57510 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:25:24 2026] 127.0.0.1:57510 Closing
+[Tue Mar 10 11:25:24 2026] 127.0.0.1:57511 Accepted
+[Tue Mar 10 11:25:24 2026] 127.0.0.1:57512 Accepted
+[Tue Mar 10 11:25:26 2026] 127.0.0.1:57511 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:25:26 2026] 127.0.0.1:57511 Closing
+[Tue Mar 10 11:25:27 2026] 127.0.0.1:57512 [200]: GET /favicon.ico
+[Tue Mar 10 11:25:27 2026] 127.0.0.1:57512 Closing
+[Tue Mar 10 11:29:33 2026] 127.0.0.1:57531 Accepted
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57531 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57531 Closing
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57532 Accepted
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57533 Accepted
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57532 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57534 Accepted
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57533 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57536 Accepted
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57534 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57532 Closing
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57536 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57533 Closing
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57534 Closing
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57536 Closing
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57537 Accepted
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57537 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122376
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57537 Closing
+[Tue Mar 10 11:29:39 2026] 127.0.0.1:57539 Accepted
+[Tue Mar 10 11:29:41 2026] 127.0.0.1:57539 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:29:41 2026] 127.0.0.1:57539 Closing
+[Tue Mar 10 11:29:41 2026] 127.0.0.1:57542 Accepted
+[Tue Mar 10 11:29:42 2026] 127.0.0.1:57542 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:29:42 2026] 127.0.0.1:57542 Closing
+[Tue Mar 10 11:29:42 2026] 127.0.0.1:57545 Accepted
+[Tue Mar 10 11:29:44 2026] 127.0.0.1:57545 [200]: GET /favicon.ico
+[Tue Mar 10 11:29:44 2026] 127.0.0.1:57545 Closing
+[Tue Mar 10 11:29:55 2026] 127.0.0.1:57548 Accepted
+[Tue Mar 10 11:29:55 2026] 127.0.0.1:57549 Accepted
+[Tue Mar 10 11:29:55 2026] 127.0.0.1:57550 Accepted
+[Tue Mar 10 11:29:55 2026] 127.0.0.1:57551 Accepted
+[Tue Mar 10 11:29:55 2026] 127.0.0.1:57552 Accepted
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57549 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57549 Closing
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57548 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57550 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57551 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57552 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57548 Closing
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57550 Closing
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57551 Closing
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57552 Closing
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57554 Accepted
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57554 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122397
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57554 Closing
+[Tue Mar 10 11:29:58 2026] 127.0.0.1:57556 Accepted
+[Tue Mar 10 11:29:59 2026] 127.0.0.1:57556 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:29:59 2026] 127.0.0.1:57556 Closing
+[Tue Mar 10 11:30:00 2026] 127.0.0.1:57559 Accepted
+[Tue Mar 10 11:30:02 2026] 127.0.0.1:57559 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:30:02 2026] 127.0.0.1:57559 Closing
+[Tue Mar 10 11:30:02 2026] 127.0.0.1:57562 Accepted
+[Tue Mar 10 11:30:03 2026] 127.0.0.1:57562 [200]: GET /favicon.ico
+[Tue Mar 10 11:30:03 2026] 127.0.0.1:57562 Closing
+[Tue Mar 10 11:30:05 2026] 127.0.0.1:57565 Accepted
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57565 [200]: GET /modules/ehr/appointments.php?sort=desc
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57565 Closing
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57567 Accepted
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57568 Accepted
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57567 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57569 Accepted
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57568 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57570 Accepted
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57569 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57567 Closing
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57570 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57568 Closing
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57569 Closing
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57570 Closing
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57571 Accepted
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57571 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122407
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57571 Closing
+[Tue Mar 10 11:30:08 2026] 127.0.0.1:57573 Accepted
+[Tue Mar 10 11:30:10 2026] 127.0.0.1:57573 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:30:10 2026] 127.0.0.1:57573 Closing
+[Tue Mar 10 11:30:10 2026] 127.0.0.1:57576 Accepted
+[Tue Mar 10 11:30:12 2026] 127.0.0.1:57576 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:30:12 2026] 127.0.0.1:57576 Closing
+[Tue Mar 10 11:30:12 2026] 127.0.0.1:57579 Accepted
+[Tue Mar 10 11:30:15 2026] 127.0.0.1:57579 [200]: GET /modules/ehr/appointments.php?sort=asc
+[Tue Mar 10 11:30:15 2026] 127.0.0.1:57579 Closing
+[Tue Mar 10 11:30:15 2026] 127.0.0.1:57582 Accepted
+[Tue Mar 10 11:30:15 2026] 127.0.0.1:57583 Accepted
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57582 [200]: GET /favicon.ico
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57582 Closing
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57584 Accepted
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57583 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57585 Accepted
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57584 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57586 Accepted
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57585 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57583 Closing
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57586 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57584 Closing
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57585 Closing
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57586 Closing
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57588 Accepted
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57588 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122414
+[Tue Mar 10 11:30:16 2026] 127.0.0.1:57588 Closing
+[Tue Mar 10 11:30:20 2026] 127.0.0.1:57590 Accepted
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57590 [200]: GET /modules/ehr/appointments.php?sort=name_asc
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57590 Closing
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57592 Accepted
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57593 Accepted
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57592 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57594 Accepted
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57593 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57595 Accepted
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57594 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57592 Closing
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57595 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57593 Closing
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57594 Closing
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57595 Closing
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57596 Accepted
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57596 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122423
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57596 Closing
+[Tue Mar 10 11:30:23 2026] 127.0.0.1:57598 Accepted
+[Tue Mar 10 11:30:25 2026] 127.0.0.1:57598 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:30:25 2026] 127.0.0.1:57598 Closing
+[Tue Mar 10 11:30:25 2026] 127.0.0.1:57601 Accepted
+[Tue Mar 10 11:30:27 2026] 127.0.0.1:57601 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:30:27 2026] 127.0.0.1:57601 Closing
+[Tue Mar 10 11:30:27 2026] 127.0.0.1:57604 Accepted
+[Tue Mar 10 11:30:29 2026] 127.0.0.1:57604 [200]: GET /favicon.ico
+[Tue Mar 10 11:30:29 2026] 127.0.0.1:57604 Closing
+[Tue Mar 10 11:30:34 2026] 127.0.0.1:57611 Accepted
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57611 [200]: GET /modules/ehr/appointments.php?sort=name_desc
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57611 Closing
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57613 Accepted
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57614 Accepted
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57613 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57615 Accepted
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57614 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57616 Accepted
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57615 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57613 Closing
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57616 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57614 Closing
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57615 Closing
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57616 Closing
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57617 Accepted
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57617 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122436
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57617 Closing
+[Tue Mar 10 11:30:37 2026] 127.0.0.1:57619 Accepted
+[Tue Mar 10 11:30:39 2026] 127.0.0.1:57619 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:30:39 2026] 127.0.0.1:57619 Closing
+[Tue Mar 10 11:30:39 2026] 127.0.0.1:57622 Accepted
+[Tue Mar 10 11:30:41 2026] 127.0.0.1:57622 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:30:41 2026] 127.0.0.1:57622 Closing
+[Tue Mar 10 11:30:41 2026] 127.0.0.1:57625 Accepted
+[Tue Mar 10 11:30:43 2026] 127.0.0.1:57625 [200]: GET /favicon.ico
+[Tue Mar 10 11:30:43 2026] 127.0.0.1:57625 Closing
+[Tue Mar 10 11:30:43 2026] 127.0.0.1:57628 Accepted
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57628 [200]: GET /modules/ehr/appointments.php?sort=default
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57628 Closing
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57630 Accepted
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57631 Accepted
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57630 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57632 Accepted
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57631 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57633 Accepted
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57632 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57630 Closing
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57633 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57631 Closing
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57632 Closing
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57633 Closing
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57634 Accepted
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57634 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122445
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57634 Closing
+[Tue Mar 10 11:30:46 2026] 127.0.0.1:57636 Accepted
+[Tue Mar 10 11:30:48 2026] 127.0.0.1:57636 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:30:48 2026] 127.0.0.1:57636 Closing
+[Tue Mar 10 11:30:48 2026] 127.0.0.1:57639 Accepted
+[Tue Mar 10 11:30:49 2026] 127.0.0.1:57639 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:30:49 2026] 127.0.0.1:57639 Closing
+[Tue Mar 10 11:30:49 2026] 127.0.0.1:57642 Accepted
+[Tue Mar 10 11:30:51 2026] 127.0.0.1:57642 [200]: GET /favicon.ico
+[Tue Mar 10 11:30:51 2026] 127.0.0.1:57642 Closing
+[Tue Mar 10 11:30:55 2026] 127.0.0.1:57645 Accepted
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57645 [200]: GET /modules/ehr/visit_notes.php?appointment_id=d59751d3-782c-4d3e-80f5-fd164f98e8a6
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57645 Closing
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57647 Accepted
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57648 Accepted
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57647 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57649 Accepted
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57648 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57650 Accepted
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57649 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57647 Closing
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57650 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57648 Closing
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57649 Closing
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57650 Closing
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57651 Accepted
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57652 Accepted
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57651 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122460
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57652 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57651 Closing
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57652 Closing
+[Tue Mar 10 11:31:01 2026] 127.0.0.1:57654 Accepted
+[Tue Mar 10 11:31:02 2026] 127.0.0.1:57654 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:31:02 2026] 127.0.0.1:57654 Closing
+[Tue Mar 10 11:31:02 2026] 127.0.0.1:57657 Accepted
+[Tue Mar 10 11:31:04 2026] 127.0.0.1:57657 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:31:04 2026] 127.0.0.1:57657 Closing
+[Tue Mar 10 11:31:04 2026] 127.0.0.1:57660 Accepted
+[Tue Mar 10 11:31:06 2026] 127.0.0.1:57660 [200]: GET /favicon.ico
+[Tue Mar 10 11:31:06 2026] 127.0.0.1:57660 Closing
+[Tue Mar 10 11:31:15 2026] 127.0.0.1:57663 Accepted
+[Tue Mar 10 11:31:15 2026] 127.0.0.1:57664 Accepted
+[Tue Mar 10 11:31:15 2026] 127.0.0.1:57665 Accepted
+[Tue Mar 10 11:31:15 2026] 127.0.0.1:57666 Accepted
+[Tue Mar 10 11:31:15 2026] 127.0.0.1:57667 Accepted
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57667 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57667 Closing
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57663 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57664 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57665 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57666 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57663 Closing
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57664 Closing
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57665 Closing
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57666 Closing
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57670 Accepted
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57670 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122478
+[Tue Mar 10 11:31:18 2026] 127.0.0.1:57670 Closing
+[Tue Mar 10 11:31:19 2026] 127.0.0.1:57672 Accepted
+[Tue Mar 10 11:31:20 2026] 127.0.0.1:57672 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:31:20 2026] 127.0.0.1:57672 Closing
+[Tue Mar 10 11:31:21 2026] 127.0.0.1:57677 Accepted
+[Tue Mar 10 11:31:22 2026] 127.0.0.1:57677 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:31:22 2026] 127.0.0.1:57677 Closing
+[Tue Mar 10 11:31:22 2026] 127.0.0.1:57680 Accepted
+[Tue Mar 10 11:31:24 2026] 127.0.0.1:57680 [200]: GET /favicon.ico
+[Tue Mar 10 11:31:24 2026] 127.0.0.1:57680 Closing
+[Tue Mar 10 11:31:26 2026] 127.0.0.1:57683 Accepted
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57683 [200]: GET /modules/ehr/visit_notes.php?appointment_id=c4c38f87-37dc-4e0e-a533-7b57a7ed76fa
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57683 Closing
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57685 Accepted
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57686 Accepted
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57685 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57687 Accepted
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57686 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57688 Accepted
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57687 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57685 Closing
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57688 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57686 Closing
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57687 Closing
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57688 Closing
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57689 Accepted
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57690 Accepted
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57689 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122491
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57690 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57689 Closing
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57690 Closing
+[Tue Mar 10 11:31:31 2026] 127.0.0.1:57692 Accepted
+[Tue Mar 10 11:31:32 2026] 127.0.0.1:57692 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:31:32 2026] 127.0.0.1:57692 Closing
+[Tue Mar 10 11:31:32 2026] 127.0.0.1:57695 Accepted
+[Tue Mar 10 11:31:34 2026] 127.0.0.1:57695 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:31:34 2026] 127.0.0.1:57695 Closing
+[Tue Mar 10 11:31:34 2026] 127.0.0.1:57698 Accepted
+[Tue Mar 10 11:31:35 2026] 127.0.0.1:57698 [200]: GET /favicon.ico
+[Tue Mar 10 11:31:35 2026] 127.0.0.1:57698 Closing
+[Tue Mar 10 11:31:40 2026] 127.0.0.1:57701 Accepted
+[Tue Mar 10 11:31:40 2026] 127.0.0.1:57702 Accepted
+[Tue Mar 10 11:31:40 2026] 127.0.0.1:57703 Accepted
+[Tue Mar 10 11:31:40 2026] 127.0.0.1:57704 Accepted
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57704 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57704 Closing
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57706 Accepted
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57701 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57702 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57703 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57706 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57701 Closing
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57702 Closing
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57703 Closing
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57706 Closing
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57709 Accepted
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57709 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122502
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57709 Closing
+[Tue Mar 10 11:31:42 2026] 127.0.0.1:57711 Accepted
+[Tue Mar 10 11:31:44 2026] 127.0.0.1:57711 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:31:44 2026] 127.0.0.1:57711 Closing
+[Tue Mar 10 11:31:44 2026] 127.0.0.1:57714 Accepted
+[Tue Mar 10 11:31:46 2026] 127.0.0.1:57714 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:31:46 2026] 127.0.0.1:57714 Closing
+[Tue Mar 10 11:31:46 2026] 127.0.0.1:57717 Accepted
+[Tue Mar 10 11:31:47 2026] 127.0.0.1:57717 [200]: GET /favicon.ico
+[Tue Mar 10 11:31:47 2026] 127.0.0.1:57717 Closing
+[Tue Mar 10 11:31:52 2026] 127.0.0.1:57720 Accepted
+[Tue Mar 10 11:31:52 2026] 127.0.0.1:57721 Accepted
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57721 [200]: GET /modules/ehr/visit_notes.php?appointment_id=6ea050d3-b83a-431d-bea5-dd566b8fc266
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57721 Closing
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57723 Accepted
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57720 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57724 Accepted
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57723 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57725 Accepted
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57724 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57720 Closing
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57725 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57723 Closing
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57724 Closing
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57725 Closing
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57726 Accepted
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57727 Accepted
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57726 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122516
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57727 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57726 Closing
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57727 Closing
+[Tue Mar 10 11:31:56 2026] 127.0.0.1:57729 Accepted
+[Tue Mar 10 11:31:58 2026] 127.0.0.1:57729 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:31:58 2026] 127.0.0.1:57729 Closing
+[Tue Mar 10 11:31:58 2026] 127.0.0.1:57732 Accepted
+[Tue Mar 10 11:31:59 2026] 127.0.0.1:57732 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:31:59 2026] 127.0.0.1:57732 Closing
+[Tue Mar 10 11:31:59 2026] 127.0.0.1:57735 Accepted
+[Tue Mar 10 11:32:01 2026] 127.0.0.1:57735 [200]: GET /favicon.ico
+[Tue Mar 10 11:32:01 2026] 127.0.0.1:57735 Closing
+[Tue Mar 10 11:32:15 2026] 127.0.0.1:57739 Accepted
+[Tue Mar 10 11:32:15 2026] 127.0.0.1:57740 Accepted
+[Tue Mar 10 11:32:15 2026] 127.0.0.1:57741 Accepted
+[Tue Mar 10 11:32:15 2026] 127.0.0.1:57742 Accepted
+[Tue Mar 10 11:32:15 2026] 127.0.0.1:57743 Accepted
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57740 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57740 Closing
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57739 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57741 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57742 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57743 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57739 Closing
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57741 Closing
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57742 Closing
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57743 Closing
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57747 Accepted
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57747 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122537
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57747 Closing
+[Tue Mar 10 11:32:17 2026] 127.0.0.1:57749 Accepted
+[Tue Mar 10 11:32:19 2026] 127.0.0.1:57749 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:32:19 2026] 127.0.0.1:57749 Closing
+[Tue Mar 10 11:32:19 2026] 127.0.0.1:57752 Accepted
+[Tue Mar 10 11:32:20 2026] 127.0.0.1:57752 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:32:20 2026] 127.0.0.1:57752 Closing
+[Tue Mar 10 11:32:20 2026] 127.0.0.1:57755 Accepted
+[Tue Mar 10 11:32:22 2026] 127.0.0.1:57755 [200]: GET /favicon.ico
+[Tue Mar 10 11:32:22 2026] 127.0.0.1:57755 Closing
+[Tue Mar 10 11:32:27 2026] 127.0.0.1:57759 Accepted
+[Tue Mar 10 11:32:27 2026] 127.0.0.1:57760 Accepted
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57760 [200]: GET /modules/ehr/visit_notes.php?appointment_id=7355876e-3d97-4c9a-b41f-33e4daf7731d
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57760 Closing
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57762 Accepted
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57759 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57763 Accepted
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57762 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57764 Accepted
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57763 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57759 Closing
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57764 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57762 Closing
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57763 Closing
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57764 Closing
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57765 Accepted
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57766 Accepted
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57765 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122551
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57766 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57765 Closing
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57766 Closing
+[Tue Mar 10 11:32:31 2026] 127.0.0.1:57768 Accepted
+[Tue Mar 10 11:32:33 2026] 127.0.0.1:57768 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:32:33 2026] 127.0.0.1:57768 Closing
+[Tue Mar 10 11:32:33 2026] 127.0.0.1:57771 Accepted
+[Tue Mar 10 11:32:34 2026] 127.0.0.1:57771 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:32:34 2026] 127.0.0.1:57771 Closing
+[Tue Mar 10 11:32:34 2026] 127.0.0.1:57774 Accepted
+[Tue Mar 10 11:32:36 2026] 127.0.0.1:57774 [200]: GET /favicon.ico
+[Tue Mar 10 11:32:36 2026] 127.0.0.1:57774 Closing
+[Tue Mar 10 11:32:44 2026] 127.0.0.1:57777 Accepted
+[Tue Mar 10 11:32:44 2026] 127.0.0.1:57778 Accepted
+[Tue Mar 10 11:32:44 2026] 127.0.0.1:57779 Accepted
+[Tue Mar 10 11:32:44 2026] 127.0.0.1:57780 Accepted
+[Tue Mar 10 11:32:44 2026] 127.0.0.1:57781 Accepted
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57778 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57778 Closing
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57777 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57779 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57780 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57781 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57777 Closing
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57779 Closing
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57780 Closing
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57781 Closing
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57783 Accepted
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57783 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122567
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57783 Closing
+[Tue Mar 10 11:32:48 2026] 127.0.0.1:57785 Accepted
+[Tue Mar 10 11:32:49 2026] 127.0.0.1:57785 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:32:49 2026] 127.0.0.1:57785 Closing
+[Tue Mar 10 11:32:49 2026] 127.0.0.1:57788 Accepted
+[Tue Mar 10 11:32:51 2026] 127.0.0.1:57788 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:32:51 2026] 127.0.0.1:57788 Closing
+[Tue Mar 10 11:32:51 2026] 127.0.0.1:57791 Accepted
+[Tue Mar 10 11:32:52 2026] 127.0.0.1:57791 [200]: GET /favicon.ico
+[Tue Mar 10 11:32:52 2026] 127.0.0.1:57791 Closing
+[Tue Mar 10 11:32:53 2026] 127.0.0.1:57794 Accepted
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57794 [200]: GET /modules/ehr/visit_notes.php?appointment_id=45cb92cc-3393-492e-8d1b-b6ba4a115143
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57794 Closing
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57796 Accepted
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57797 Accepted
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57796 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57798 Accepted
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57797 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57799 Accepted
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57798 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57796 Closing
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57799 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57797 Closing
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57798 Closing
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57799 Closing
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57800 Accepted
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57801 Accepted
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57800 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122578
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57801 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57800 Closing
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57801 Closing
+[Tue Mar 10 11:32:58 2026] 127.0.0.1:57803 Accepted
+[Tue Mar 10 11:33:00 2026] 127.0.0.1:57803 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:33:00 2026] 127.0.0.1:57803 Closing
+[Tue Mar 10 11:33:00 2026] 127.0.0.1:57806 Accepted
+[Tue Mar 10 11:33:01 2026] 127.0.0.1:57806 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:33:01 2026] 127.0.0.1:57806 Closing
+[Tue Mar 10 11:33:01 2026] 127.0.0.1:57809 Accepted
+[Tue Mar 10 11:33:02 2026] 127.0.0.1:57809 [200]: GET /favicon.ico
+[Tue Mar 10 11:33:02 2026] 127.0.0.1:57809 Closing
+[Tue Mar 10 11:33:05 2026] 127.0.0.1:57812 Accepted
+[Tue Mar 10 11:33:05 2026] 127.0.0.1:57813 Accepted
+[Tue Mar 10 11:33:05 2026] 127.0.0.1:57814 Accepted
+[Tue Mar 10 11:33:05 2026] 127.0.0.1:57815 Accepted
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57813 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57813 Closing
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57817 Accepted
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57812 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57814 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57815 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57817 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57812 Closing
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57814 Closing
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57815 Closing
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57817 Closing
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57818 Accepted
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57818 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122587
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57818 Closing
+[Tue Mar 10 11:33:08 2026] 127.0.0.1:57820 Accepted
+[Tue Mar 10 11:33:09 2026] 127.0.0.1:57820 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:33:09 2026] 127.0.0.1:57820 Closing
+[Tue Mar 10 11:33:09 2026] 127.0.0.1:57823 Accepted
+[Tue Mar 10 11:33:11 2026] 127.0.0.1:57823 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:33:11 2026] 127.0.0.1:57823 Closing
+[Tue Mar 10 11:33:11 2026] 127.0.0.1:57826 Accepted
+[Tue Mar 10 11:33:12 2026] 127.0.0.1:57826 [200]: GET /favicon.ico
+[Tue Mar 10 11:33:12 2026] 127.0.0.1:57826 Closing
+[Tue Mar 10 11:33:12 2026] 127.0.0.1:57829 Accepted
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57829 [200]: GET /modules/ehr/visit_notes.php?appointment_id=45cb92cc-3393-492e-8d1b-b6ba4a115143
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57829 Closing
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57831 Accepted
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57832 Accepted
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57831 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57833 Accepted
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57832 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57834 Accepted
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57833 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57831 Closing
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57834 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57832 Closing
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57833 Closing
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57834 Closing
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57835 Accepted
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57836 Accepted
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57835 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122598
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57836 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57835 Closing
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57836 Closing
+[Tue Mar 10 11:33:18 2026] 127.0.0.1:57838 Accepted
+[Tue Mar 10 11:33:21 2026] 127.0.0.1:57838 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:33:21 2026] 127.0.0.1:57838 Closing
+[Tue Mar 10 11:33:21 2026] 127.0.0.1:57841 Accepted
+[Tue Mar 10 11:33:22 2026] 127.0.0.1:57841 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:33:22 2026] 127.0.0.1:57841 Closing
+[Tue Mar 10 11:33:22 2026] 127.0.0.1:57844 Accepted
+[Tue Mar 10 11:33:24 2026] 127.0.0.1:57844 [200]: GET /favicon.ico
+[Tue Mar 10 11:33:24 2026] 127.0.0.1:57844 Closing
+[Tue Mar 10 11:33:37 2026] 127.0.0.1:57847 Accepted
+[Tue Mar 10 11:33:37 2026] 127.0.0.1:57848 Accepted
+[Tue Mar 10 11:33:37 2026] 127.0.0.1:57849 Accepted
+[Tue Mar 10 11:33:37 2026] 127.0.0.1:57850 Accepted
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57848 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57848 Closing
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57852 Accepted
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57847 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57849 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57850 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57852 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57847 Closing
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57849 Closing
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57850 Closing
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57852 Closing
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57853 Accepted
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57853 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122619
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57853 Closing
+[Tue Mar 10 11:33:40 2026] 127.0.0.1:57855 Accepted
+[Tue Mar 10 11:33:41 2026] 127.0.0.1:57855 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:33:41 2026] 127.0.0.1:57855 Closing
+[Tue Mar 10 11:33:41 2026] 127.0.0.1:57858 Accepted
+[Tue Mar 10 11:33:43 2026] 127.0.0.1:57858 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:33:43 2026] 127.0.0.1:57858 Closing
+[Tue Mar 10 11:33:43 2026] 127.0.0.1:57861 Accepted
+[Tue Mar 10 11:33:44 2026] 127.0.0.1:57861 [200]: GET /favicon.ico
+[Tue Mar 10 11:33:44 2026] 127.0.0.1:57861 Closing
+[Tue Mar 10 11:33:44 2026] 127.0.0.1:57864 Accepted
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57864 [200]: GET /modules/ehr/visit_notes.php?appointment_id=b190f71f-6ec8-4ac3-b058-acc2a7f17416
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57864 Closing
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57866 Accepted
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57867 Accepted
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57866 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57868 Accepted
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57867 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57869 Accepted
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57868 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57866 Closing
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57869 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57867 Closing
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57868 Closing
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57869 Closing
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57870 Accepted
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57871 Accepted
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57870 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122628
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57871 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57870 Closing
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57871 Closing
+[Tue Mar 10 11:33:49 2026] 127.0.0.1:57873 Accepted
+[Tue Mar 10 11:33:50 2026] 127.0.0.1:57873 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:33:50 2026] 127.0.0.1:57873 Closing
+[Tue Mar 10 11:33:50 2026] 127.0.0.1:57876 Accepted
+[Tue Mar 10 11:33:51 2026] 127.0.0.1:57876 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:33:51 2026] 127.0.0.1:57876 Closing
+[Tue Mar 10 11:33:52 2026] 127.0.0.1:57879 Accepted
+[Tue Mar 10 11:33:53 2026] 127.0.0.1:57879 [200]: GET /favicon.ico
+[Tue Mar 10 11:33:53 2026] 127.0.0.1:57879 Closing
+[Tue Mar 10 11:33:55 2026] 127.0.0.1:57882 Accepted
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57882 [200]: GET /modules/ehr/appointments.php
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57882 Closing
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57883 Accepted
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57884 Accepted
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57883 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57885 Accepted
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57884 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57887 Accepted
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57885 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57883 Closing
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57887 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57884 Closing
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57885 Closing
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57887 Closing
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57888 Accepted
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57888 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122638
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57888 Closing
+[Tue Mar 10 11:33:58 2026] 127.0.0.1:57890 Accepted
+[Tue Mar 10 11:34:00 2026] 127.0.0.1:57890 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:34:00 2026] 127.0.0.1:57890 Closing
+[Tue Mar 10 11:34:00 2026] 127.0.0.1:57893 Accepted
+[Tue Mar 10 11:34:02 2026] 127.0.0.1:57893 [200]: GET /modules/lab/results.php
+[Tue Mar 10 11:34:02 2026] 127.0.0.1:57893 Closing
+[Tue Mar 10 11:34:02 2026] 127.0.0.1:57896 Accepted
+[Tue Mar 10 11:34:02 2026] 127.0.0.1:57897 Accepted
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57896 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57896 Closing
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57898 Accepted
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57897 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57899 Accepted
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57898 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57900 Accepted
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57899 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57897 Closing
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57900 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57898 Closing
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57899 Closing
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57900 Closing
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57902 Accepted
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57902 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122642
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57902 Closing
+[Tue Mar 10 11:34:04 2026] 127.0.0.1:57904 Accepted
+[Tue Mar 10 11:34:05 2026] 127.0.0.1:57904 [200]: GET /favicon.ico
+[Tue Mar 10 11:34:05 2026] 127.0.0.1:57904 Closing
+[Tue Mar 10 11:34:11 2026] 127.0.0.1:57907 Accepted
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57907 [200]: GET /modules/lab/results.php?id=7da9882a-f652-4838-b61d-fb32c30a8500
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57907 Closing
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57909 Accepted
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57910 Accepted
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57909 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57911 Accepted
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57910 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57912 Accepted
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57911 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57909 Closing
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57912 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57910 Closing
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57911 Closing
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57912 Closing
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57913 Accepted
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57913 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122653
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57913 Closing
+[Tue Mar 10 11:34:13 2026] 127.0.0.1:57915 Accepted
+[Tue Mar 10 11:34:15 2026] 127.0.0.1:57915 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:34:15 2026] 127.0.0.1:57915 Closing
+[Tue Mar 10 11:34:15 2026] 127.0.0.1:57918 Accepted
+[Tue Mar 10 11:34:16 2026] 127.0.0.1:57918 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:34:16 2026] 127.0.0.1:57918 Closing
+[Tue Mar 10 11:34:16 2026] 127.0.0.1:57921 Accepted
+[Tue Mar 10 11:34:18 2026] 127.0.0.1:57921 [200]: GET /favicon.ico
+[Tue Mar 10 11:34:18 2026] 127.0.0.1:57921 Closing
+[Tue Mar 10 11:34:23 2026] 127.0.0.1:57924 Accepted
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57924 [200]: GET /modules/lab/results.php
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57924 Closing
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57925 Accepted
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57926 Accepted
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57925 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57927 Accepted
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57926 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57929 Accepted
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57927 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57925 Closing
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57929 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57926 Closing
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57927 Closing
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57929 Closing
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57930 Accepted
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57930 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122666
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57930 Closing
+[Tue Mar 10 11:34:27 2026] 127.0.0.1:57932 Accepted
+[Tue Mar 10 11:34:28 2026] 127.0.0.1:57932 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:34:28 2026] 127.0.0.1:57932 Closing
+[Tue Mar 10 11:34:28 2026] 127.0.0.1:57935 Accepted
+[Tue Mar 10 11:34:30 2026] 127.0.0.1:57935 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:34:30 2026] 127.0.0.1:57935 Closing
+[Tue Mar 10 11:34:30 2026] 127.0.0.1:57938 Accepted
+[Tue Mar 10 11:34:32 2026] 127.0.0.1:57938 [200]: GET /favicon.ico
+[Tue Mar 10 11:34:32 2026] 127.0.0.1:57938 Closing
+[Tue Mar 10 11:34:32 2026] 127.0.0.1:57941 Accepted
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57941 [200]: GET /modules/lab/results.php?id=5ca3ab03-af28-49fd-a3c0-ffae78ef8d0d
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57941 Closing
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57943 Accepted
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57944 Accepted
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57943 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57945 Accepted
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57944 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57946 Accepted
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57945 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57943 Closing
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57946 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57944 Closing
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57945 Closing
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57946 Closing
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57947 Accepted
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57947 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122674
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57947 Closing
+[Tue Mar 10 11:34:35 2026] 127.0.0.1:57949 Accepted
+[Tue Mar 10 11:34:36 2026] 127.0.0.1:57949 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:34:36 2026] 127.0.0.1:57949 Closing
+[Tue Mar 10 11:34:36 2026] 127.0.0.1:57952 Accepted
+[Tue Mar 10 11:34:38 2026] 127.0.0.1:57952 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:34:38 2026] 127.0.0.1:57952 Closing
+[Tue Mar 10 11:34:38 2026] 127.0.0.1:57955 Accepted
+[Tue Mar 10 11:34:39 2026] 127.0.0.1:57955 [200]: GET /favicon.ico
+[Tue Mar 10 11:34:39 2026] 127.0.0.1:57955 Closing
+[Tue Mar 10 11:34:41 2026] 127.0.0.1:57958 Accepted
+[Tue Mar 10 11:34:41 2026] 127.0.0.1:57959 Accepted
+[Tue Mar 10 11:34:41 2026] 127.0.0.1:57960 Accepted
+[Tue Mar 10 11:34:41 2026] 127.0.0.1:57961 Accepted
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57959 [200]: GET /modules/lab/results.php
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57959 Closing
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57963 Accepted
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57958 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57960 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57961 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57963 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57958 Closing
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57960 Closing
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57961 Closing
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57963 Closing
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57964 Accepted
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57964 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122684
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57964 Closing
+[Tue Mar 10 11:34:45 2026] 127.0.0.1:57966 Accepted
+[Tue Mar 10 11:34:46 2026] 127.0.0.1:57966 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:34:46 2026] 127.0.0.1:57966 Closing
+[Tue Mar 10 11:34:46 2026] 127.0.0.1:57969 Accepted
+[Tue Mar 10 11:34:47 2026] 127.0.0.1:57969 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:34:47 2026] 127.0.0.1:57969 Closing
+[Tue Mar 10 11:34:47 2026] 127.0.0.1:57972 Accepted
+[Tue Mar 10 11:34:49 2026] 127.0.0.1:57972 [200]: GET /favicon.ico
+[Tue Mar 10 11:34:49 2026] 127.0.0.1:57972 Closing
+[Tue Mar 10 11:34:49 2026] 127.0.0.1:57975 Accepted
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57975 [200]: GET /modules/ehr/request_certificate.php
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57975 Closing
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57977 Accepted
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57978 Accepted
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57977 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57979 Accepted
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57978 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57980 Accepted
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57979 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57977 Closing
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57980 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57978 Closing
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57979 Closing
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57980 Closing
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57981 Accepted
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57981 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122691
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57981 Closing
+[Tue Mar 10 11:34:52 2026] 127.0.0.1:57983 Accepted
+[Tue Mar 10 11:34:53 2026] 127.0.0.1:57983 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:34:53 2026] 127.0.0.1:57983 Closing
+[Tue Mar 10 11:34:53 2026] 127.0.0.1:57986 Accepted
+[Tue Mar 10 11:34:54 2026] 127.0.0.1:57986 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:34:54 2026] 127.0.0.1:57986 Closing
+[Tue Mar 10 11:34:54 2026] 127.0.0.1:57989 Accepted
+[Tue Mar 10 11:34:56 2026] 127.0.0.1:57989 [200]: GET /favicon.ico
+[Tue Mar 10 11:34:56 2026] 127.0.0.1:57989 Closing
+[Tue Mar 10 11:35:30 2026] 127.0.0.1:57992 Accepted
+[Tue Mar 10 11:35:30 2026] 127.0.0.1:57993 Accepted
+[Tue Mar 10 11:35:30 2026] 127.0.0.1:57994 Accepted
+[Tue Mar 10 11:35:30 2026] 127.0.0.1:57995 Accepted
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57993 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57993 Closing
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57997 Accepted
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57992 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57994 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57995 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57997 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57992 Closing
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57994 Closing
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57995 Closing
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57997 Closing
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57998 Accepted
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57998 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122732
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:57998 Closing
+[Tue Mar 10 11:35:35 2026] 127.0.0.1:58000 Accepted
+[Tue Mar 10 11:35:37 2026] 127.0.0.1:58000 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:35:37 2026] 127.0.0.1:58000 Closing
+[Tue Mar 10 11:35:37 2026] 127.0.0.1:58003 Accepted
+[Tue Mar 10 11:35:38 2026] 127.0.0.1:58003 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:35:38 2026] 127.0.0.1:58003 Closing
+[Tue Mar 10 11:35:38 2026] 127.0.0.1:58006 Accepted
+[Tue Mar 10 11:35:39 2026] 127.0.0.1:58006 [200]: GET /favicon.ico
+[Tue Mar 10 11:35:39 2026] 127.0.0.1:58006 Closing
+[Tue Mar 10 11:35:48 2026] 127.0.0.1:58009 Accepted
+[Tue Mar 10 11:35:48 2026] 127.0.0.1:58010 Accepted
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58010 [200]: GET /modules/telemedicine/dashboard.php
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58010 Closing
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58012 Accepted
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58009 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58013 Accepted
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58012 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58014 Accepted
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58013 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58009 Closing
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58014 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58012 Closing
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58013 Closing
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58014 Closing
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58015 Accepted
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58015 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122751
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58015 Closing
+[Tue Mar 10 11:35:51 2026] 127.0.0.1:58017 Accepted
+[Tue Mar 10 11:35:53 2026] 127.0.0.1:58017 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:35:53 2026] 127.0.0.1:58017 Closing
+[Tue Mar 10 11:35:53 2026] 127.0.0.1:58020 Accepted
+[Tue Mar 10 11:35:55 2026] 127.0.0.1:58020 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:35:55 2026] 127.0.0.1:58020 Closing
+[Tue Mar 10 11:35:55 2026] 127.0.0.1:58023 Accepted
+[Tue Mar 10 11:35:56 2026] 127.0.0.1:58023 [200]: GET /favicon.ico
+[Tue Mar 10 11:35:56 2026] 127.0.0.1:58023 Closing
+[Tue Mar 10 11:36:37 2026] 127.0.0.1:58026 Accepted
+[Tue Mar 10 11:36:37 2026] 127.0.0.1:58027 Accepted
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58027 [200]: GET /modules/billing/invoices.php
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58027 Closing
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58029 Accepted
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58026 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58030 Accepted
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58029 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58031 Accepted
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58030 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58026 Closing
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58031 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58029 Closing
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58030 Closing
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58031 Closing
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58032 Accepted
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58032 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122800
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58032 Closing
+[Tue Mar 10 11:36:40 2026] 127.0.0.1:58034 Accepted
+[Tue Mar 10 11:36:42 2026] 127.0.0.1:58034 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:36:42 2026] 127.0.0.1:58034 Closing
+[Tue Mar 10 11:36:42 2026] 127.0.0.1:58038 Accepted
+[Tue Mar 10 11:36:43 2026] 127.0.0.1:58038 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:36:43 2026] 127.0.0.1:58038 Closing
+[Tue Mar 10 11:36:43 2026] 127.0.0.1:58043 Accepted
+[Tue Mar 10 11:36:45 2026] 127.0.0.1:58043 [200]: GET /favicon.ico
+[Tue Mar 10 11:36:45 2026] 127.0.0.1:58043 Closing
+[Tue Mar 10 11:37:18 2026] 127.0.0.1:58046 Accepted
+[Tue Mar 10 11:37:21 2026] 127.0.0.1:58046 [200]: GET /modules/billing/download_receipt.php?id=4c9282d6-97f0-4905-9c7b-ebe74227e891
+[Tue Mar 10 11:37:21 2026] 127.0.0.1:58046 Closing
+[Tue Mar 10 11:37:21 2026] 127.0.0.1:58048 Accepted
+[Tue Mar 10 11:37:21 2026] 127.0.0.1:58048 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:37:21 2026] 127.0.0.1:58048 Closing
+[Tue Mar 10 11:37:27 2026] 127.0.0.1:58051 Accepted
+[Tue Mar 10 11:37:28 2026] 127.0.0.1:58051 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:37:28 2026] 127.0.0.1:58051 Closing
+[Tue Mar 10 11:37:28 2026] 127.0.0.1:58054 Accepted
+[Tue Mar 10 11:37:30 2026] 127.0.0.1:58054 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:37:30 2026] 127.0.0.1:58054 Closing
+[Tue Mar 10 11:37:30 2026] 127.0.0.1:58057 Accepted
+[Tue Mar 10 11:37:31 2026] 127.0.0.1:58057 [200]: GET /favicon.ico
+[Tue Mar 10 11:37:31 2026] 127.0.0.1:58057 Closing
+[Tue Mar 10 11:37:39 2026] 127.0.0.1:58061 Accepted
+[Tue Mar 10 11:37:39 2026] 127.0.0.1:58062 Accepted
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58062 [200]: GET /help_center.php
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58062 Closing
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58064 Accepted
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58061 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58065 Accepted
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58064 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58066 Accepted
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58065 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58061 Closing
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58066 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58064 Closing
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58065 Closing
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58066 Closing
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58067 Accepted
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58067 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122861
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58067 Closing
+[Tue Mar 10 11:37:41 2026] 127.0.0.1:58069 Accepted
+[Tue Mar 10 11:37:42 2026] 127.0.0.1:58069 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:37:42 2026] 127.0.0.1:58069 Closing
+[Tue Mar 10 11:37:43 2026] 127.0.0.1:58072 Accepted
+[Tue Mar 10 11:37:45 2026] 127.0.0.1:58072 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:37:45 2026] 127.0.0.1:58072 Closing
+[Tue Mar 10 11:37:45 2026] 127.0.0.1:58075 Accepted
+[Tue Mar 10 11:37:46 2026] 127.0.0.1:58075 [200]: GET /favicon.ico
+[Tue Mar 10 11:37:46 2026] 127.0.0.1:58075 Closing
+[Tue Mar 10 11:38:06 2026] 127.0.0.1:58078 Accepted
+[Tue Mar 10 11:38:06 2026] 127.0.0.1:58079 Accepted
+[Tue Mar 10 11:38:06 2026] 127.0.0.1:58080 Accepted
+[Tue Mar 10 11:38:06 2026] 127.0.0.1:58081 Accepted
+[Tue Mar 10 11:38:06 2026] 127.0.0.1:58082 Accepted
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58082 [200]: GET /modules/billing/invoices.php
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58082 Closing
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58078 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58079 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58080 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58081 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58078 Closing
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58079 Closing
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58080 Closing
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58081 Closing
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58084 Accepted
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58084 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122889
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58084 Closing
+[Tue Mar 10 11:38:10 2026] 127.0.0.1:58086 Accepted
+[Tue Mar 10 11:38:11 2026] 127.0.0.1:58086 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:38:11 2026] 127.0.0.1:58086 Closing
+[Tue Mar 10 11:38:11 2026] 127.0.0.1:58089 Accepted
+[Tue Mar 10 11:38:13 2026] 127.0.0.1:58089 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:38:13 2026] 127.0.0.1:58089 Closing
+[Tue Mar 10 11:38:13 2026] 127.0.0.1:58092 Accepted
+[Tue Mar 10 11:38:14 2026] 127.0.0.1:58092 [200]: GET /favicon.ico
+[Tue Mar 10 11:38:14 2026] 127.0.0.1:58092 Closing
+[Tue Mar 10 11:38:31 2026] 127.0.0.1:58095 Accepted
+[Tue Mar 10 11:38:31 2026] 127.0.0.1:58096 Accepted
+[Tue Mar 10 11:38:31 2026] 127.0.0.1:58097 Accepted
+[Tue Mar 10 11:38:31 2026] 127.0.0.1:58098 Accepted
+[Tue Mar 10 11:38:31 2026] 127.0.0.1:58099 Accepted
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58099 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58099 Closing
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58095 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58096 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58097 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58098 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58095 Closing
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58096 Closing
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58097 Closing
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58098 Closing
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58101 Accepted
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58101 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773122913
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58101 Closing
+[Tue Mar 10 11:38:36 2026] 127.0.0.1:58103 Accepted
+[Tue Mar 10 11:38:37 2026] 127.0.0.1:58103 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:38:37 2026] 127.0.0.1:58103 Closing
+[Tue Mar 10 11:38:37 2026] 127.0.0.1:58106 Accepted
+[Tue Mar 10 11:38:39 2026] 127.0.0.1:58106 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:38:39 2026] 127.0.0.1:58106 Closing
+[Tue Mar 10 11:38:39 2026] 127.0.0.1:58109 Accepted
+[Tue Mar 10 11:38:40 2026] 127.0.0.1:58109 [200]: GET /favicon.ico
+[Tue Mar 10 11:38:40 2026] 127.0.0.1:58109 Closing
+[Tue Mar 10 11:38:53 2026] 127.0.0.1:58112 Accepted
+[Tue Mar 10 11:38:55 2026] 127.0.0.1:58112 [200]: POST /api/notifications_action.php
+[Tue Mar 10 11:38:55 2026] 127.0.0.1:58112 Closing
+[Tue Mar 10 11:38:57 2026] 127.0.0.1:58115 Accepted
+[Tue Mar 10 11:38:58 2026] 127.0.0.1:58115 [200]: POST /api/notifications_action.php
+[Tue Mar 10 11:38:58 2026] 127.0.0.1:58115 Closing
+[Tue Mar 10 11:41:14 2026] 127.0.0.1:58121 Accepted
+[Tue Mar 10 11:41:14 2026] 127.0.0.1:58122 Accepted
+[Tue Mar 10 11:41:14 2026] 127.0.0.1:58123 Accepted
+[Tue Mar 10 11:41:14 2026] 127.0.0.1:58124 Accepted
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58122 [200]: GET /modules/patient_management/symptom_checker.php
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58122 Closing
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58126 Accepted
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58121 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58123 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58124 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58126 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58121 Closing
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58123 Closing
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58124 Closing
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58126 Closing
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58127 Accepted
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58127 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123076
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58127 Closing
+[Tue Mar 10 11:41:16 2026] 127.0.0.1:58129 Accepted
+[Tue Mar 10 11:41:17 2026] 127.0.0.1:58129 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:41:17 2026] 127.0.0.1:58129 Closing
+[Tue Mar 10 11:41:17 2026] 127.0.0.1:58132 Accepted
+[Tue Mar 10 11:41:19 2026] 127.0.0.1:58132 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:41:19 2026] 127.0.0.1:58132 Closing
+[Tue Mar 10 11:41:19 2026] 127.0.0.1:58135 Accepted
+[Tue Mar 10 11:41:20 2026] 127.0.0.1:58135 [200]: GET /favicon.ico
+[Tue Mar 10 11:41:20 2026] 127.0.0.1:58135 Closing
+[Tue Mar 10 11:41:21 2026] 127.0.0.1:58138 Accepted
+[Tue Mar 10 11:41:21 2026] 127.0.0.1:58138 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:41:21 2026] 127.0.0.1:58138 Closing
+[Tue Mar 10 11:41:29 2026] 127.0.0.1:58141 Accepted
+[Tue Mar 10 11:41:29 2026] 127.0.0.1:58141 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:41:29 2026] 127.0.0.1:58141 Closing
+[Tue Mar 10 11:44:29 2026] 127.0.0.1:58155 Accepted
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58155 [200]: GET /modules/patient_management/symptom_checker.php
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58155 Closing
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58157 Accepted
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58158 Accepted
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58157 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58159 Accepted
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58158 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58160 Accepted
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58159 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58157 Closing
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58160 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58158 Closing
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58159 Closing
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58160 Closing
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58161 Accepted
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58161 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123272
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58161 Closing
+[Tue Mar 10 11:44:32 2026] 127.0.0.1:58163 Accepted
+[Tue Mar 10 11:44:33 2026] 127.0.0.1:58163 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:44:33 2026] 127.0.0.1:58163 Closing
+[Tue Mar 10 11:44:33 2026] 127.0.0.1:58166 Accepted
+[Tue Mar 10 11:44:35 2026] 127.0.0.1:58166 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:44:35 2026] 127.0.0.1:58166 Closing
+[Tue Mar 10 11:44:35 2026] 127.0.0.1:58169 Accepted
+[Tue Mar 10 11:44:36 2026] 127.0.0.1:58169 [200]: GET /favicon.ico
+[Tue Mar 10 11:44:36 2026] 127.0.0.1:58169 Closing
+[Tue Mar 10 11:44:36 2026] 127.0.0.1:58172 Accepted
+[Tue Mar 10 11:44:36 2026] 127.0.0.1:58172 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:44:36 2026] 127.0.0.1:58172 Closing
+[Tue Mar 10 11:44:40 2026] 127.0.0.1:58175 Accepted
+[Tue Mar 10 11:44:40 2026] 127.0.0.1:58175 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:44:40 2026] 127.0.0.1:58175 Closing
+[Tue Mar 10 11:44:48 2026] 127.0.0.1:58178 Accepted
+[Tue Mar 10 11:44:48 2026] 127.0.0.1:58178 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:44:48 2026] 127.0.0.1:58178 Closing
+[Tue Mar 10 11:44:53 2026] 127.0.0.1:58181 Accepted
+[Tue Mar 10 11:44:53 2026] 127.0.0.1:58181 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:44:53 2026] 127.0.0.1:58181 Closing
+[Tue Mar 10 11:44:54 2026] 127.0.0.1:58184 Accepted
+[Tue Mar 10 11:44:56 2026] 127.0.0.1:58184 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Orthopedics
+[Tue Mar 10 11:44:56 2026] 127.0.0.1:58184 Closing
+[Tue Mar 10 11:45:47 2026] 127.0.0.1:58189 Accepted
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58189 [200]: GET /modules/ehr/book_appointment.php
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58189 Closing
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58190 Accepted
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58191 Accepted
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58190 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58192 Accepted
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58191 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58194 Accepted
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58192 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58190 Closing
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58194 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58191 Closing
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58192 Closing
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58194 Closing
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58195 Accepted
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58195 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123349
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58195 Closing
+[Tue Mar 10 11:45:49 2026] 127.0.0.1:58197 Accepted
+[Tue Mar 10 11:45:51 2026] 127.0.0.1:58197 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:45:51 2026] 127.0.0.1:58197 Closing
+[Tue Mar 10 11:45:51 2026] 127.0.0.1:58200 Accepted
+[Tue Mar 10 11:45:52 2026] 127.0.0.1:58200 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:45:52 2026] 127.0.0.1:58200 Closing
+[Tue Mar 10 11:45:52 2026] 127.0.0.1:58203 Accepted
+[Tue Mar 10 11:45:54 2026] 127.0.0.1:58203 [200]: GET /favicon.ico
+[Tue Mar 10 11:45:54 2026] 127.0.0.1:58203 Closing
+[Tue Mar 10 11:45:58 2026] 127.0.0.1:58208 Accepted
+[Tue Mar 10 11:46:00 2026] 127.0.0.1:58208 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:46:00 2026] 127.0.0.1:58208 Closing
+[Tue Mar 10 11:46:00 2026] 127.0.0.1:58211 Accepted
+[Tue Mar 10 11:46:01 2026] 127.0.0.1:58211 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:46:01 2026] 127.0.0.1:58211 Closing
+[Tue Mar 10 11:46:01 2026] 127.0.0.1:58214 Accepted
+[Tue Mar 10 11:46:02 2026] 127.0.0.1:58214 [200]: GET /favicon.ico
+[Tue Mar 10 11:46:02 2026] 127.0.0.1:58214 Closing
+[Tue Mar 10 11:46:11 2026] 127.0.0.1:58222 Accepted
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58222 [200]: GET /modules/ehr/book_appointment.php
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58222 Closing
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58223 Accepted
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58224 Accepted
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58223 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58225 Accepted
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58224 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58227 Accepted
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58225 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58223 Closing
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58227 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58224 Closing
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58225 Closing
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58227 Closing
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58228 Accepted
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58228 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123374
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58228 Closing
+[Tue Mar 10 11:46:14 2026] 127.0.0.1:58230 Accepted
+[Tue Mar 10 11:46:15 2026] 127.0.0.1:58230 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:46:15 2026] 127.0.0.1:58230 Closing
+[Tue Mar 10 11:46:15 2026] 127.0.0.1:58233 Accepted
+[Tue Mar 10 11:46:17 2026] 127.0.0.1:58233 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:46:17 2026] 127.0.0.1:58233 Closing
+[Tue Mar 10 11:46:17 2026] 127.0.0.1:58236 Accepted
+[Tue Mar 10 11:46:18 2026] 127.0.0.1:58236 [200]: GET /favicon.ico
+[Tue Mar 10 11:46:18 2026] 127.0.0.1:58236 Closing
+[Tue Mar 10 11:46:19 2026] 127.0.0.1:58239 Accepted
+[Tue Mar 10 11:46:21 2026] 127.0.0.1:58239 [200]: POST /modules/ehr/get_ai_recommendation.php
+[Tue Mar 10 11:46:21 2026] 127.0.0.1:58239 Closing
+[Tue Mar 10 11:47:09 2026] 127.0.0.1:58247 Accepted
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58247 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58247 Closing
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58248 Accepted
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58249 Accepted
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58248 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58250 Accepted
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58249 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58252 Accepted
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58250 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58248 Closing
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58252 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58249 Closing
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58250 Closing
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58252 Closing
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58253 Accepted
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58253 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123432
+[Tue Mar 10 11:47:15 2026] 127.0.0.1:58253 Closing
+[Tue Mar 10 11:47:16 2026] 127.0.0.1:58255 Accepted
+[Tue Mar 10 11:47:37 2026] 127.0.0.1:58255 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:47:37 2026] 127.0.0.1:58255 Closing
+[Tue Mar 10 11:47:37 2026] 127.0.0.1:58259 Accepted
+[Tue Mar 10 11:47:37 2026] 127.0.0.1:58260 Accepted
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58259 [200]: GET /modules/patient_management/symptom_checker.php
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58259 Closing
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58261 Accepted
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58260 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58262 Accepted
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58261 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58267 Accepted
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58262 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:47:39 2026] 127.0.0.1:58260 Closing
+[Tue Mar 10 11:47:40 2026] 127.0.0.1:58267 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:47:40 2026] 127.0.0.1:58267 Closing
+[Tue Mar 10 11:47:40 2026] 127.0.0.1:58268 Accepted
+[Tue Mar 10 11:47:40 2026] 127.0.0.1:58261 Closing
+[Tue Mar 10 11:47:40 2026] 127.0.0.1:58268 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123459
+[Tue Mar 10 11:47:40 2026] 127.0.0.1:58262 Closing
+[Tue Mar 10 11:47:40 2026] 127.0.0.1:58268 Closing
+[Tue Mar 10 11:47:41 2026] 127.0.0.1:58271 Accepted
+[Tue Mar 10 11:47:42 2026] 127.0.0.1:58271 [200]: GET /favicon.ico
+[Tue Mar 10 11:47:42 2026] 127.0.0.1:58271 Closing
+[Tue Mar 10 11:48:16 2026] 127.0.0.1:58275 Accepted
+[Tue Mar 10 11:48:16 2026] 127.0.0.1:58275 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:48:16 2026] 127.0.0.1:58275 Closing
+[Tue Mar 10 11:48:19 2026] 127.0.0.1:58278 Accepted
+[Tue Mar 10 11:48:19 2026] 127.0.0.1:58278 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:48:19 2026] 127.0.0.1:58278 Closing
+[Tue Mar 10 11:48:20 2026] 127.0.0.1:58281 Accepted
+[Tue Mar 10 11:48:21 2026] 127.0.0.1:58281 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Orthopedics
+[Tue Mar 10 11:48:21 2026] 127.0.0.1:58281 Closing
+[Tue Mar 10 11:49:52 2026] 127.0.0.1:58289 Accepted
+[Tue Mar 10 11:49:52 2026] 127.0.0.1:58289 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:49:52 2026] 127.0.0.1:58289 Closing
+[Tue Mar 10 11:49:54 2026] 127.0.0.1:58292 Accepted
+[Tue Mar 10 11:49:54 2026] 127.0.0.1:58292 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:49:54 2026] 127.0.0.1:58292 Closing
+[Tue Mar 10 11:49:57 2026] 127.0.0.1:58295 Accepted
+[Tue Mar 10 11:49:57 2026] 127.0.0.1:58295 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:49:57 2026] 127.0.0.1:58295 Closing
+[Tue Mar 10 11:49:57 2026] 127.0.0.1:58298 Accepted
+[Tue Mar 10 11:49:59 2026] 127.0.0.1:58298 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Gastroenterology
+[Tue Mar 10 11:49:59 2026] 127.0.0.1:58298 Closing
+[Tue Mar 10 11:51:17 2026] 127.0.0.1:58304 Accepted
+[Tue Mar 10 11:51:17 2026] 127.0.0.1:58304 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:51:17 2026] 127.0.0.1:58304 Closing
+[Tue Mar 10 11:51:37 2026] 127.0.0.1:58308 Accepted
+[Tue Mar 10 11:51:37 2026] 127.0.0.1:58308 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:51:37 2026] 127.0.0.1:58308 Closing
+[Tue Mar 10 11:51:39 2026] 127.0.0.1:58311 Accepted
+[Tue Mar 10 11:51:39 2026] 127.0.0.1:58311 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:51:39 2026] 127.0.0.1:58311 Closing
+[Tue Mar 10 11:51:39 2026] 127.0.0.1:58314 Accepted
+[Tue Mar 10 11:51:41 2026] 127.0.0.1:58314 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Gastroenterology
+[Tue Mar 10 11:51:41 2026] 127.0.0.1:58314 Closing
+[Tue Mar 10 11:51:53 2026] 127.0.0.1:58318 Accepted
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58318 [200]: GET /modules/ehr/book_appointment.php
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58318 Closing
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58319 Accepted
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58320 Accepted
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58319 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58321 Accepted
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58320 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58323 Accepted
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58321 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58319 Closing
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58323 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58320 Closing
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58321 Closing
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58323 Closing
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58324 Accepted
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58324 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123714
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58324 Closing
+[Tue Mar 10 11:51:55 2026] 127.0.0.1:58326 Accepted
+[Tue Mar 10 11:51:56 2026] 127.0.0.1:58326 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:51:56 2026] 127.0.0.1:58326 Closing
+[Tue Mar 10 11:51:56 2026] 127.0.0.1:58329 Accepted
+[Tue Mar 10 11:51:57 2026] 127.0.0.1:58329 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:51:57 2026] 127.0.0.1:58329 Closing
+[Tue Mar 10 11:51:58 2026] 127.0.0.1:58332 Accepted
+[Tue Mar 10 11:51:59 2026] 127.0.0.1:58332 [200]: GET /favicon.ico
+[Tue Mar 10 11:51:59 2026] 127.0.0.1:58332 Closing
+[Tue Mar 10 11:52:04 2026] 127.0.0.1:58335 Accepted
+[Tue Mar 10 11:52:06 2026] 127.0.0.1:58335 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:52:06 2026] 127.0.0.1:58335 Closing
+[Tue Mar 10 11:52:06 2026] 127.0.0.1:58338 Accepted
+[Tue Mar 10 11:52:07 2026] 127.0.0.1:58338 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:52:07 2026] 127.0.0.1:58338 Closing
+[Tue Mar 10 11:52:07 2026] 127.0.0.1:58341 Accepted
+[Tue Mar 10 11:52:08 2026] 127.0.0.1:58341 [200]: GET /favicon.ico
+[Tue Mar 10 11:52:08 2026] 127.0.0.1:58341 Closing
+[Tue Mar 10 11:52:11 2026] 127.0.0.1:58344 Accepted
+[Tue Mar 10 11:52:11 2026] 127.0.0.1:58344 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:52:11 2026] 127.0.0.1:58344 Closing
+[Tue Mar 10 11:52:13 2026] 127.0.0.1:58347 Accepted
+[Tue Mar 10 11:52:13 2026] 127.0.0.1:58347 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:52:13 2026] 127.0.0.1:58347 Closing
+[Tue Mar 10 11:52:13 2026] 127.0.0.1:58350 Accepted
+[Tue Mar 10 11:52:15 2026] 127.0.0.1:58350 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Orthopedics
+[Tue Mar 10 11:52:15 2026] 127.0.0.1:58350 Closing
+[Tue Mar 10 11:52:17 2026] 127.0.0.1:58353 Accepted
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58353 [200]: GET /modules/ehr/book_appointment.php
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58353 Closing
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58354 Accepted
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58355 Accepted
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58354 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58356 Accepted
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58355 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58358 Accepted
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58356 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58354 Closing
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58358 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58355 Closing
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58356 Closing
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58358 Closing
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58359 Accepted
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58359 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123739
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58359 Closing
+[Tue Mar 10 11:52:19 2026] 127.0.0.1:58361 Accepted
+[Tue Mar 10 11:52:20 2026] 127.0.0.1:58361 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:52:20 2026] 127.0.0.1:58361 Closing
+[Tue Mar 10 11:52:20 2026] 127.0.0.1:58364 Accepted
+[Tue Mar 10 11:52:21 2026] 127.0.0.1:58364 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:52:21 2026] 127.0.0.1:58364 Closing
+[Tue Mar 10 11:52:22 2026] 127.0.0.1:58367 Accepted
+[Tue Mar 10 11:52:23 2026] 127.0.0.1:58367 [200]: GET /favicon.ico
+[Tue Mar 10 11:52:23 2026] 127.0.0.1:58367 Closing
+[Tue Mar 10 11:52:38 2026] 127.0.0.1:58371 Accepted
+[Tue Mar 10 11:52:43 2026] 127.0.0.1:58371 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:52:43 2026] 127.0.0.1:58371 Closing
+[Tue Mar 10 11:52:43 2026] 127.0.0.1:58374 Accepted
+[Tue Mar 10 11:52:43 2026] 127.0.0.1:58375 Accepted
+[Tue Mar 10 11:52:43 2026] 127.0.0.1:58374 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:52:43 2026] 127.0.0.1:58376 Accepted
+[Tue Mar 10 11:52:45 2026] 127.0.0.1:58375 [200]: GET /modules/ehr/book_appointment.php
+[Tue Mar 10 11:52:45 2026] 127.0.0.1:58375 Closing
+[Tue Mar 10 11:52:45 2026] 127.0.0.1:58377 Accepted
+[Tue Mar 10 11:52:45 2026] 127.0.0.1:58376 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:52:45 2026] 127.0.0.1:58380 Accepted
+[Tue Mar 10 11:52:45 2026] 127.0.0.1:58374 Closing
+[Tue Mar 10 11:52:45 2026] 127.0.0.1:58377 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:52:45 2026] 127.0.0.1:58381 Accepted
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58380 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58380 Closing
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58383 Accepted
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58381 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58376 Closing
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58377 Closing
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58383 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123765
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58381 Closing
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58383 Closing
+[Tue Mar 10 11:52:47 2026] 127.0.0.1:58385 Accepted
+[Tue Mar 10 11:52:48 2026] 127.0.0.1:58385 [200]: GET /favicon.ico
+[Tue Mar 10 11:52:48 2026] 127.0.0.1:58385 Closing
+[Tue Mar 10 11:53:12 2026] 127.0.0.1:58392 Accepted
+[Tue Mar 10 11:53:13 2026] 127.0.0.1:58392 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:53:13 2026] 127.0.0.1:58392 Closing
+[Tue Mar 10 11:53:13 2026] 127.0.0.1:58395 Accepted
+[Tue Mar 10 11:53:14 2026] 127.0.0.1:58395 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:53:14 2026] 127.0.0.1:58395 Closing
+[Tue Mar 10 11:53:14 2026] 127.0.0.1:58399 Accepted
+[Tue Mar 10 11:53:16 2026] 127.0.0.1:58399 [200]: GET /favicon.ico
+[Tue Mar 10 11:53:16 2026] 127.0.0.1:58399 Closing
+[Tue Mar 10 11:54:58 2026] 127.0.0.1:58413 Accepted
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58413 [200]: GET /modules/patient_management/symptom_checker.php
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58413 Closing
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58415 Accepted
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58416 Accepted
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58415 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58417 Accepted
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58416 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58418 Accepted
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58417 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58415 Closing
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58418 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58416 Closing
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58417 Closing
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58418 Closing
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58419 Accepted
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58419 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123900
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58419 Closing
+[Tue Mar 10 11:55:00 2026] 127.0.0.1:58421 Accepted
+[Tue Mar 10 11:55:01 2026] 127.0.0.1:58421 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:55:01 2026] 127.0.0.1:58421 Closing
+[Tue Mar 10 11:55:01 2026] 127.0.0.1:58424 Accepted
+[Tue Mar 10 11:55:03 2026] 127.0.0.1:58424 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:55:03 2026] 127.0.0.1:58424 Closing
+[Tue Mar 10 11:55:03 2026] 127.0.0.1:58427 Accepted
+[Tue Mar 10 11:55:04 2026] 127.0.0.1:58427 [200]: GET /favicon.ico
+[Tue Mar 10 11:55:04 2026] 127.0.0.1:58427 Closing
+[Tue Mar 10 11:55:05 2026] 127.0.0.1:58430 Accepted
+[Tue Mar 10 11:55:05 2026] 127.0.0.1:58430 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:55:05 2026] 127.0.0.1:58430 Closing
+[Tue Mar 10 11:55:08 2026] 127.0.0.1:58433 Accepted
+[Tue Mar 10 11:55:08 2026] 127.0.0.1:58433 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:55:08 2026] 127.0.0.1:58433 Closing
+[Tue Mar 10 11:55:08 2026] 127.0.0.1:58436 Accepted
+[Tue Mar 10 11:55:09 2026] 127.0.0.1:58436 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Orthopedics
+[Tue Mar 10 11:55:10 2026] 127.0.0.1:58436 Closing
+[Tue Mar 10 11:55:12 2026] 127.0.0.1:58439 Accepted
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58439 [200]: GET /modules/ehr/book_appointment.php?doctor_id=0e61c04f-6796-47c5-bff7-f6cb25172b93&spec=Orthopedics
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58439 Closing
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58441 Accepted
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58442 Accepted
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58441 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58443 Accepted
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58442 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58444 Accepted
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58443 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58441 Closing
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58444 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58442 Closing
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58443 Closing
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58444 Closing
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58445 Accepted
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58445 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773123914
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58445 Closing
+[Tue Mar 10 11:55:14 2026] 127.0.0.1:58447 Accepted
+[Tue Mar 10 11:55:15 2026] 127.0.0.1:58447 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:55:15 2026] 127.0.0.1:58447 Closing
+[Tue Mar 10 11:55:15 2026] 127.0.0.1:58450 Accepted
+[Tue Mar 10 11:55:17 2026] 127.0.0.1:58450 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:55:17 2026] 127.0.0.1:58450 Closing
+[Tue Mar 10 11:55:17 2026] 127.0.0.1:58453 Accepted
+[Tue Mar 10 11:55:18 2026] 127.0.0.1:58453 [200]: GET /favicon.ico
+[Tue Mar 10 11:55:18 2026] 127.0.0.1:58453 Closing
+[Tue Mar 10 11:55:20 2026] 127.0.0.1:58456 Accepted
+[Tue Mar 10 11:55:22 2026] 127.0.0.1:58456 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:55:22 2026] 127.0.0.1:58456 Closing
+[Tue Mar 10 11:55:22 2026] 127.0.0.1:58459 Accepted
+[Tue Mar 10 11:55:23 2026] 127.0.0.1:58459 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:55:23 2026] 127.0.0.1:58459 Closing
+[Tue Mar 10 11:55:23 2026] 127.0.0.1:58462 Accepted
+[Tue Mar 10 11:55:24 2026] 127.0.0.1:58462 [200]: GET /favicon.ico
+[Tue Mar 10 11:55:24 2026] 127.0.0.1:58462 Closing
+[Tue Mar 10 11:56:22 2026] 127.0.0.1:58467 Accepted
+[Tue Mar 10 11:56:22 2026] 127.0.0.1:58467 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:56:22 2026] 127.0.0.1:58467 Closing
+[Tue Mar 10 11:57:44 2026] 127.0.0.1:58478 Accepted
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58478 [200]: GET /modules/patient_management/symptom_checker.php
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58478 Closing
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58479 Accepted
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58482 Accepted
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58479 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58483 Accepted
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58482 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58484 Accepted
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58483 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58479 Closing
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58484 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58482 Closing
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58483 Closing
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58484 Closing
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58485 Accepted
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58485 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773124069
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58485 Closing
+[Tue Mar 10 11:57:49 2026] 127.0.0.1:58487 Accepted
+[Tue Mar 10 11:57:50 2026] 127.0.0.1:58487 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:57:50 2026] 127.0.0.1:58487 Closing
+[Tue Mar 10 11:57:50 2026] 127.0.0.1:58490 Accepted
+[Tue Mar 10 11:57:51 2026] 127.0.0.1:58490 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:57:51 2026] 127.0.0.1:58490 Closing
+[Tue Mar 10 11:57:52 2026] 127.0.0.1:58493 Accepted
+[Tue Mar 10 11:57:53 2026] 127.0.0.1:58493 [200]: GET /favicon.ico
+[Tue Mar 10 11:57:53 2026] 127.0.0.1:58493 Closing
+[Tue Mar 10 11:59:04 2026] 127.0.0.1:58505 Accepted
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58505 [200]: GET /modules/patient_management/symptom_checker.php
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58505 Closing
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58507 Accepted
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58508 Accepted
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58507 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58509 Accepted
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58508 [200]: GET /assets/css/style.css
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58510 Accepted
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58509 [200]: GET /assets/js/main.js
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58507 Closing
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58510 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58508 Closing
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58509 Closing
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58510 Closing
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58511 Accepted
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58511 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773124146
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58511 Closing
+[Tue Mar 10 11:59:06 2026] 127.0.0.1:58513 Accepted
+[Tue Mar 10 11:59:08 2026] 127.0.0.1:58513 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 11:59:08 2026] 127.0.0.1:58513 Closing
+[Tue Mar 10 11:59:08 2026] 127.0.0.1:58516 Accepted
+[Tue Mar 10 11:59:09 2026] 127.0.0.1:58516 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 11:59:09 2026] 127.0.0.1:58516 Closing
+[Tue Mar 10 11:59:09 2026] 127.0.0.1:58519 Accepted
+[Tue Mar 10 11:59:10 2026] 127.0.0.1:58519 [200]: GET /favicon.ico
+[Tue Mar 10 11:59:10 2026] 127.0.0.1:58519 Closing
+[Tue Mar 10 11:59:10 2026] 127.0.0.1:58522 Accepted
+[Tue Mar 10 11:59:10 2026] 127.0.0.1:58522 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:59:10 2026] 127.0.0.1:58522 Closing
+[Tue Mar 10 11:59:14 2026] 127.0.0.1:58525 Accepted
+[Tue Mar 10 11:59:14 2026] 127.0.0.1:58525 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:59:14 2026] 127.0.0.1:58525 Closing
+[Tue Mar 10 11:59:15 2026] 127.0.0.1:58528 Accepted
+[Tue Mar 10 11:59:16 2026] 127.0.0.1:58528 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=General%20Medicine
+[Tue Mar 10 11:59:16 2026] 127.0.0.1:58528 Closing
+[Tue Mar 10 11:59:42 2026] 127.0.0.1:58531 Accepted
+[Tue Mar 10 11:59:42 2026] 127.0.0.1:58531 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:59:42 2026] 127.0.0.1:58531 Closing
+[Tue Mar 10 11:59:45 2026] 127.0.0.1:58534 Accepted
+[Tue Mar 10 11:59:45 2026] 127.0.0.1:58534 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 11:59:45 2026] 127.0.0.1:58534 Closing
+[Tue Mar 10 11:59:45 2026] 127.0.0.1:58537 Accepted
+[Tue Mar 10 11:59:46 2026] 127.0.0.1:58537 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=General%20Medicine
+[Tue Mar 10 11:59:46 2026] 127.0.0.1:58537 Closing
+[Tue Mar 10 12:00:48 2026] 127.0.0.1:58542 Accepted
+[Tue Mar 10 12:00:48 2026] 127.0.0.1:58542 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 12:00:48 2026] 127.0.0.1:58542 Closing
+[Tue Mar 10 12:00:55 2026] 127.0.0.1:58547 Accepted
+[Tue Mar 10 12:00:55 2026] 127.0.0.1:58547 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 12:00:55 2026] 127.0.0.1:58547 Closing
+[Tue Mar 10 12:00:55 2026] 127.0.0.1:58550 Accepted
+[Tue Mar 10 12:00:56 2026] 127.0.0.1:58550 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Orthopedics
+[Tue Mar 10 12:00:56 2026] 127.0.0.1:58550 Closing
+[Tue Mar 10 12:01:58 2026] 127.0.0.1:58559 Accepted
+[Tue Mar 10 12:01:58 2026] 127.0.0.1:58559 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 12:01:58 2026] 127.0.0.1:58559 Closing
+[Tue Mar 10 12:02:27 2026] 127.0.0.1:58570 Accepted
+[Tue Mar 10 12:02:27 2026] 127.0.0.1:58570 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 12:02:27 2026] 127.0.0.1:58570 Closing
+[Tue Mar 10 12:02:27 2026] 127.0.0.1:58573 Accepted
+[Tue Mar 10 12:02:29 2026] 127.0.0.1:58573 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Orthopedics
+[Tue Mar 10 12:02:29 2026] 127.0.0.1:58573 Closing
+[Tue Mar 10 19:06:32 2026] 127.0.0.1:59662 Accepted
+[Tue Mar 10 19:06:34 2026] 127.0.0.1:59662 [302]: GET /modules/patient_management/symptom_checker.php
+[Tue Mar 10 19:06:34 2026] 127.0.0.1:59662 Closing
+[Tue Mar 10 19:06:34 2026] 127.0.0.1:59664 Accepted
+[Tue Mar 10 19:06:34 2026] 127.0.0.1:59664 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 19:06:34 2026] 127.0.0.1:59664 Closing
+[Tue Mar 10 19:06:34 2026] 127.0.0.1:59666 Accepted
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59666 [200]: GET /index.php?error=session_expired
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59666 Closing
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59668 Accepted
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59668 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59668 Closing
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59670 Accepted
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59670 [200]: GET /assets/css/login_style.css
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59671 Accepted
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59670 Closing
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59671 [200]: GET /assets/images/doctor_3d.png
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59671 Closing
+[Tue Mar 10 19:06:35 2026] 127.0.0.1:59673 Accepted
+[Tue Mar 10 19:06:36 2026] 127.0.0.1:59673 [302]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 19:06:36 2026] 127.0.0.1:59673 Closing
+[Tue Mar 10 19:06:36 2026] 127.0.0.1:59676 Accepted
+[Tue Mar 10 19:06:38 2026] 127.0.0.1:59676 [200]: GET /index.php?error=session_expired
+[Tue Mar 10 19:06:38 2026] 127.0.0.1:59676 Closing
+[Tue Mar 10 19:06:38 2026] 127.0.0.1:59679 Accepted
+[Tue Mar 10 19:06:39 2026] 127.0.0.1:59679 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 19:06:39 2026] 127.0.0.1:59679 Closing
+[Tue Mar 10 19:06:39 2026] 127.0.0.1:59682 Accepted
+[Tue Mar 10 19:06:41 2026] 127.0.0.1:59682 [200]: GET /favicon.ico
+[Tue Mar 10 19:06:41 2026] 127.0.0.1:59682 Closing
+[Tue Mar 10 19:06:41 2026] 127.0.0.1:59685 Accepted
+[Tue Mar 10 19:06:43 2026] 127.0.0.1:59685 [302]: POST /index.php?error=session_expired
+[Tue Mar 10 19:06:43 2026] 127.0.0.1:59685 Closing
+[Tue Mar 10 19:06:43 2026] 127.0.0.1:59687 Accepted
+[Tue Mar 10 19:06:43 2026] 127.0.0.1:59687 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 19:06:43 2026] 127.0.0.1:59687 Closing
+[Tue Mar 10 19:06:43 2026] 127.0.0.1:59689 Accepted
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59689 [200]: GET /dashboards/patient_dashboard.php
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59689 Closing
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59691 Accepted
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59692 Accepted
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59691 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59693 Accepted
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59692 [200]: GET /assets/css/style.css
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59694 Accepted
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59693 [200]: GET /assets/js/main.js
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59691 Closing
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59694 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59692 Closing
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59693 Closing
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59694 Closing
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59695 Accepted
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59695 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773149804
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59695 Closing
+[Tue Mar 10 19:06:47 2026] 127.0.0.1:59697 Accepted
+[Tue Mar 10 19:06:48 2026] 127.0.0.1:59697 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 19:06:48 2026] 127.0.0.1:59697 Closing
+[Tue Mar 10 19:06:48 2026] 127.0.0.1:59699 Accepted
+[Tue Mar 10 19:06:48 2026] 127.0.0.1:59701 Accepted
+[Tue Mar 10 19:06:49 2026] 127.0.0.1:59699 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 19:06:49 2026] 127.0.0.1:59699 Closing
+[Tue Mar 10 19:06:49 2026] 127.0.0.1:59702 Accepted
+[Tue Mar 10 19:06:51 2026] 127.0.0.1:59701 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 19:06:51 2026] 127.0.0.1:59701 Closing
+[Tue Mar 10 19:06:51 2026] 127.0.0.1:59705 Accepted
+[Tue Mar 10 19:06:52 2026] 127.0.0.1:59702 [200]: GET /favicon.ico
+[Tue Mar 10 19:06:52 2026] 127.0.0.1:59702 Closing
+[Tue Mar 10 19:06:52 2026] 127.0.0.1:59709 Accepted
+[Tue Mar 10 19:06:53 2026] 127.0.0.1:59705 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 19:06:53 2026] 127.0.0.1:59705 Closing
+[Tue Mar 10 19:06:53 2026] 127.0.0.1:59710 Accepted
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59709 [200]: GET /modules/patient_management/symptom_checker.php
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59709 Closing
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59711 Accepted
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59710 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59712 Accepted
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59711 [200]: GET /assets/css/style.css
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59716 Accepted
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59712 [200]: GET /assets/js/main.js
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59717 Accepted
+[Tue Mar 10 19:06:55 2026] 127.0.0.1:59710 Closing
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59716 [200]: GET /favicon.ico
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59716 Closing
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59719 Accepted
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59711 Closing
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59717 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59719 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773149815
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59712 Closing
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59717 Closing
+[Tue Mar 10 19:06:56 2026] 127.0.0.1:59719 Closing
+[Tue Mar 10 19:07:02 2026] 127.0.0.1:59721 Accepted
+[Tue Mar 10 19:07:02 2026] 127.0.0.1:59721 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 19:07:02 2026] 127.0.0.1:59721 Closing
+[Tue Mar 10 19:07:05 2026] 127.0.0.1:59725 Accepted
+[Tue Mar 10 19:07:05 2026] 127.0.0.1:59725 [200]: POST /modules/patient_management/api_symptom_chat.php
+[Tue Mar 10 19:07:05 2026] 127.0.0.1:59725 Closing
+[Tue Mar 10 19:07:05 2026] 127.0.0.1:59728 Accepted
+[Tue Mar 10 19:07:07 2026] 127.0.0.1:59728 [200]: GET /modules/patient_management/api_suggest_doctors.php?specialization=Gastroenterology
+[Tue Mar 10 19:07:07 2026] 127.0.0.1:59728 Closing
+[Tue Mar 10 19:07:53 2026] 127.0.0.1:59732 Accepted
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59732 [200]: GET /modules/ehr/book_appointment.php?doctor_id=589a6dc3-5e69-4ec8-a720-bd747500cafa&spec=Gastroenterology
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59732 Closing
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59734 Accepted
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59735 Accepted
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59734 [200]: GET /firebase-messaging-sw.js
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59736 Accepted
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59735 [200]: GET /assets/css/style.css
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59737 Accepted
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59736 [200]: GET /assets/js/main.js
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59734 Closing
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59737 [200]: GET /assets/js/fcm_init.js
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59735 Closing
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59736 Closing
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59737 Closing
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59738 Accepted
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59738 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773149875
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59738 Closing
+[Tue Mar 10 19:07:55 2026] 127.0.0.1:59740 Accepted
+[Tue Mar 10 19:07:57 2026] 127.0.0.1:59740 [200]: GET /apple-touch-icon-precomposed.png
+[Tue Mar 10 19:07:57 2026] 127.0.0.1:59740 Closing
+[Tue Mar 10 19:07:57 2026] 127.0.0.1:59743 Accepted
+[Tue Mar 10 19:07:58 2026] 127.0.0.1:59743 [200]: GET /apple-touch-icon.png
+[Tue Mar 10 19:07:58 2026] 127.0.0.1:59743 Closing
+[Tue Mar 10 19:07:58 2026] 127.0.0.1:59746 Accepted
+[Tue Mar 10 19:07:59 2026] 127.0.0.1:59746 [200]: GET /favicon.ico
+[Tue Mar 10 19:07:59 2026] 127.0.0.1:59746 Closing
+[Wed Mar 11 10:41:25 2026] 127.0.0.1:65055 Accepted
+[Wed Mar 11 10:41:26 2026] 127.0.0.1:65055 [302]: GET /dashboards/patient_dashboard.php
+[Wed Mar 11 10:41:26 2026] 127.0.0.1:65055 Closing
+[Wed Mar 11 10:41:26 2026] 127.0.0.1:65057 Accepted
+[Wed Mar 11 10:41:26 2026] 127.0.0.1:65057 [200]: GET /firebase-messaging-sw.js
+[Wed Mar 11 10:41:26 2026] 127.0.0.1:65057 Closing
+[Wed Mar 11 10:41:26 2026] 127.0.0.1:65059 Accepted
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65059 [200]: GET /index.php?error=session_expired
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65059 Closing
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65061 Accepted
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65061 [200]: GET /firebase-messaging-sw.js
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65061 Closing
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65063 Accepted
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65063 [200]: GET /assets/css/login_style.css
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65064 Accepted
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65063 Closing
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65064 [200]: GET /assets/images/doctor_3d.png
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65064 Closing
+[Wed Mar 11 10:41:28 2026] 127.0.0.1:65066 Accepted
+[Wed Mar 11 10:41:29 2026] 127.0.0.1:65066 [302]: GET /apple-touch-icon-precomposed.png
+[Wed Mar 11 10:41:29 2026] 127.0.0.1:65066 Closing
+[Wed Mar 11 10:41:29 2026] 127.0.0.1:65069 Accepted
+[Wed Mar 11 10:41:30 2026] 127.0.0.1:65069 [200]: GET /index.php?error=session_expired
+[Wed Mar 11 10:41:30 2026] 127.0.0.1:65069 Closing
+[Wed Mar 11 10:41:30 2026] 127.0.0.1:65072 Accepted
+[Wed Mar 11 10:41:32 2026] 127.0.0.1:65072 [200]: GET /apple-touch-icon.png
+[Wed Mar 11 10:41:32 2026] 127.0.0.1:65072 Closing
+[Wed Mar 11 10:41:32 2026] 127.0.0.1:65075 Accepted
+[Wed Mar 11 10:41:33 2026] 127.0.0.1:65075 [200]: GET /favicon.ico
+[Wed Mar 11 10:41:33 2026] 127.0.0.1:65075 Closing
+[Wed Mar 11 10:41:33 2026] 127.0.0.1:65078 Accepted
+[Wed Mar 11 10:41:33 2026] 127.0.0.1:65079 Accepted
+[Wed Mar 11 10:41:35 2026] 127.0.0.1:65078 [302]: POST /index.php?error=session_expired
+[Wed Mar 11 10:41:35 2026] 127.0.0.1:65078 Closing
+[Wed Mar 11 10:41:35 2026] 127.0.0.1:65079 [200]: GET /firebase-messaging-sw.js
+[Wed Mar 11 10:41:35 2026] 127.0.0.1:65079 Closing
+[Wed Mar 11 10:41:35 2026] 127.0.0.1:65082 Accepted
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65082 [200]: GET /dashboards/patient_dashboard.php
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65082 Closing
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65084 Accepted
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65085 Accepted
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65084 [200]: GET /firebase-messaging-sw.js
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65086 Accepted
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65085 [200]: GET /assets/css/style.css
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65087 Accepted
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65086 [200]: GET /assets/js/main.js
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65084 Closing
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65087 [200]: GET /assets/js/fcm_init.js
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65085 Closing
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65086 Closing
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65087 Closing
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65088 Accepted
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65088 [200]: GET /assets/uploads/profiles/profile_768cbece-9b6d-4429-b10e-238aaadf575a.jpeg?t=1773205896
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65088 Closing
+[Wed Mar 11 10:41:38 2026] 127.0.0.1:65090 Accepted
+[Wed Mar 11 10:41:39 2026] 127.0.0.1:65090 [200]: GET /apple-touch-icon-precomposed.png
+[Wed Mar 11 10:41:39 2026] 127.0.0.1:65090 Closing
+[Wed Mar 11 10:41:39 2026] 127.0.0.1:65092 Accepted
+[Wed Mar 11 10:41:39 2026] 127.0.0.1:65093 Accepted
+[Wed Mar 11 10:41:40 2026] 127.0.0.1:65092 [200]: GET /apple-touch-icon-precomposed.png
+[Wed Mar 11 10:41:40 2026] 127.0.0.1:65092 Closing
+[Wed Mar 11 10:41:40 2026] 127.0.0.1:65094 Accepted
+[Wed Mar 11 10:41:42 2026] 127.0.0.1:65093 [200]: GET /apple-touch-icon.png
+[Wed Mar 11 10:41:42 2026] 127.0.0.1:65093 Closing
+[Wed Mar 11 10:41:42 2026] 127.0.0.1:65098 Accepted
+[Wed Mar 11 10:41:43 2026] 127.0.0.1:65094 [200]: GET /favicon.ico
+[Wed Mar 11 10:41:43 2026] 127.0.0.1:65094 Closing
+[Wed Mar 11 10:41:44 2026] 127.0.0.1:65098 [200]: GET /apple-touch-icon.png
+[Wed Mar 11 10:41:44 2026] 127.0.0.1:65098 Closing
+[Wed Mar 11 10:41:44 2026] 127.0.0.1:65103 Accepted
+[Wed Mar 11 10:41:46 2026] 127.0.0.1:65103 [200]: GET /favicon.ico
+[Wed Mar 11 10:41:46 2026] 127.0.0.1:65103 Closing

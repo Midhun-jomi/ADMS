@@ -2,12 +2,13 @@
 // includes/db.php
 date_default_timezone_set('Asia/Kolkata'); // Ensure consistent timezone
 
+require_once __DIR__ . '/secrets.php';
 
-$host     = 'aws-1-ap-southeast-2.pooler.supabase.com';
-$port     = '5432';
-$dbname   = 'postgres';
-$user     = 'postgres.rmxquvqwzskridfqbdws';
-$password = 'Sijomidhun1';   // same as in Supabase
+$host     = DB_HOST;
+$port     = DB_PORT;
+$dbname   = DB_NAME;
+$user     = DB_USER;
+$password = DB_PASSWORD;
 
 // Supabase needs SSL
 $connString = "host=$host port=$port dbname=$dbname user=$user password=$password sslmode=require connect_timeout=10";

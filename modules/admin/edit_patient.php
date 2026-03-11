@@ -27,38 +27,42 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $blood_group = $_POST['blood_group'];
-    $gender = $_POST['gender'];
-    $dob = $_POST['date_of_birth'];
-    $address = $_POST['address'];
-    
-    try {
-        // Update Patient Table
-        db_update('patients', [
-            'first_name' => $first_name,
-            'last_name' => $last_name,
-            'phone' => $phone,
-            'blood_group' => $blood_group,
-            'gender' => $gender,
-            'date_of_birth' => $dob,
-            'address' => $address
-        ], ['id' => $id]);
-        
-        // Update Users Table (Email)
-        db_update('users', [
-            'email' => $email
-        ], ['id' => $patient['user_id']]);
-        
-        $success = "Patient details updated successfully.";
-        // Refresh data
-        $patient = db_select_one("SELECT p.*, u.email FROM patients p JOIN users u ON p.user_id = u.id WHERE p.id = $1", [$id]);
-        
-    } catch (Exception $e) {
-        $error = "Update failed: " . $e->getMessage();
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $email = $_POST['email'];
+        $phone = $_POST['phone'];
+        $blood_group = $_POST['blood_group'];
+        $gender = $_POST['gender'];
+        $dob = $_POST['date_of_birth'];
+        $address = $_POST['address'];
+
+        try {
+            // Update Patient Table
+            db_update('patients', [
+                'first_name' => $first_name,
+                'last_name' => $last_name,
+                'phone' => $phone,
+                'blood_group' => $blood_group,
+                'gender' => $gender,
+                'date_of_birth' => $dob,
+                'address' => $address
+            ], ['id' => $id]);
+
+            // Update Users Table (Email)
+            db_update('users', [
+                'email' => $email
+            ], ['id' => $patient['user_id']]);
+
+            $success = "Patient details updated successfully.";
+            // Refresh data
+            $patient = db_select_one("SELECT p.*, u.email FROM patients p JOIN users u ON p.user_id = u.id WHERE p.id = $1", [$id]);
+
+        } catch (Exception $e) {
+            $error = "Update failed: " . $e->getMessage();
+        }
     }
 }
 ?>
@@ -73,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php if ($error): ?><div class="alert alert-danger"><?php echo $error; ?></div><?php endif; ?>
 
         <form method="POST" action="">
+            <?php echo csrf_input(); ?>
             <div style="display: flex; gap: 20px;">
                 <div style="flex: 1;">
                     <div class="form-group">

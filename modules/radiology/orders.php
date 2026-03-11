@@ -15,6 +15,9 @@ $success = '';
 
 // Handle New Order (Doctor Only)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $patient_id = $_POST['patient_id'];
     $report_type = $_POST['report_type'];
     
@@ -35,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
             $error = "Failed to order scan: " . $e->getMessage();
         }
     }
+    } // end CSRF check
 }
 
 // Fetch Orders
@@ -75,6 +79,7 @@ $pre_patient_id = $_GET['patient_id'] ?? '';
         <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
             <h5>Order New Scan</h5>
             <form method="POST" action="" style="display: flex; gap: 10px; align-items: flex-end;">
+                <?php echo csrf_input(); ?>
                 <div style="flex: 1;">
                     <label>Patient ID</label>
                     <input type="text" name="patient_id" class="form-control" value="<?php echo htmlspecialchars($pre_patient_id); ?>" required placeholder="UUID">

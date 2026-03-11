@@ -5,59 +5,98 @@ require_once '../includes/auth_session.php';
 
 $error = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
+// --- Rate Limiting: max 5 failed attempts, 15-minute lockout ---
+if (!isset($_SESSION['login_attempts'])) {
+    $_SESSION['login_attempts'] = 0;
+}
+if (!isset($_SESSION['lockout_time'])) {
+    $_SESSION['lockout_time'] = 0;
+}
 
-    $user = db_select_one("SELECT * FROM users WHERE email = $1", [$email]);
-
-    if ($user && password_verify($password, $user['password_hash'])) {
-        // Login Success
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['role'] = strtolower($user['role']); // Normalize to lowercase
-        $_SESSION['email'] = $user['email'];
-
-        // Network Data
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $ua = $_SERVER['HTTP_USER_AGENT'];
-
-        // Log Success with Device Data
-        log_audit($user['id'], 'LOGIN_SUCCESS', json_encode([
-            'message' => 'User logged in successfully.',
-            'ip' => $ip,
-            'browser' => $ua
-        ]));
-
-        // Update Staff status to Active
-        // Check if user is staff before updating
-        $is_staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$user['id']]);
-        if ($is_staff) {
-            db_update('staff', ['status' => 'active'], ['user_id' => $user['id']]);
-        }
-
-        // Small delay to ensure DB propagation
-        usleep(100000); 
-
-        // Redirect based on role
-        if ($user['role'] === 'nurse') {
-            header("Location: ../modules/patient_management/nursing_station.php");
-        } elseif ($user['role'] === 'head_nurse') {
-            header("Location: ../modules/admin/nurse_allocation.php");
-        } else {
-            header("Location: ../dashboards/" . $user['role'] . "_dashboard.php");
-        }
-        exit();
+$is_locked_out = false;
+if ($_SESSION['login_attempts'] >= 5) {
+    $seconds_since_lockout = time() - $_SESSION['lockout_time'];
+    if ($seconds_since_lockout < 900) { // 15 minutes
+        $is_locked_out = true;
+        $remaining = ceil((900 - $seconds_since_lockout) / 60);
+        $error = "Too many failed attempts. Please try again in $remaining minute(s).";
     } else {
-        // Log Failure with Device Data
-        $target_user_id = $user ? $user['id'] : null;
-        log_audit($target_user_id, 'LOGIN_FAILED', json_encode([
-            'attempted_email' => $email,
-            'reason' => 'Invalid credentials',
-            'ip' => $_SERVER['REMOTE_ADDR'],
-            'browser' => $_SERVER['HTTP_USER_AGENT']
-        ]));
-        
-        $error = "Invalid email or password.";
+        // Lockout expired — reset
+        $_SESSION['login_attempts'] = 0;
+        $_SESSION['lockout_time'] = 0;
+    }
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !$is_locked_out) {
+
+    // --- CSRF Verification ---
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh the page and try again.";
+    } else {
+        $email = trim($_POST['email']);
+        $password = $_POST['password'];
+
+        $user = db_select_one("SELECT * FROM users WHERE email = $1", [$email]);
+
+        if ($user && password_verify($password, $user['password_hash'])) {
+            // Login Success — reset rate limit counter
+            $_SESSION['login_attempts'] = 0;
+            $_SESSION['lockout_time'] = 0;
+
+            // Regenerate session ID to prevent session fixation
+            regenerate_session();
+
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = strtolower($user['role']); // Normalize to lowercase
+            $_SESSION['email'] = $user['email'];
+
+            // Network Data
+            $ip = $_SERVER['REMOTE_ADDR'];
+            $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+
+            // Log Success
+            log_audit($user['id'], 'LOGIN_SUCCESS', json_encode([
+                'message' => 'User logged in successfully.',
+                'ip' => $ip,
+                'browser' => $ua
+            ]));
+
+            // Update Staff status to Active
+            $is_staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$user['id']]);
+            if ($is_staff) {
+                db_update('staff', ['status' => 'active'], ['user_id' => $user['id']]);
+            }
+
+            // Small delay to ensure DB propagation
+            usleep(100000);
+
+            // Redirect based on role
+            if ($user['role'] === 'nurse') {
+                header("Location: ../modules/patient_management/nursing_station.php");
+            } elseif ($user['role'] === 'head_nurse') {
+                header("Location: ../modules/admin/nurse_allocation.php");
+            } else {
+                header("Location: ../dashboards/" . $user['role'] . "_dashboard.php");
+            }
+            exit();
+        } else {
+            // Failed login — increment counter
+            $_SESSION['login_attempts']++;
+            if ($_SESSION['login_attempts'] >= 5) {
+                $_SESSION['lockout_time'] = time();
+            }
+
+            // Log Failure
+            $target_user_id = $user ? $user['id'] : null;
+            log_audit($target_user_id, 'LOGIN_FAILED', json_encode([
+                'attempted_email' => $email,
+                'reason' => 'Invalid credentials',
+                'ip' => $_SERVER['REMOTE_ADDR'],
+                'browser' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+            ]));
+
+            $error = "Invalid email or password.";
+        }
     }
 }
 ?>
@@ -87,67 +126,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             max-width: 400px;
             text-align: center;
         }
-        .login-header h2 {
-            margin: 0;
-            color: #1a202c;
-            font-weight: 800;
-        }
-        .login-header p {
-            color: #718096;
-            margin-bottom: 30px;
-        }
-        .form-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #4a5568;
-            font-size: 0.9em;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.2s;
-            box-sizing: border-box;
-        }
-        input:focus {
-            border-color: #667eea;
-            outline: none;
-        }
-        button {
-            width: 100%;
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover {
-            background: #5a67d8;
-        }
-        .alert {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-        }
-        a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
+        .login-header h2 { margin: 0; color: #1a202c; font-weight: 800; }
+        .login-header p { color: #718096; margin-bottom: 30px; }
+        .form-group { text-align: left; margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; font-size: 0.9em; }
+        input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: all 0.2s; box-sizing: border-box; }
+        input:focus { border-color: #667eea; outline: none; }
+        button { width: 100%; background: #667eea; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #5a67d8; }
+        button:disabled { background: #a0aec0; cursor: not-allowed; }
+        .alert { background: #fed7d7; color: #c53030; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9em; }
+        a { color: #667eea; text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -162,20 +151,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
 
         <form method="POST" action="">
+            <?php echo csrf_input(); ?>
+
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="name@example.com">
+                <input type="email" id="email" name="email" required placeholder="name@example.com" <?php echo $is_locked_out ? 'disabled' : ''; ?>>
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="••••••••">
+                <input type="password" id="password" name="password" required placeholder="••••••••" <?php echo $is_locked_out ? 'disabled' : ''; ?>>
             </div>
 
-            <button type="submit">Log In</button>
+            <button type="submit" <?php echo $is_locked_out ? 'disabled' : ''; ?>>Log In</button>
         </form>
 
-        <p style="margin-top: 20px; font-size: 0.9em; color: #718096;">
+        <p style="margin-top: 15px; font-size: 0.85em;">
+            <a href="forgot_password.php">Forgot password?</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 0.9em; color: #718096;">
             New to Hospital+? <a href="../index.php">Create Patient Account</a>
         </p>
     </div>

@@ -13,42 +13,29 @@ $success = $_GET['success'] ?? '';
 
 // Handle Prescription (Doctor)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $role === 'doctor') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $patient_id = $_POST['patient_id'];
-    $medication_details = $_POST['medication_details']; // JSON string or array
-    
-    // Simplified: We assume medication_details is a JSON string of [{name, qty, dosage}]
-    // For this demo, we'll just take a text input and wrap it
     $meds = [
-        ['name' => $_POST['med_name'], 'quantity' => $_POST['med_qty'], 'dosage' => $_POST['med_dosage']]
+        ['name' => $_POST['med_name'], 'quantity' => (int)$_POST['med_qty'], 'dosage' => $_POST['med_dosage']]
     ];
-    
+
+    $staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [get_user_id()]);
     $data = [
         'patient_id' => $patient_id,
-        'doctor_id' => get_user_id(), // This should be staff ID, but for simplicity using user_id or need lookup
-        // Fix: Lookup staff ID
+        'doctor_id' => $staff['id'],
         'medication_details' => json_encode($meds)
     ];
-    
-    // Need appointment_id? Schema says yes. Let's make it optional or nullable in schema? 
-    // Schema: appointment_id UUID REFERENCES appointments(id) ON DELETE CASCADE
-    // It's a foreign key. We need an appointment. 
-    // For now, let's assume we are coming from an appointment context or pass it in hidden field.
-    // If standalone prescription, we might need to adjust schema or create a dummy appointment.
-    // Let's assume passed in URL or POST.
-    
+
     $appointment_id = $_POST['appointment_id'] ?? null;
-    
-    // Get staff ID
-    $staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [get_user_id()]);
-    $data['doctor_id'] = $staff['id'];
-    
-    // Optional Appointment ID
     if ($appointment_id) {
         $data['appointment_id'] = $appointment_id;
     }
-    
+
     db_insert('prescriptions', $data);
     $success = "Prescription created.";
+    } // end CSRF check
 }
 
 // Fetch Prescriptions
@@ -100,6 +87,7 @@ $prescriptions = db_select("SELECT pr.*, p.first_name, p.last_name
 
             <h5>Prescribe Medication</h5>
             <form method="POST" action="" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                <?php echo csrf_input(); ?>
                 <div style="flex: 1; min-width: 200px;">
                     <label>Patient</label>
                     <select name="patient_id" class="form-control" required onchange="window.location.search = '?patient_id=' + this.value">
@@ -131,7 +119,7 @@ $prescriptions = db_select("SELECT pr.*, p.first_name, p.last_name
                     <input type="text" name="med_dosage" class="form-control" placeholder="e.g. 1-0-1" required>
                 </div>
                 <!-- Hidden Appointment ID if available -->
-                <input type="hidden" name="appointment_id" value="<?php echo $_GET['appointment_id'] ?? ''; ?>">
+                <input type="hidden" name="appointment_id" value="<?php echo htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
                 
                 <button type="submit" class="btn btn-primary">Prescribe</button>
             </form>
@@ -165,6 +153,7 @@ $prescriptions = db_select("SELECT pr.*, p.first_name, p.last_name
                     <td style="padding: 10px; white-space: nowrap; width: 1%; text-align: center;">
                         <?php if ($role !== 'doctor'): ?>
                             <form method="POST" action="process_dispense.php" onsubmit="return confirm('Dispense medications and generate bill?');">
+                                <?php echo csrf_input(); ?>
                                 <input type="hidden" name="prescription_id" value="<?php echo $rx['id']; ?>">
                                 <button type="submit" class="btn btn-sm" style="background: #28a745; color: white;">Dispense</button>
                             </form>

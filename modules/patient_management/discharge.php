@@ -25,6 +25,9 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid request. Please refresh and try again.";
+    } else {
     $summary = $_POST['summary'];
     $instructions = $_POST['instructions'];
     
@@ -48,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         db_query("ROLLBACK");
         $error = "Error: " . $e->getMessage();
     }
+    } // end CSRF check
 }
 
 $page_title = "Discharge Patient";
@@ -77,6 +81,7 @@ include '../../includes/header.php';
     <?php endif; ?>
 
     <form method="POST" action="">
+        <?php echo csrf_input(); ?>
         <div class="form-group">
             <label>Clinical Summary & Treatment Given</label>
             <textarea name="summary" class="form-control" rows="6" required placeholder="Detailed summary of hospital stay..."></textarea>

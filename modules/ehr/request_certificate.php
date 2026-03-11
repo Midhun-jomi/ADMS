@@ -99,8 +99,6 @@ if ($role === 'patient') {
                             <select name="type" id="type" class="form-control" required style="padding-left: 35px; height: 45px; border-radius: 8px;">
                                 <option value="">-- Select Document --</option>
                                 <option value="Medical Certificate">Medical Certificate</option>
-                                <option value="Birth Certificate">Birth Certificate</option>
-                                <option value="Death Certificate">Death Certificate</option>
                                 <option value="Fitness Certificate">Fitness Certificate</option>
                             </select>
                         </div>

@@ -14,11 +14,11 @@ use PHPMailer\PHPMailer\Exception;
  * @return bool True on success, false on failure
  */
 function send_email_smtp($to, $subject, $body) {
-    // You should move these credentials to a secure config file or .env in production
-    $smtp_host = 'smtp.gmail.com';
-    $smtp_username = 'mjcmidhun@gmail.com'; // Replace with a real Gmail address
-    $smtp_password = 'inwhhxkomklikjzl'; // Replace with an App Password (not the main password)
-    $smtp_port = 587; // TLS port
+    require_once __DIR__ . '/secrets.php';
+    $smtp_host     = SMTP_HOST;
+    $smtp_username = SMTP_USERNAME;
+    $smtp_password = SMTP_PASSWORD;
+    $smtp_port     = SMTP_PORT;
     
     $mail = new PHPMailer(true);
 
