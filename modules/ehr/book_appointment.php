@@ -13,8 +13,11 @@ $success = '';
 // Fetch doctors
 $doctors = db_select("SELECT id, first_name, last_name, specialization FROM staff WHERE role = 'doctor'");
 
-// Extract unique specializations
-$specializations = array_unique(array_column($doctors, 'specialization'));
+// Extract unique specializations, filtered to valid medical specializations only
+require_once '../../includes/specializations.php';
+$valid_specializations = get_specializations();
+$raw_specializations = array_unique(array_column($doctors, 'specialization'));
+$specializations = array_values(array_filter($raw_specializations, fn($s) => in_array($s, $valid_specializations)));
 sort($specializations);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -37,6 +40,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (strtotime($appointment_time) < time()) {
             $error = "Cannot book an appointment in the past. Please select a future date and time.";
         } else {
+            // Check doctor has an approved leave on that date
+            $appt_date = date('Y-m-d', strtotime($appointment_time));
+            $av_check  = db_select_one(
+                "SELECT is_available, unavailability_type FROM doctor_availability
+                 WHERE doctor_id = $1 AND available_date = $2 AND approval_status = 'approved'",
+                [$doctor_id, $appt_date]
+            );
+            if ($av_check && ($av_check['is_available'] === 'f' || $av_check['is_available'] === false)) {
+                $type  = ucfirst($av_check['unavailability_type'] ?? 'leave');
+                $error = "This doctor is on $type on the selected date. Please choose another date.";
+            }
+        }
+        if (empty($error)) {
             // Check if Doctor is booked
             $existing = db_select_one("SELECT id FROM appointments WHERE doctor_id = $1 AND appointment_time = $2 AND status = 'scheduled'", [$doctor_id, $appointment_time]);
             
@@ -141,9 +157,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <form id="bookingForm" method="POST" action="">
         <!-- Specialization -->
-        <div class="form-group">
+        <div class="form-group" style="position:relative;">
             <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">Select Specialization</label>
-            <select id="specialization" class="form-control" onchange="filterDoctors()" style="height: 45px; border-radius: 8px; border: 1px solid #ddd;">
+            <input type="text" id="spec-search" placeholder="Type to filter by specialization..." autocomplete="off"
+                   oninput="showSpecSuggestions(this.value)" onfocus="showSpecSuggestions(this.value)"
+                   style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:8px; font-size:0.95em; box-sizing:border-box;">
+            <div id="spec-suggestions" class="ac-dropdown" style="display:none;"></div>
+            <!-- hidden select keeps filterDoctors() + AI integration working -->
+            <select id="specialization" style="display:none;">
                 <option value="">All Specializations</option>
                 <?php foreach ($specializations as $spec): ?>
                     <option value="<?php echo htmlspecialchars($spec); ?>"><?php echo htmlspecialchars($spec); ?></option>
@@ -152,9 +173,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <!-- Doctor -->
-        <div class="form-group">
+        <div class="form-group" style="position:relative;">
             <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">Select Doctor</label>
-            <select name="doctor_id" id="doctor_id" class="form-control" required onchange="fetchSlots()" style="height: 45px; border-radius: 8px; border: 1px solid #ddd;">
+            <input type="text" id="doc-search" placeholder="Type to search doctor..." autocomplete="off"
+                   oninput="showDocSuggestions(this.value)" onfocus="showDocSuggestions(this.value)"
+                   style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:8px; font-size:0.95em; box-sizing:border-box;">
+            <div id="doc-suggestions" class="ac-dropdown" style="display:none;"></div>
+            <!-- hidden select carries doctor_id for form submission -->
+            <select name="doctor_id" id="doctor_id" style="display:none;">
                 <option value="">-- Choose Doctor --</option>
                 <?php foreach ($doctors as $doc): ?>
                     <option value="<?php echo $doc['id']; ?>" data-spec="<?php echo htmlspecialchars($doc['specialization']); ?>">
@@ -194,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <!-- Visual Date Grid -->
-                <div id="date-container" class="date-grid" style="max-height: 300px; overflow-y: auto; padding: 5px;">
+                <div id="date-container" class="date-grid" style="max-height: 385px; overflow-y: auto; padding: 5px;">
                     <!-- Dates injected by JS -->
                 </div>
                 <input type="hidden" name="appointment_date" id="appointment_date" required>
@@ -232,23 +258,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <textarea name="reason" id="reason" class="form-control" rows="4" required style="border-radius: 8px; border: 1px solid #ddd; padding: 10px;"></textarea>
             
-            <!-- Quick Keywords -->
-            <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;">
+            <!-- Quick Keywords (dynamic per specialization) -->
+            <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                 <span style="font-size: 0.85em; color: #777; align-self: center; margin-right: 5px;">Quick Add:</span>
-                <?php 
-                $keywords = [
-                    "Fever", "Cough", "Headache", "Stomach Pain", 
-                    "General Checkup", "Follow-up", "Cold/Flu", 
-                    "Body Pain", "Nausea", "Dizziness", "Fatigue", 
-                    "Skin Rash", "Sore Throat", "Chest Pain", "Breathing Issue"
-                ];
-                foreach($keywords as $k): 
-                ?>
-                    <button type="button" onclick="addKeyword('<?php echo $k; ?>')" 
-                            style="background: #e2e8f0; border: none; padding: 5px 10px; border-radius: 15px; font-size: 0.85em; color: #4a5568; cursor: pointer; transition: background 0.2s;">
-                        <?php echo $k; ?>
-                    </button>
-                <?php endforeach; ?>
+                <span id="quick-add-chips" style="display:contents;"></span>
             </div>
         </div>
 
@@ -315,6 +328,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 
                 if (found) {
                     filterDoctors(); // Trigger doctor filter
+                    updateQuickAdd();
                 } else {
                     msgSpan.innerHTML += " (Specialist not found, showing all)";
                 }
@@ -333,6 +347,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <i class="fas fa-credit-card"></i> Proceed to Pay & Book
         </button>
     </form>
+</div>
+
+<!-- CONFLICT WARNING MODAL -->
+<div id="conflictModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1100; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:36px 32px; max-width:420px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.25); animation:slideUp 0.25s ease;">
+        <div style="width:64px; height:64px; background:#fff3cd; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px;">
+            <i class="fas fa-exclamation-triangle" style="font-size:1.8em; color:#d97706;"></i>
+        </div>
+        <h4 style="margin:0 0 10px; font-size:1.15em; color:#1f2937;">Appointment Conflict</h4>
+        <p style="color:#6b7280; font-size:0.95em; margin:0 0 24px; line-height:1.6;">
+            You already have an appointment scheduled at this exact time with another doctor.<br>
+            <strong style="color:#d97706;">Please choose a different time slot.</strong>
+        </p>
+        <button onclick="document.getElementById('conflictModal').style.display='none'"
+                style="background:#d97706; color:#fff; border:none; padding:11px 32px; border-radius:8px; font-size:0.95em; font-weight:600; cursor:pointer;">
+            <i class="fas fa-arrow-left"></i> Go Back &amp; Change Time
+        </button>
+    </div>
 </div>
 
 <!-- PAYMENT MODAL -->
@@ -380,24 +412,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <script>
 function initiatePayment() {
     const form = document.getElementById('bookingForm');
-    // Check browser native HTML5 validity
-    if(!form.checkValidity()) {
+    if (!form.checkValidity()) {
         form.reportValidity();
         return;
     }
-    
-    // Check specific required logic
+
     const doctor = document.getElementById('doctor_id').value;
-    const date = document.getElementById('appointment_date').value;
-    const time = document.getElementById('selected_time').value;
-    const reason = document.getElementById('reason').value;
-    
-    if(!doctor || !date || !time) {
+    const date   = document.getElementById('appointment_date').value;
+    const time   = document.getElementById('selected_time').value;
+
+    if (!doctor || !date || !time) {
         alert("Please ensure Doctor, Date, and Time slots are selected.");
         return;
     }
-    
-    document.getElementById('paymentModal').style.display = 'flex';
+
+    // Check for patient time conflict before opening payment modal
+    const url = `../../modules/ehr/check_slot_conflict.php?doctor_id=${encodeURIComponent(doctor)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`;
+    fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            if (data.conflict) {
+                document.getElementById('conflictModal').style.display = 'flex';
+            } else {
+                document.getElementById('paymentModal').style.display = 'flex';
+            }
+        })
+        .catch(() => {
+            // On network error fall through to payment (server will catch it anyway)
+            document.getElementById('paymentModal').style.display = 'flex';
+        });
 }
 
 function processPayment() {
@@ -416,6 +459,32 @@ function processPayment() {
 </script>
 
 <style>
+    .ac-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        max-height: 220px;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .ac-item {
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 0.95em;
+        color: #333;
+        border-bottom: 1px solid #f5f5f5;
+        transition: background 0.15s;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover, .ac-item.ac-active { background: #f0f4ff; color: #1d4ed8; }
+    .ac-item mark { background: #fef08a; color: inherit; border-radius: 2px; padding: 0 1px; font-style: normal; }
+    .ac-empty { padding: 10px 14px; color: #999; font-size: 0.9em; }
     .time-slot-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -501,6 +570,14 @@ function processPayment() {
     .date-card.disabled .month {
         color: #ccc;
     }
+    .date-card-off {
+        background-color: #fff5f5;
+        border-color: #ffcdd2;
+        opacity: 0.6;
+    }
+    .date-card-off .day { color: #e57373; }
+    .date-card-off .date-num { color: #c62828; }
+    .date-card-off:hover { background-color: #fff5f5; border-color: #ffcdd2; }
     .date-card .date-num {
         font-size: 1.2em;
         font-weight: bold;
@@ -514,49 +591,169 @@ function processPayment() {
 <script>
 const doctors = <?php echo json_encode($doctors); ?>;
 
+// ── Autocomplete helpers ────────────────────────────────────────────────────
+
+function highlight(text, query) {
+    if (!query) return text;
+    const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return text.replace(re, '<mark>$1</mark>');
+}
+
+function closeAllDropdowns() {
+    document.getElementById('spec-suggestions').style.display = 'none';
+    document.getElementById('doc-suggestions').style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.form-group')) closeAllDropdowns();
+});
+
+// ── Specialization autocomplete ──────────────────────────────────────────────
+
+const allSpecs = <?php echo json_encode(array_values($specializations)); ?>;
+
+function showSpecSuggestions(query) {
+    const box = document.getElementById('spec-suggestions');
+    const q = query.trim().toLowerCase();
+    const matches = q === '' ? allSpecs : allSpecs.filter(s => s.toLowerCase().includes(q));
+    box.innerHTML = '';
+
+    if (matches.length === 0) {
+        box.innerHTML = '<div class="ac-empty">No specializations found</div>';
+    } else {
+        if (q !== '') {
+            const allItem = document.createElement('div');
+            allItem.className = 'ac-item';
+            allItem.textContent = 'All Specializations';
+            allItem.style.cssText = 'color:#888;font-style:italic;';
+            allItem.addEventListener('mousedown', function(e) { e.preventDefault(); selectSpec('', ''); });
+            box.appendChild(allItem);
+        }
+        matches.forEach(s => {
+            const item = document.createElement('div');
+            item.className = 'ac-item';
+            item.innerHTML = highlight(s, query.trim());
+            item.addEventListener('mousedown', function(e) { e.preventDefault(); selectSpec(s, s); });
+            box.appendChild(item);
+        });
+    }
+    box.style.display = 'block';
+}
+
+// ── Quick Add keywords per specialization ────────────────────────────────────
+const quickAddMap = {
+    '': ['Fever', 'Cough', 'Headache', 'Stomach Pain', 'General Checkup', 'Follow-up', 'Cold/Flu', 'Body Pain', 'Nausea', 'Dizziness', 'Fatigue', 'Skin Rash', 'Sore Throat', 'Chest Pain', 'Breathing Issue'],
+    'General Practice':            ['General Checkup', 'Follow-up', 'Fever', 'Cough', 'Fatigue', 'Body Pain', 'Cold/Flu', 'Headache', 'Nausea', 'Dizziness'],
+    'Cardiology':                  ['Chest Pain', 'Palpitations', 'Shortness of Breath', 'High Blood Pressure', 'Irregular Heartbeat', 'Swollen Legs', 'Dizziness', 'Heart Follow-up'],
+    'Dermatology':                 ['Skin Rash', 'Acne', 'Eczema', 'Psoriasis', 'Hair Loss', 'Itching', 'Skin Lesion', 'Allergic Reaction', 'Nail Disorder'],
+    'Pediatrics':                  ['Child Fever', 'Vaccination', 'Growth Check', 'Child Cough', 'Ear Infection', 'Child Rash', 'Feeding Issues', 'Developmental Assessment'],
+    'Neurology':                   ['Headache', 'Migraine', 'Seizure', 'Numbness', 'Memory Loss', 'Dizziness', 'Tremors', 'Stroke Follow-up', 'Sleep Disorder'],
+    'Orthopedics':                 ['Joint Pain', 'Back Pain', 'Knee Pain', 'Fracture', 'Sports Injury', 'Arthritis', 'Shoulder Pain', 'Hip Pain', 'Bone Density Check'],
+    'Psychiatry':                  ['Anxiety', 'Depression', 'Insomnia', 'Stress', 'Mood Swings', 'Panic Attack', 'Follow-up', 'Behavioral Issues', 'Trauma'],
+    'Oncology':                    ['Cancer Screening', 'Chemotherapy Follow-up', 'Biopsy Review', 'Tumor Check', 'Radiation Follow-up', 'Blood Work Review', 'Pain Management'],
+    'Radiology':                   ['X-Ray', 'MRI Scan', 'CT Scan', 'Ultrasound', 'Mammogram', 'PET Scan', 'Bone Scan', 'Report Review'],
+    'Anesthesiology':              ['Pre-Surgery Assessment', 'Pain Management', 'Post-Op Follow-up', 'Chronic Pain', 'Nerve Block'],
+    'Gastroenterology':            ['Stomach Pain', 'Acid Reflux', 'Bloating', 'Constipation', 'Diarrhea', 'Nausea', 'Liver Check', 'Endoscopy Follow-up', 'IBS'],
+    'Ophthalmology':               ['Eye Pain', 'Blurred Vision', 'Eye Infection', 'Glasses Review', 'Cataract Check', 'Glaucoma Follow-up', 'Dry Eyes', 'Retinal Check'],
+    'Urology':                     ['Frequent Urination', 'Burning Urination', 'Kidney Stone', 'Prostate Check', 'UTI', 'Blood in Urine', 'Bladder Issue'],
+    'Obstetrics and Gynecology':   ['Pregnancy Check', 'Menstrual Issue', 'Pelvic Pain', 'Prenatal Visit', 'Contraception', 'Fertility Consultation', 'Ultrasound'],
+    'Emergency Medicine':          ['Chest Pain', 'Severe Injury', 'Breathing Difficulty', 'High Fever', 'Unconsciousness', 'Allergic Reaction', 'Fracture'],
+    'Endocrinology':               ['Diabetes Follow-up', 'Thyroid Issue', 'Weight Gain', 'Hormonal Imbalance', 'PCOS', 'Adrenal Disorder', 'Blood Sugar Control'],
+    'Pulmonology':                 ['Breathing Issue', 'Cough', 'Asthma', 'COPD', 'Chest Tightness', 'Sleep Apnea', 'Lung Function Test', 'Wheezing'],
+    'Nephrology':                  ['Kidney Pain', 'Swelling', 'High Creatinine', 'Dialysis Follow-up', 'Frequent Urination', 'Blood in Urine', 'Hypertension'],
+    'Rheumatology':                ['Joint Pain', 'Arthritis', 'Lupus Follow-up', 'Muscle Pain', 'Swollen Joints', 'Gout', 'Stiffness', 'Autoimmune Review'],
+    'Infectious Disease':          ['Fever', 'HIV Follow-up', 'Tuberculosis', 'Malaria', 'Antibiotic Review', 'Travel Illness', 'Chronic Infection', 'Vaccination'],
+    'Hematology':                  ['Anemia', 'Blood Disorder', 'Bleeding Issue', 'Platelet Count', 'Sickle Cell', 'Clotting Problem', 'Blood Cancer Follow-up'],
+    'Hepatology':                  ['Liver Pain', 'Jaundice', 'Hepatitis Follow-up', 'Fatty Liver', 'Liver Function Test', 'Cirrhosis', 'Liver Biopsy Review'],
+    'Neonatology':                 ['Newborn Check', 'Jaundice', 'Feeding Difficulty', 'Premature Baby Follow-up', 'Newborn Infection', 'Weight Monitoring'],
+    'Geriatrics':                  ['General Checkup', 'Memory Assessment', 'Fall Prevention', 'Medication Review', 'Mobility Issue', 'Chronic Disease Management'],
+    'Palliative Care':             ['Pain Management', 'Comfort Care', 'Symptom Relief', 'End-of-Life Care', 'Family Consultation', 'Medication Review'],
+    'Sports Medicine':             ['Sports Injury', 'Muscle Strain', 'Ligament Tear', 'Performance Assessment', 'Concussion', 'Rehabilitation', 'Joint Pain'],
+    'Plastic Surgery':             ['Wound Care', 'Scar Treatment', 'Burn Injury', 'Reconstructive Surgery Consult', 'Post-Op Follow-up'],
+    'Vascular Surgery':            ['Varicose Veins', 'Leg Swelling', 'Poor Circulation', 'Arterial Pain', 'Peripheral Artery Disease', 'Aneurysm Follow-up'],
+    'Cardiothoracic Surgery':      ['Chest Surgery Follow-up', 'Heart Valve Issue', 'Bypass Recovery', 'Lung Surgery Review', 'Shortness of Breath'],
+    'Colorectal Surgery':          ['Rectal Bleeding', 'Hemorrhoids', 'Colon Issue', 'Colonoscopy Review', 'Bowel Problem', 'Post-Op Follow-up'],
+    'Transplant Surgery':          ['Organ Rejection Check', 'Post-Transplant Follow-up', 'Immunosuppressant Review', 'Kidney Transplant', 'Liver Transplant'],
+    'Allergy and Immunology':      ['Allergic Reaction', 'Asthma', 'Food Allergy', 'Skin Allergy', 'Immunodeficiency', 'Allergy Test', 'Anaphylaxis Follow-up'],
+    'Nuclear Medicine':            ['Thyroid Scan', 'Bone Scan', 'PET Scan Follow-up', 'Radiation Therapy Review', 'Isotope Treatment'],
+    'Pathology':                   ['Biopsy Review', 'Lab Report Review', 'Tissue Sample', 'Blood Work Analysis', 'Cancer Marker Review'],
+    'Clinical Pharmacology':       ['Medication Review', 'Drug Interaction Check', 'Dosage Adjustment', 'Side Effect Assessment', 'New Prescription'],
+    'Otolaryngology (ENT)':        ['Ear Pain', 'Hearing Loss', 'Sore Throat', 'Nasal Congestion', 'Sinusitis', 'Tonsil Issue', 'Voice Problem', 'Dizziness'],
+    'Maxillofacial Surgery':       ['Jaw Pain', 'Facial Injury', 'Dental Surgery Consult', 'Mouth Lesion', 'Post-Op Follow-up', 'TMJ Disorder'],
+    'Reproductive Medicine':       ['Fertility Consultation', 'IVF Follow-up', 'Hormonal Testing', 'Sperm Analysis', 'PCOS', 'Egg Freezing Consult'],
+};
+
+function updateQuickAdd() {
+    const spec = document.getElementById('specialization').value;
+    const keywords = quickAddMap[spec] || quickAddMap[''];
+    const container = document.getElementById('quick-add-chips');
+    container.innerHTML = keywords.map(k =>
+        `<button type="button" onclick="addKeyword('${k.replace(/'/g, "\\'")}')"
+            style="background:#e2e8f0;border:none;padding:5px 10px;border-radius:15px;font-size:0.85em;color:#4a5568;cursor:pointer;transition:background 0.2s;">
+            ${k}
+        </button>`
+    ).join('');
+}
+
+function selectSpec(value, label) {
+    document.getElementById('spec-search').value = label;
+    document.getElementById('specialization').value = value;
+    document.getElementById('spec-suggestions').style.display = 'none';
+    filterDoctors();
+    updateQuickAdd();
+    document.getElementById('doc-search').value = '';
+    document.getElementById('doctor_id').value = '';
+}
+
+// ── Doctor autocomplete ──────────────────────────────────────────────────────
+
+function showDocSuggestions(query) {
+    const box = document.getElementById('doc-suggestions');
+    const q = query.trim().toLowerCase();
+    const currentSpec = document.getElementById('specialization').value;
+
+    const filtered = doctors.filter(d => {
+        const name = ('Dr. ' + d.first_name + ' ' + d.last_name).toLowerCase();
+        const matchSpec = currentSpec === '' || d.specialization === currentSpec;
+        const matchQuery = q === '' || name.includes(q) || d.specialization.toLowerCase().includes(q);
+        return matchSpec && matchQuery;
+    });
+
+    box.innerHTML = '';
+    if (filtered.length === 0) {
+        box.innerHTML = '<div class="ac-empty">No doctors found</div>';
+    } else {
+        filtered.forEach(d => {
+            const fullName = 'Dr. ' + d.first_name + ' ' + d.last_name;
+            const item = document.createElement('div');
+            item.className = 'ac-item';
+            item.innerHTML = highlight(fullName, query.trim()) +
+                ' <span style="color:#888;font-size:0.88em;">(' + highlight(d.specialization, query.trim()) + ')</span>';
+            item.addEventListener('mousedown', function(e) { e.preventDefault(); selectDoc(d.id, fullName); });
+            box.appendChild(item);
+        });
+    }
+    box.style.display = 'block';
+}
+
+function selectDoc(id, label) {
+    document.getElementById('doc-search').value = label;
+    document.getElementById('doctor_id').value = id;
+    document.getElementById('doc-suggestions').style.display = 'none';
+    fetchSlots();
+}
+
+// ── filterDoctors: called by AI recommendation + URL pre-selection ───────────
+
 function filterDoctors() {
     const spec = document.getElementById('specialization').value;
-    const doctorSelect = document.getElementById('doctor_id');
-    const options = doctorSelect.options;
-
-    // Reset doctor selection
-    doctorSelect.value = "";
-    
-    // Track if we have any visible options
-    let hasVisibleOptions = false;
-
-    for (let i = 0; i < options.length; i++) {
-        const option = options[i];
-        if (option.value === "") {
-            // Always show the placeholder option
-            option.style.display = "";
-            continue;
-        }
-        
-        const docSpec = option.getAttribute('data-spec');
-        
-        // Show if no filter selected OR if specialization matches
-        if (spec === "" || docSpec === spec) {
-            option.style.display = "";
-            option.disabled = false;
-            hasVisibleOptions = true;
-        } else {
-            option.style.display = "none";
-            option.disabled = true;
-        }
-    }
-    
-    // Update placeholder text based on filter
-    const placeholder = options[0];
-    if (spec === "") {
-        placeholder.textContent = "-- Choose Doctor --";
-    } else {
-        placeholder.textContent = hasVisibleOptions ? `-- Choose ${spec} Doctor --` : `No ${spec} doctors available`;
-    }
-    
-    // Reset slots
+    // reset doctor search/selection when spec changes
+    document.getElementById('doc-search').value = '';
+    document.getElementById('doctor_id').value = '';
     document.getElementById('slot-container').innerHTML = '<p style="color: #777; font-size: 0.9em; margin: 0;">Please select a doctor and date first.</p>';
     document.getElementById('selected_time').value = '';
+    // Also update spec search text to reflect current spec
+    document.getElementById('spec-search').value = spec;
 }
 
 function fetchSlots() {
@@ -577,6 +774,15 @@ function fetchSlots() {
             if (data.error) {
                 throw new Error(data.error);
             }
+            if (data.doctor_unavailable) {
+                const label = data.unavailability_type
+                    ? data.unavailability_type.charAt(0).toUpperCase() + data.unavailability_type.slice(1)
+                    : 'Leave';
+                container.innerHTML = `<p style="color:#b71c1c;font-size:0.9em;margin:0;">
+                    <i class="fas fa-calendar-times"></i> Doctor is on <strong>${label}</strong> on this date. Please choose another date.</p>`;
+                document.getElementById('selected_time').value = '';
+                return;
+            }
             renderSlots(data.booked_slots || []);
         })
         .catch(err => {
@@ -590,23 +796,29 @@ function renderSlots(bookedSlots) {
     container.innerHTML = '';
     
     const startHour = 9;
-    const endHour = 17;
+    const endHour = 16; // Doctors available 09:00 – 16:00
 
     // Get selected date and current time for comparison
     const selectedDateVal = document.getElementById('appointment_date').value;
     const now = new Date();
-    // Format selected date to YYYY-MM-DD for comparison logic
-    // But we need to compare apples to apples. 
-    // Let's create a date object for the selected date.
-    // Note: selectedDateVal is YYYY-MM-DD from the hidden input
-    
+
     // Check if selected date is today
     const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
     const isToday = (selectedDateVal === todayStr);
-    
+
+    // Block Sundays entirely
+    if (selectedDateVal) {
+        const [yr, mo, dy] = selectedDateVal.split('-').map(Number);
+        const selectedDay = new Date(yr, mo - 1, dy).getDay(); // 0 = Sunday
+        if (selectedDay === 0) {
+            container.innerHTML = '<p style="color:#b71c1c; font-size:0.9em; margin:0;"><i class="fas fa-calendar-times"></i> Doctors are off on Sundays. Please choose another day.</p>';
+            return;
+        }
+    }
+
     const currentHour = now.getHours();
     const currentMin = now.getMinutes();
-    
+
     for (let h = startHour; h < endHour; h++) {
         for (let m = 0; m < 60; m += 15) {
             const timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
@@ -658,6 +870,7 @@ function selectSlot(element, time) {
 document.addEventListener('DOMContentLoaded', function() {
     updateDateGrid(); // Initial render
     renderSlots(null);
+    updateQuickAdd(); // Render default quick-add chips
 
     // Pre-select specialization + doctor if passed from symptom checker
     const params = new URLSearchParams(window.location.search);
@@ -692,10 +905,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Step 4: Re-select the doctor (now the option is visible and enabled)
         if (targetIndex !== -1) {
-            docSelect.options[targetIndex].disabled = false;
-            docSelect.options[targetIndex].style.display = '';
-            docSelect.selectedIndex = targetIndex;
+            docSelect.value = preDocId;
+            const opt = docSelect.options[targetIndex];
+            const docLabel = opt.text.split('(')[0].trim();
+            document.getElementById('doc-search').value = docLabel;
         }
+        document.getElementById('spec-search').value = targetSpec;
     } else if (preSpec) {
         // Only spec provided — just filter by specialization
         const specSelect = document.getElementById('specialization');
@@ -705,6 +920,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             }
         }
+        document.getElementById('spec-search').value = preSpec;
         filterDoctors();
     }
 });
@@ -739,17 +955,23 @@ function renderDates(month, year) {
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
         const dayNum = date.getDate();
         const monthName = date.toLocaleDateString('en-US', { month: 'short' });
-        
+        const isSunday = date.getDay() === 0;
+
         const card = document.createElement('div');
-        card.className = 'date-card';
-        
+        card.className = 'date-card' + (isSunday ? ' date-card-off' : '');
+
         card.innerHTML = `
             <div class="day">${dayName}</div>
             <div class="date-num">${dayNum}</div>
-            <div class="month">${monthName}</div>
+            <div class="month">${isSunday ? '<span style="font-size:0.75em;color:#b71c1c;">Off</span>' : monthName}</div>
         `;
-        
-        card.onclick = () => selectDate(card, fullDate);
+
+        if (!isSunday) {
+            card.onclick = () => selectDate(card, fullDate);
+        } else {
+            card.title = 'Doctors off on Sundays';
+            card.style.cursor = 'not-allowed';
+        }
         
         container.appendChild(card);
         

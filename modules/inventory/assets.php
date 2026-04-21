@@ -130,7 +130,10 @@ $maintenance_assets = count(array_filter($assets, fn($a) => $a['status'] === 'ma
             </div>
         </div>
         <div class="table-responsive px-4 pb-4">
-            <table class="table premium-table" id="assetTable">
+            <div style="margin-bottom: 14px;">
+                <input type="text" id="filter-assets" onkeyup="filterTable('filter-assets','tbl-assets')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+            </div>
+            <table id="tbl-assets" class="table premium-table">
                 <thead>
                     <tr>
                         <th class="border-top-0">Asset Details</th>

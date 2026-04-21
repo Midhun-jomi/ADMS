@@ -82,7 +82,10 @@ $inventory = db_select("SELECT * FROM pharmacy_inventory ORDER BY medication_nam
         </form>
     </div>
 
-    <table style="width: 100%; border-collapse: collapse;">
+    <div style="margin-bottom: 14px;">
+        <input type="text" id="filter-pharmacy" onkeyup="filterTable('filter-pharmacy','tbl-pharmacy')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+    </div>
+    <table id="tbl-pharmacy" style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr style="background-color: #f8f9fa; text-align: left;">
                 <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">Medication</th>

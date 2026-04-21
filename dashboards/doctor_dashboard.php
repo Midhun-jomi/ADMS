@@ -224,7 +224,7 @@ $all_patients = db_select("SELECT id, first_name, last_name FROM patients ORDER 
     .heart-card {
         background: var(--primary-gradient);
         color: white;
-        min-height: 220px;
+        min-height: 160px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -332,7 +332,7 @@ $all_patients = db_select("SELECT id, first_name, last_name FROM patients ORDER 
     .visitor-card {
         display: flex;
         flex-direction: column;
-        min-height: 220px;
+        min-height: 160px;
     }
     .visitor-card h3 {
         width: 100%;
@@ -524,7 +524,45 @@ if ($active_patient) {
     <div class="main-col">
         <!-- Stats Row -->
         <div class="stats-grid">
-            <!-- 1. Queue Overview Card -->
+
+                  <!-- 1. Heart Rate Card -->
+            <div class="glass-card visitor-card" style="padding: 25px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="margin: 0 0 4px 0; font-size: 1.05em; font-weight: 700; color: var(--text-primary);">HELLO</h3>
+                    <p style="margin: 0 0 16px 0; font-size: 0.8em; color: var(--text-secondary);">
+                    </p>
+                </div>
+
+                <!-- Animated Heart -->
+                <div style="display: flex; justify-content: center; align-items: center; flex: 1; padding: 0; overflow: visible;">
+                    <div class="hr-heart-wrap">
+                        <svg class="hr-heart" viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M50 85 C50 85 5 55 5 28 C5 14 16 5 28 5 C37 5 45 11 50 19 C55 11 63 5 72 5 C84 5 95 14 95 28 C95 55 50 85 50 85Z" fill="#ff1900"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Quote -->
+                <?php
+                $quotes = [
+                    "The good physician treats the disease; the great physician treats the patient.",
+                    "Wherever the art of medicine is loved, there is also a love of humanity.",
+                    "The best medicine is to teach people how not to need it.",
+                    "To cure sometimes, to relieve often, to comfort always.",
+                    "Medicine is not only a science; it is also an art.",
+                    "A doctor's mission is to heal, to comfort, and to care.",
+                    "The art of medicine consists of amusing the patient while nature cures the disease.",
+                ];
+                $q = $quotes[date('N') % count($quotes)];
+                ?>
+                <div style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.07); padding-top: 12px;">
+                    <p style="margin: 0; font-size: 0.78em; color: var(--text-secondary); font-style: italic; line-height: 1.5; text-align: center;">
+                        &ldquo;<?php echo htmlspecialchars($q); ?>&rdquo;
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2. Queue Overview Card -->
             <div class="glass-card heart-card">
                 <?php
                 $waiting_now = 0;
@@ -551,18 +589,55 @@ if ($active_patient) {
                 </div>
             </div>
 
-            <!-- 2. Visitor Card -->
-            <div class="glass-card visitor-card" style="padding: 25px;">
-                <h3 style="margin-bottom: 20px;">Total Visitors <span style="font-size: 0.7em; font-weight: 500; color: var(--text-secondary); float: right; margin-top: 5px;"><?php echo date('F'); ?></span></h3>
-                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; width: 100%;">
-                    <canvas id="visitorChart" style="max-height: 140px;"></canvas>
-                    <div style="position: absolute; text-align: center;">
-                        <strong style="font-size: 1.5em; font-weight: 800; display: block; line-height: 1; color: var(--text-primary);"><?php echo number_format((isset($v_total) ? $v_total : 124)); ?></strong>
-                        <span style="font-size: 0.7em; color: var(--text-secondary); text-transform: uppercase;">Patients</span>
-                    </div>
-                </div>
-            </div>
+  
         </div>
+
+        <style>
+        .hr-heart-wrap {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+        .hr-heart {
+            width: 170px;
+            height: 170px;
+            animation: heartbeat 1.2s ease-in-out infinite;
+            filter: drop-shadow(0 4px 12px rgba(192,57,43,0.35));
+        }
+        @keyframes heartbeat {
+            0%   { transform: scale(1);    }
+            14%  { transform: scale(1.18); }
+            28%  { transform: scale(1);    }
+            42%  { transform: scale(1.12); }
+            56%  { transform: scale(1);    }
+            100% { transform: scale(1);    }
+        }
+        .hr-ecg {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 22px;
+            opacity: 0.65;
+        }
+        .hr-ecg-line {
+            stroke-dasharray: 260;
+            stroke-dashoffset: 260;
+            animation: ecg-draw 1.2s ease-in-out infinite;
+        }
+        @keyframes ecg-draw {
+            0%   { stroke-dashoffset: 260; opacity: 0; }
+            10%  { opacity: 1; }
+            60%  { stroke-dashoffset: 0; }
+            80%  { stroke-dashoffset: 0; opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+        </style>
 
         <!-- Recent Activity Module -->
         <div style="margin-top: 10px; background: var(--surface-color); padding: 25px; border-radius: var(--border-radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(20px);">

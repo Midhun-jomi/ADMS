@@ -157,7 +157,10 @@ foreach($leaves as $l) {
             </div>
         </div>
         <div class="table-responsive px-4 pb-4">
-            <table class="table premium-table" id="leavesTable">
+            <div style="margin-bottom: 14px;">
+                <input type="text" id="filter-leaves" onkeyup="filterTable('filter-leaves','tbl-leaves')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+            </div>
+            <table id="tbl-leaves" class="table premium-table">
                 <thead>
                     <tr>
                         <th class="border-top-0">Staff Name</th>

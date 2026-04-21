@@ -180,6 +180,7 @@ if ($role === 'patient') {
                 <div class="est-body">
                     <!-- Selected procedures chips -->
                     <div id="selectedChips" class="selected-list">
+                        <div id="chipsContainer"></div>
                         <div class="empty-est" id="emptyMsg">
                             <i class="fas fa-mouse-pointer" style="display: block; font-size: 2rem; margin-bottom: 8px;"></i>
                             <div style="font-size: 0.85em;">Click procedures on the left to add them to your estimate</div>
@@ -262,25 +263,21 @@ function toggleProcedure(el) {
 }
 
 function clearAll() {
-    Object.keys(selected).forEach(k => {
-        const el = document.getElementById('item-' + md5hex(k));
-        if (el) el.classList.remove('selected');
-        delete selected[k];
-    });
+    document.querySelectorAll('.proc-item.selected').forEach(el => el.classList.remove('selected'));
+    Object.keys(selected).forEach(k => delete selected[k]);
     updateEstimate();
 }
 
 function updateEstimate() {
     const names = Object.keys(selected);
-    const chipsEl = document.getElementById('selectedChips');
+    const chipsContainer = document.getElementById('chipsContainer');
     const emptyMsg = document.getElementById('emptyMsg');
     const breakdown = document.getElementById('breakdownSection');
     const durCard = document.getElementById('durationCard');
     const durList = document.getElementById('durationList');
 
     if (names.length === 0) {
-        chipsEl.innerHTML = '';
-        chipsEl.appendChild(emptyMsg);
+        chipsContainer.innerHTML = '';
         emptyMsg.style.display = '';
         breakdown.style.display = 'none';
         durCard.style.display = 'none';
@@ -299,7 +296,7 @@ function updateEstimate() {
             <span class="clear-btn"><i class="fas fa-times"></i></span>
         </span>`;
     });
-    chipsEl.innerHTML = chips;
+    chipsContainer.innerHTML = chips;
 
     // Totals
     let totBase = 0, totLab = 0, totMeds = 0, totRoom = 0;

@@ -198,7 +198,10 @@ if ($role === 'patient') {
             <h5 style="margin: 0; color: #1f2937; font-weight: 600;"><i class="fas fa-list-alt" style="color: #6b7280; margin-right: 8px;"></i> Invoice History</h5>
         </div>
         <div class="card-body" style="padding: 0; overflow-x: auto;">
-            <table class="table" style="width: 100%; border-collapse: collapse; margin: 0;">
+            <div style="margin-bottom: 14px; padding: 14px 24px 0;">
+                <input type="text" id="filter-billing" onkeyup="filterTable('filter-billing','tbl-billing')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+            </div>
+            <table id="tbl-billing" class="table" style="width: 100%; border-collapse: collapse; margin: 0;">
                 <thead style="background: #f9fafb;">
                     <tr>
                         <th style="padding: 16px 24px; text-align: left; font-size: 0.85em; font-weight: 600; color: #6b7280; text-transform: uppercase;">Date</th>

@@ -48,17 +48,26 @@ $my_policies = db_select("SELECT pi.*, ip.name as provider_name
             <!-- List Policies -->
             <div style="flex: 2;">
                 <h5>Active Policies</h5>
+                <div style="margin-bottom: 14px;">
+                    <input type="text" id="filter-ins-patients" onkeyup="filterTable('filter-ins-patients','tbl-ins-patients')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+                </div>
+                <table id="tbl-ins-patients" style="width:100%; border-collapse:collapse;">
+                <tbody>
                 <?php if (empty($my_policies)): ?>
-                    <p>No insurance policies linked.</p>
+                    <tr><td><p>No insurance policies linked.</p></td></tr>
                 <?php else: ?>
                     <?php foreach ($my_policies as $p): ?>
+                    <tr><td>
                         <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #f8f9fa;">
                             <h4 style="margin: 0; color: #007bff;"><?php echo htmlspecialchars($p['provider_name']); ?></h4>
                             <p style="margin: 5px 0;">Policy #: <strong><?php echo htmlspecialchars($p['policy_number']); ?></strong></p>
                             <p style="margin: 0; font-size: 0.9em; color: #666;">Expires: <?php echo $p['expiry_date']; ?></p>
                         </div>
+                    </td></tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
+                </tbody>
+                </table>
             </div>
 
             <!-- Add New Form -->

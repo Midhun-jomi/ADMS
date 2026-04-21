@@ -56,8 +56,11 @@ $prescriptions = db_select("SELECT pr.*, s.first_name as dr_fname, s.last_name a
             <p>No prescriptions found in your records.</p>
         </div>
     <?php else: ?>
+        <div style="margin-bottom: 14px; padding: 0 16px;">
+            <input type="text" id="filter-prescriptions" onkeyup="filterTable('filter-prescriptions','tbl-prescriptions')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+        </div>
         <div class="table-responsive">
-            <table class="table">
+            <table id="tbl-prescriptions" class="table">
                 <thead>
                     <tr>
                         <th width="15%">Date</th>

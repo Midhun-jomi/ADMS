@@ -209,8 +209,11 @@ $allocations = db_select("
                 <div class="card-header border-0 bg-white">
                     <h5 class="mb-0" style="color: #32325d;">Current Allocations</h5>
                 </div>
+                <div style="margin-bottom: 14px; padding: 0 15px;">
+                    <input type="text" id="filter-nurses" onkeyup="filterTable('filter-nurses','tbl-nurses')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+                </div>
                 <div class="table-responsive">
-                    <table class="table align-items-center table-flush table-hover">
+                    <table id="tbl-nurses" class="table align-items-center table-flush table-hover">
                         <thead class="thead-light">
                             <tr>
                                 <th>Nurse</th>

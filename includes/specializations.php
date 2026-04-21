@@ -22,7 +22,25 @@ function get_specializations() {
         'Pulmonology',
         'Nephrology',
         'Rheumatology',
-        'Infectious Disease'
+        'Infectious Disease',
+        'Hematology',
+        'Hepatology',
+        'Neonatology',
+        'Geriatrics',
+        'Palliative Care',
+        'Sports Medicine',
+        'Plastic Surgery',
+        'Vascular Surgery',
+        'Cardiothoracic Surgery',
+        'Colorectal Surgery',
+        'Transplant Surgery',
+        'Allergy and Immunology',
+        'Nuclear Medicine',
+        'Pathology',
+        'Clinical Pharmacology',
+        'Otolaryngology (ENT)',
+        'Maxillofacial Surgery',
+        'Reproductive Medicine'
     ];
 }
 ?>

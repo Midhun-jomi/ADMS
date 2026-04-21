@@ -42,7 +42,8 @@ if (!$test_id) {
     if (empty($tests)) {
         echo '<div style="padding: 20px;">No lab tests found.</div>';
     } else {
-        echo '<table class="table">';
+        echo '<div style="margin-bottom: 14px;"><input type="text" id="filter-lab-results" onkeyup="filterTable(\'filter-lab-results\',\'tbl-lab-results\')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;"></div>';
+        echo '<table id="tbl-lab-results" class="table">';
         echo '<thead><tr><th>Date</th><th>Test Type</th><th>Status</th><th>Action</th></tr></thead><tbody>';
         foreach ($tests as $t) {
             $p_name = isset($t['first_name']) ? " (" . htmlspecialchars($t['first_name'] . ' ' . $t['last_name']) . ")" : "";

@@ -22,7 +22,7 @@ if ($role === 'patient') {
     }
 } else {
     // Admin/Doctor: allow selecting patient via GET param
-    $pid = isset($_GET['patient_id']) ? (int)$_GET['patient_id'] : 0;
+    $pid = isset($_GET['patient_id']) ? trim($_GET['patient_id']) : '';
     if ($pid) {
         $pat = db_select_one("SELECT id, first_name, last_name FROM patients WHERE id = $1", [$pid]);
         if ($pat) {
@@ -30,7 +30,13 @@ if ($role === 'patient') {
             $patient_name = $pat['first_name'] . ' ' . $pat['last_name'];
         }
     }
-    $all_patients = db_select("SELECT id, first_name, last_name FROM patients ORDER BY first_name");
+    $all_patients = db_select(
+        "SELECT p.id, p.first_name, p.last_name
+         FROM patients p
+         JOIN (SELECT patient_id, COUNT(*) as appt_count FROM appointments GROUP BY patient_id HAVING COUNT(*) > 1) a
+           ON a.patient_id = p.id
+         ORDER BY p.first_name"
+    );
 }
 
 // --- Fetch chart data ---
@@ -41,9 +47,9 @@ $bill_monthly = [];
 if ($patient_id) {
     // Appointments per month (last 12 months)
     $appt_rows = db_select(
-        "SELECT TO_CHAR(appointment_date, 'YYYY-MM') as mo, COUNT(*) as cnt
+        "SELECT TO_CHAR(appointment_time, 'YYYY-MM') as mo, COUNT(*) as cnt
          FROM appointments
-         WHERE patient_id = $1 AND appointment_date >= NOW() - INTERVAL '12 months'
+         WHERE patient_id = $1 AND appointment_time >= NOW() - INTERVAL '12 months'
          GROUP BY mo ORDER BY mo",
         [$patient_id]
     );

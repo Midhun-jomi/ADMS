@@ -32,13 +32,16 @@ $patients = db_select($sql, $params);
         Patient List
     </div>
     
-    <table style="width: 100%; border-collapse: collapse;">
+    <div style="margin-bottom: 14px;">
+        <input type="text" id="filter-patients" onkeyup="filterTable('filter-patients','tbl-patients')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+    </div>
+    <table id="tbl-patients" style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr style="background-color: #f8f9fa; text-align: left;">
-                <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">Patient ID</th>
-                <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">Name</th>
-                <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">Age/Gender</th>
-                <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">Blood Group</th>
+                <th style="padding: 10px; border-bottom: 2px solid #dee2e6; cursor:pointer; user-select:none;" onclick="sortTable(0)" title="Sort by Patient ID">Patient ID <span id="sort-icon-0">↕</span></th>
+                <th style="padding: 10px; border-bottom: 2px solid #dee2e6; cursor:pointer; user-select:none;" onclick="sortTable(1)" title="Sort by Name">Name <span id="sort-icon-1">↕</span></th>
+                <th style="padding: 10px; border-bottom: 2px solid #dee2e6; cursor:pointer; user-select:none;" onclick="sortTable(2)" title="Sort by Age">Age/Gender <span id="sort-icon-2">↕</span></th>
+                <th style="padding: 10px; border-bottom: 2px solid #dee2e6; cursor:pointer; user-select:none;" onclick="sortTable(3)" title="Sort by Blood Group">Blood Group <span id="sort-icon-3">↕</span></th>
                 <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">Phone</th>
                 <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">Actions</th>
             </tr>
@@ -77,5 +80,54 @@ $patients = db_select($sql, $params);
         </tbody>
     </table>
 </div>
+
+<script>
+let sortState = { col: -1, asc: true };
+
+function sortTable(col) {
+    const table = document.getElementById('tbl-patients');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+    // Toggle direction if same column
+    if (sortState.col === col) {
+        sortState.asc = !sortState.asc;
+    } else {
+        sortState.col = col;
+        sortState.asc = true;
+    }
+
+    // Update icons
+    for (let i = 0; i <= 3; i++) {
+        const icon = document.getElementById('sort-icon-' + i);
+        if (icon) icon.textContent = '↕';
+    }
+    const activeIcon = document.getElementById('sort-icon-' + col);
+    if (activeIcon) activeIcon.textContent = sortState.asc ? '↑' : '↓';
+
+    rows.sort((a, b) => {
+        const aText = (a.cells[col]?.textContent || '').trim();
+        const bText = (b.cells[col]?.textContent || '').trim();
+
+        // Numeric sort for Patient ID (col 0) and Age (col 2)
+        if (col === 0) {
+            const aNum = parseInt(aText.replace(/\D/g, '')) || 0;
+            const bNum = parseInt(bText.replace(/\D/g, '')) || 0;
+            return sortState.asc ? aNum - bNum : bNum - aNum;
+        }
+        if (col === 2) {
+            const aNum = parseInt(aText) || 0;
+            const bNum = parseInt(bText) || 0;
+            return sortState.asc ? aNum - bNum : bNum - aNum;
+        }
+
+        return sortState.asc
+            ? aText.localeCompare(bText)
+            : bText.localeCompare(aText);
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
+</script>
 
 <?php include '../../includes/footer.php'; ?>

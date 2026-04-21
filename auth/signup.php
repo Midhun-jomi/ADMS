@@ -17,6 +17,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password   = $_POST['password'];
         $confirm_password = $_POST['confirm_password'];
         $dob        = $_POST['dob'];
+        $gender     = $_POST['gender'] ?? '';
+        $phone      = trim($_POST['phone'] ?? '');
 
         if (strlen($password) < 8) {
             $error = "Password must be at least 8 characters.";
@@ -43,7 +45,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         'user_id'       => $user_id,
                         'first_name'    => $first_name,
                         'last_name'     => $last_name,
-                        'date_of_birth' => $dob
+                        'date_of_birth' => $dob,
+                        'gender'        => $gender,
+                        'phone'         => $phone
                     ];
                     db_insert('patients', $patient_data);
 
@@ -112,8 +116,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div class="login-form-group">
-                    <label for="dob" class="login-label">Date of Birth</label>
-                    <input type="date" id="dob" name="dob" class="login-input" required>
+                    <label for="phone" class="login-label">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="login-input" placeholder="+91 00000 00000" maxlength="20">
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: flex-start;">
+                    <div class="login-form-group" style="flex: 1; margin-bottom: 25px;">
+                        <label for="dob" class="login-label">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" class="login-input" required style="height: 48px; box-sizing: border-box;">
+                    </div>
+                    <div class="login-form-group" style="flex: 1; margin-bottom: 25px;">
+                        <label for="gender" class="login-label">Gender</label>
+                        <div style="position: relative;">
+                            <select name="gender" id="gender" required
+                                onfocus="this.style.borderColor='#009688';this.style.backgroundColor='white';"
+                                onblur="this.style.borderColor='#ddd';this.style.backgroundColor='#f9f9f9';"
+                                style="width:100%; height:48px; padding:12px 38px 12px 15px; border:1px solid #ddd; border-radius:8px; background-color:#f9f9f9; font-size:0.95em; color:#333; appearance:none; -webkit-appearance:none; cursor:pointer; box-sizing:border-box; outline:none;">
+                                <option value="" disabled selected>Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                            <span style="position:absolute; right:13px; top:50%; transform:translateY(-50%); pointer-events:none; color:#888; font-size:0.8em;">&#9660;</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="login-form-group">

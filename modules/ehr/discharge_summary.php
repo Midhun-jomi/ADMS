@@ -11,10 +11,23 @@ include '../../includes/header.php';
 $role    = get_user_role();
 $user_id = get_user_id();
 
-$patient_id   = isset($_GET['patient_id']) ? (int)$_GET['patient_id'] : 0;
-$admission_id = isset($_GET['admission_id']) ? (int)$_GET['admission_id'] : 0;
+$patient_id   = isset($_GET['patient_id']) ? trim($_GET['patient_id']) : '';
+$admission_id = isset($_GET['admission_id']) ? trim($_GET['admission_id']) : '';
 
-$all_patients  = db_select("SELECT id, first_name, last_name FROM patients ORDER BY first_name");
+if ($role === 'doctor') {
+    $staff_row = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$user_id]);
+    $doctor_staff_id = $staff_row['id'] ?? 0;
+    $all_patients = db_select(
+        "SELECT DISTINCT p.id, p.first_name, p.last_name
+         FROM patients p
+         JOIN appointments a ON a.patient_id = p.id
+         WHERE a.doctor_id = $1
+         ORDER BY p.first_name",
+        [$doctor_staff_id]
+    );
+} else {
+    $all_patients = db_select("SELECT id, first_name, last_name FROM patients ORDER BY first_name");
+}
 $admissions    = [];
 $summary       = null;
 $patient       = null;
@@ -26,7 +39,7 @@ if ($patient_id) {
     $admissions = db_select(
         "SELECT a.*, r.room_number, r.room_type FROM admissions a
          LEFT JOIN rooms r ON a.room_id = r.id
-         WHERE a.patient_id = $1 ORDER BY a.admitted_at DESC",
+         WHERE a.patient_id = $1 ORDER BY a.admission_date DESC",
         [$patient_id]
     );
     if ($admission_id) {
@@ -42,20 +55,20 @@ if ($patient_id) {
 // --- Generate Summary ---
 if ($patient && $admission) {
     // Prescriptions during/around this admission
-    $admit_date = $admission['admitted_at'] ?? date('Y-m-d');
-    $discharge_date = $admission['discharged_at'] ?? date('Y-m-d H:i:s');
+    $admit_date = $admission['admission_date'] ?? date('Y-m-d');
+    $discharge_date = $admission['discharge_date'] ?? date('Y-m-d H:i:s');
 
     $prescriptions = db_select(
-        "SELECT p.*, s.name as doctor_name, s.specialization FROM prescriptions p
+        "SELECT p.*, s.first_name || ' ' || s.last_name as doctor_name, s.specialization FROM prescriptions p
          LEFT JOIN staff s ON p.doctor_id = s.id
          WHERE p.patient_id = $1 ORDER BY p.created_at DESC LIMIT 10",
         [$patient_id]
     );
 
     $appointments = db_select(
-        "SELECT a.*, s.name as doctor_name, s.specialization FROM appointments a
+        "SELECT a.*, s.first_name || ' ' || s.last_name as doctor_name, s.specialization FROM appointments a
          LEFT JOIN staff s ON a.doctor_id = s.id
-         WHERE a.patient_id = $1 ORDER BY a.appointment_date DESC LIMIT 10",
+         WHERE a.patient_id = $1 ORDER BY a.appointment_time DESC LIMIT 10",
         [$patient_id]
     );
 
@@ -165,9 +178,9 @@ if ($patient && $admission) {
                     <option value="">-- Select Admission --</option>
                     <?php foreach ($admissions as $adm): ?>
                         <option value="<?php echo $adm['id']; ?>" <?php echo ($admission_id == $adm['id']) ? 'selected' : ''; ?>>
-                            <?php echo date('M d, Y', strtotime($adm['admitted_at'])); ?>
+                            <?php echo date('M d, Y', strtotime($adm['admission_date'])); ?>
                             — <?php echo htmlspecialchars($adm['room_number'] ?? 'Room'); ?>
-                            (<?php echo $adm['discharged_at'] ? 'Discharged' : 'Active'; ?>)
+                            (<?php echo $adm['discharge_date'] ? 'Discharged' : 'Active'; ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -188,11 +201,11 @@ if ($patient && $admission) {
     <?php
         $p  = $summary['patient'];
         $adm = $summary['admission'];
-        $admit_dt = date('d M Y, H:i', strtotime($adm['admitted_at']));
-        $discharge_dt = $adm['discharged_at'] ? date('d M Y, H:i', strtotime($adm['discharged_at'])) : 'Still Admitted';
-        $days = $adm['discharged_at']
-            ? max(1, (int)ceil((strtotime($adm['discharged_at']) - strtotime($adm['admitted_at'])) / 86400))
-            : (int)ceil((time() - strtotime($adm['admitted_at'])) / 86400);
+        $admit_dt = date('d M Y, H:i', strtotime($adm['admission_date']));
+        $discharge_dt = $adm['discharge_date'] ? date('d M Y, H:i', strtotime($adm['discharge_date'])) : 'Still Admitted';
+        $days = $adm['discharge_date']
+            ? max(1, (int)ceil((strtotime($adm['discharge_date']) - strtotime($adm['admission_date'])) / 86400))
+            : (int)ceil((time() - strtotime($adm['admission_date'])) / 86400);
     ?>
     <div class="ds-document" id="summaryDoc">
 
@@ -208,7 +221,7 @@ if ($patient && $admission) {
                     <div style="font-size: 0.75em; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px;">Admission ID</div>
                     <div style="font-size: 1.4em; font-weight: 800; font-family: monospace;">#<?php echo str_pad($adm['id'], 6, '0', STR_PAD_LEFT); ?></div>
                     <div style="margin-top: 6px;">
-                        <?php if ($adm['discharged_at']): ?>
+                        <?php if ($adm['discharge_date']): ?>
                             <span style="background: rgba(16,185,129,0.3); color: #6ee7b7; border-radius: 99px; padding: 4px 12px; font-size: 0.8em; font-weight: 700;">Discharged</span>
                         <?php else: ?>
                             <span style="background: rgba(245,158,11,0.3); color: #fcd34d; border-radius: 99px; padding: 4px 12px; font-size: 0.8em; font-weight: 700;">Active Admission</span>
@@ -366,7 +379,7 @@ if ($patient && $admission) {
                 <tbody>
                     <?php foreach (array_slice($summary['appointments'], 0, 6) as $ap): ?>
                     <tr style="border-bottom: 1px solid #f3f4f6;">
-                        <td style="padding: 9px 14px; color: #111827;"><?php echo date('d M Y', strtotime($ap['appointment_date'])); ?></td>
+                        <td style="padding: 9px 14px; color: #111827;"><?php echo date('d M Y', strtotime($ap['appointment_time'])); ?></td>
                         <td style="padding: 9px 14px; color: #374151;"><?php echo htmlspecialchars($ap['doctor_name'] ?? 'N/A'); ?></td>
                         <td style="padding: 9px 14px; color: #6b7280;"><?php echo htmlspecialchars($ap['specialization'] ?? '—'); ?></td>
                         <td style="padding: 9px 14px;">
@@ -420,7 +433,7 @@ if ($patient && $admission) {
             $diag      = htmlspecialchars($adm['diagnosis'] ?? 'the presenting condition');
             $doc_list  = implode(', ', array_map(fn($n) => htmlspecialchars($n), array_keys($summary['doctors'])));
             $med_names = implode(', ', array_map(fn($m) => htmlspecialchars($m['name'] ?? ''), array_slice($summary['all_meds'], 0, 5)));
-            $outcome   = $adm['discharged_at'] ? 'was discharged in stable condition' : 'remains admitted under observation';
+            $outcome   = $adm['discharge_date'] ? 'was discharged in stable condition' : 'remains admitted under observation';
             ?>
             <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px 24px; line-height: 1.8; color: #374151; font-size: 0.92em;">
                 <p>

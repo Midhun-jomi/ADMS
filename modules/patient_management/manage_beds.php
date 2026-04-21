@@ -114,6 +114,10 @@ $rooms = db_select("SELECT * FROM rooms ORDER BY room_number");
                 <a href="admit_patient.php" class="btn btn-primary btn-sm"><i class="fas fa-procedures"></i> Admit Patient</a>
             </div>
             
+            <div style="margin-bottom: 14px; padding: 20px 20px 0;">
+                <input type="text" id="filter-beds" onkeyup="filterTable('filter-beds','tbl-beds')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+            </div>
+            <table id="tbl-beds" style="display:none;"></table>
             <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 20px;">
                 <?php foreach ($rooms as $room): ?>
                     <?php 

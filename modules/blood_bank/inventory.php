@@ -111,8 +111,11 @@ $stock_items = db_select("
             <?php if (empty($stock_items)): ?>
                 <div class="bb-empty"><i class="fas fa-box-open"></i><p>No blood stock available.</p></div>
             <?php else: ?>
+            <div style="margin-bottom: 14px;">
+                <input type="text" id="filter-blood" onkeyup="filterTable('filter-blood','tbl-blood')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+            </div>
             <div class="bb-table-wrap">
-                <table class="bb-table">
+                <table id="tbl-blood" class="bb-table">
                     <thead>
                         <tr>
                             <th>Blood Group</th>
@@ -168,8 +171,11 @@ $stock_items = db_select("
             <?php if (empty($donors)): ?>
                 <div class="bb-empty"><i class="fas fa-user-slash"></i><p>No donors registered yet.</p></div>
             <?php else: ?>
+            <div style="margin-bottom: 14px;">
+                <input type="text" id="filter-blood-donors" onkeyup="filterTable('filter-blood-donors','tbl-blood-donors')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+            </div>
             <div class="bb-table-wrap">
-                <table class="bb-table">
+                <table id="tbl-blood-donors" class="bb-table">
                     <thead>
                         <tr>
                             <th>Donor</th>
@@ -291,7 +297,6 @@ $stock_items = db_select("
                     <input type="date" name="expiry_date" id="stock_expiry_date" required class="bb-input"
                            min="<?php echo date('Y-m-d'); ?>"
                            value="<?php echo date('Y-m-d', strtotime('+42 days')); ?>">
-                    <small class="bb-hint" id="expiry_hint"><i class="fas fa-robot text-primary"></i> AI Engine automatically calculates accurate shelf-life per ISBT standards</small>
                 </div>
             </div>
 

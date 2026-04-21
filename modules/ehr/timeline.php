@@ -22,7 +22,7 @@ if ($role === 'patient') {
     }
 } else {
     $all_patients = db_select("SELECT id, first_name, last_name FROM patients ORDER BY first_name");
-    $pid = isset($_GET['patient_id']) ? (int)$_GET['patient_id'] : 0;
+    $pid = isset($_GET['patient_id']) ? trim($_GET['patient_id']) : '';
     if ($pid) {
         $pat = db_select_one("SELECT id, first_name, last_name FROM patients WHERE id = $1", [$pid]);
         if ($pat) {
@@ -38,8 +38,8 @@ $events = [];
 if ($patient_id) {
     // Appointments
     $appts = db_select(
-        "SELECT a.id, a.appointment_date as ts, a.status, a.notes,
-                s.name as doctor_name, s.specialization
+        "SELECT a.id, a.appointment_time as ts, a.status, a.reason as notes,
+                s.first_name || ' ' || s.last_name as doctor_name, s.specialization
          FROM appointments a
          LEFT JOIN staff s ON a.doctor_id = s.id
          WHERE a.patient_id = $1",
@@ -63,7 +63,7 @@ if ($patient_id) {
     // Prescriptions
     $rxs = db_select(
         "SELECT p.id, p.created_at as ts, p.notes, p.medication_details,
-                s.name as doctor_name, s.specialization
+                s.first_name || ' ' || s.last_name as doctor_name, s.specialization
          FROM prescriptions p
          LEFT JOIN staff s ON p.doctor_id = s.id
          WHERE p.patient_id = $1",
@@ -88,7 +88,7 @@ if ($patient_id) {
 
     // Admissions
     $admissions = db_select(
-        "SELECT a.id, a.admitted_at as ts, a.discharged_at, a.reason, a.diagnosis,
+        "SELECT a.id, a.admission_date as ts, a.discharge_date, a.diagnosis,
                 r.room_number, r.room_type
          FROM admissions a
          LEFT JOIN rooms r ON a.room_id = r.id
@@ -103,15 +103,15 @@ if ($patient_id) {
             'color'   => '#ef4444',
             'bg'      => '#fee2e2',
             'title'   => 'Hospital Admission' . ($r['room_number'] ? ' — Room ' . $r['room_number'] : ''),
-            'detail'  => $r['reason'] ?: 'Admitted for treatment',
+            'detail'  => $r['diagnosis'] ?: 'Admitted for treatment',
             'note'    => $r['diagnosis'] ? 'Diagnosis: ' . $r['diagnosis'] : '',
-            'badge'   => $r['discharged_at'] ? 'Discharged' : 'Active',
-            'badge_c' => $r['discharged_at'] ? '#dcfce7' : '#fef3c7',
+            'badge'   => $r['discharge_date'] ? 'Discharged' : 'Active',
+            'badge_c' => $r['discharge_date'] ? '#dcfce7' : '#fef3c7',
         ];
         // Discharge event
-        if ($r['discharged_at']) {
+        if ($r['discharge_date']) {
             $events[] = [
-                'ts'      => $r['discharged_at'],
+                'ts'      => $r['discharge_date'],
                 'type'    => 'discharge',
                 'icon'    => 'fas fa-walking',
                 'color'   => '#0ea5e9',

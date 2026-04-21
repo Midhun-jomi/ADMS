@@ -140,8 +140,11 @@ $staff_list = db_select("SELECT * FROM staff ORDER BY role, last_name");
         <div class="card-header">
             <h3>Staff Directory</h3>
         </div>
+        <div style="margin-bottom: 14px; padding: 0 15px;">
+            <input type="text" id="filter-staff" onkeyup="filterTable('filter-staff','tbl-staff')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+        </div>
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table id="tbl-staff" class="table table-hover">
                 <thead>
                     <tr style="background-color: #f8f9fa;">
                         <th style="padding: 15px;">Name</th>

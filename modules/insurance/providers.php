@@ -64,7 +64,10 @@ $providers = db_select("SELECT * FROM insurance_providers ORDER BY name");
             <button type="submit" name="add_provider" class="btn btn-primary">Add Provider</button>
         </form>
 
-        <table style="width: 100%; border-collapse: collapse;">
+        <div style="margin-bottom: 14px;">
+            <input type="text" id="filter-ins-providers" onkeyup="filterTable('filter-ins-providers','tbl-ins-providers')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+        </div>
+        <table id="tbl-ins-providers" style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="background: #f8f9fa; text-align: left;">
                     <th style="padding: 10px;">Name</th>

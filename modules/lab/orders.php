@@ -131,7 +131,10 @@ $pre_patient_id = $_GET['patient_id'] ?? '';
         </div>
     <?php endif; ?>
 
-    <table style="width: 100%; border-collapse: collapse;">
+    <div style="margin-bottom: 14px;">
+        <input type="text" id="filter-lab-orders" onkeyup="filterTable('filter-lab-orders','tbl-lab-orders')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+    </div>
+    <table id="tbl-lab-orders" style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr style="background-color: #f8f9fa; text-align: left;">
                 <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">Date</th>

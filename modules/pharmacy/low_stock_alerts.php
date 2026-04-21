@@ -4,6 +4,23 @@ require_once '../../includes/db.php';
 require_once '../../includes/auth_session.php';
 check_role(['pharmacist', 'admin']);
 
+// Handle restock POST before any output
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_restock'])) {
+    if (verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $med_id  = trim($_POST['med_id'] ?? '');
+        $add_qty = (int)($_POST['add_qty'] ?? 0);
+        if ($med_id !== '' && $add_qty > 0) {
+            $cur = db_select_one("SELECT quantity FROM pharmacy_inventory WHERE id = $1", [$med_id]);
+            if ($cur) {
+                $new_qty = (int)$cur['quantity'] + $add_qty;
+                db_update('pharmacy_inventory', ['quantity' => $new_qty], ['id' => $med_id]);
+                header("Location: low_stock_alerts.php?restocked=1");
+                exit();
+            }
+        }
+    }
+}
+
 $page_title = "Low Stock Alerts";
 include '../../includes/header.php';
 
@@ -47,27 +64,7 @@ foreach ($inventory as $item) {
 // Sort expiring by soonest
 usort($expiring, fn($a, $b) => $a['days_to_exp'] - $b['days_to_exp']);
 
-// Handle restock POST (mark as ordered / add note)
-$restock_success = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_restock'])) {
-    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
-        // silent fail
-    } else {
-        $med_id  = (int)($_POST['med_id'] ?? 0);
-        $add_qty = (int)($_POST['add_qty'] ?? 0);
-        if ($med_id > 0 && $add_qty > 0) {
-            $cur = db_select_one("SELECT quantity FROM pharmacy_inventory WHERE id = $1", [$med_id]);
-            if ($cur) {
-                $new_qty = (int)$cur['quantity'] + $add_qty;
-                db_update('pharmacy_inventory', ['quantity' => $new_qty], ['id' => $med_id]);
-                $restock_success = "Stock updated successfully.";
-                // Refresh
-                header("Location: low_stock_alerts.php?restocked=1");
-                exit();
-            }
-        }
-    }
-}
+
 ?>
 
 <style>

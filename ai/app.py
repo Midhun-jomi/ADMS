@@ -48,11 +48,11 @@ def create_mock_dataset():
 # --- 3. Training Logic (Continuous Learning) ---
 def train_model():
     global vectorizer, model
-    
+
     # Path logic
     base_file = "ai_triage_queue_dataset_200.xlsx"
     path_alternatives = [base_file, os.path.join("ai", base_file), os.path.join("..", base_file)]
-    
+
     df = None
     for path in path_alternatives:
         if os.path.exists(path):
@@ -69,7 +69,7 @@ def train_model():
 
     # Data Cleaning
     df = df.fillna("")
-    
+
     # Feature Engineering (Matching untitled1.py)
     for col in ["Medical_History", "Symptoms", "Keyword_Symptoms"]:
         if col not in df.columns:
@@ -84,14 +84,14 @@ def train_model():
     # Target Label: AI_Urgency (Proper Training)
     if "AI_Urgency" not in df.columns:
         df["AI_Urgency"] = "Medium"
-    
+
     y = df["AI_Urgency"]
 
     # Training
     print(f"Training urgency model on {len(df)} records...")
     vectorizer = TfidfVectorizer(stop_words='english')
     X_vector = vectorizer.fit_transform(df["Text"])
-    
+
     model = MultinomialNB()
     model.fit(X_vector, y)
     print("Urgency model training complete.")
@@ -102,9 +102,8 @@ def engine_predict_disease(symptoms, full_history=""):
     h = full_history.lower().strip()
     combined = s + " " + h
 
-    # --- Direct Disease Name Lookup (exact name typed) ---
     disease_map = {
-        # ── Cardiac / Vascular ──────────────────────────────────────────
+        # Cardiac / Vascular
         "heart attack": "Possible Cardiac Condition",
         "cardiac arrest": "Possible Cardiac Condition",
         "myocardial infarction": "Possible Cardiac Condition",
@@ -127,7 +126,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "peripheral artery": "Peripheral Artery Disease",
         "aortic aneurysm": "Aortic Aneurysm",
         "mitral valve": "Mitral Valve Disease",
-        # ── Endocrine / Metabolic ────────────────────────────────────────
+        # Endocrine / Metabolic
         "diabetes": "Diabetes Mellitus",
         "diabetic": "Diabetes Mellitus",
         "type 1 diabetes": "Type 1 Diabetes Mellitus",
@@ -146,7 +145,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "pcod": "PCOS / Hormonal Disorder",
         "gout": "Gout / Uric Acid Disorder",
         "hyperuricemia": "Hyperuricemia / Gout",
-        # ── Respiratory ─────────────────────────────────────────────────
+        # Respiratory
         "asthma": "Asthma / Respiratory Distress",
         "tuberculosis": "Tuberculosis (TB)",
         "tb": "Tuberculosis (TB)",
@@ -172,7 +171,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "nasal polyp": "Nasal Polyp",
         "deviated septum": "Deviated Nasal Septum",
         "adenoid": "Adenoid Hypertrophy",
-        # ── Gastrointestinal ─────────────────────────────────────────────
+        # Gastrointestinal
         "gastritis": "Gastritis / Stomach Inflammation",
         "gastroenteritis": "Gastroenteritis / Stomach Infection",
         "appendicitis": "Potential Appendicitis",
@@ -205,7 +204,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "gerd": "GERD / Acid Reflux",
         "acid reflux": "GERD / Acid Reflux",
         "lactose": "Lactose Intolerance",
-        # ── Neurological ─────────────────────────────────────────────────
+        # Neurological
         "migraine": "Migraine / Severe Headache",
         "epilepsy": "Epilepsy / Seizure Disorder",
         "seizure": "Epilepsy / Seizure Disorder",
@@ -232,7 +231,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "als": "Amyotrophic Lateral Sclerosis (ALS)",
         "hydrocephalus": "Hydrocephalus",
         "meniere": "Ménière's Disease",
-        # ── Musculoskeletal ──────────────────────────────────────────────
+        # Musculoskeletal
         "arthritis": "Arthritis / Joint Inflammation",
         "rheumatoid": "Rheumatoid Arthritis",
         "osteoarthritis": "Osteoarthritis / Degenerative Joint Disease",
@@ -258,7 +257,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "ligament tear": "Ligament Injury / ACL Tear",
         "acl": "ACL Tear / Knee Ligament Injury",
         "meniscus": "Meniscus Tear / Knee Injury",
-        # ── Dermatology ──────────────────────────────────────────────────
+        # Dermatology
         "psoriasis": "Psoriasis / Skin Condition",
         "eczema": "Eczema / Atopic Dermatitis",
         "atopic dermatitis": "Eczema / Atopic Dermatitis",
@@ -284,7 +283,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "contact dermatitis": "Contact Dermatitis",
         "drug rash": "Drug-Induced Rash",
         "ichthyosis": "Ichthyosis / Dry Scaly Skin",
-        # ── Mental Health ─────────────────────────────────────────────────
+        # Mental Health
         "depression": "Depression / Mood Disorder",
         "anxiety": "Anxiety / Stress Disorder",
         "insomnia": "Insomnia / Sleep Disorder",
@@ -306,7 +305,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "phobia": "Phobia / Anxiety Disorder",
         "social anxiety": "Social Anxiety Disorder",
         "burnout": "Burnout / Stress Disorder",
-        # ── Urological / Renal ───────────────────────────────────────────
+        # Urological / Renal
         "kidney stone": "Kidney Stones / Renal Calculi",
         "renal calculi": "Kidney Stones / Renal Calculi",
         "nephrolithiasis": "Kidney Stones / Renal Calculi",
@@ -328,7 +327,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "incontinence": "Urinary Incontinence",
         "overactive bladder": "Overactive Bladder",
         "cystitis": "Cystitis / Bladder Infection",
-        # ── Ophthalmology ─────────────────────────────────────────────────
+        # Ophthalmology
         "cataract": "Cataract / Eye Condition",
         "glaucoma": "Glaucoma / Eye Condition",
         "conjunctivitis": "Conjunctivitis / Pink Eye",
@@ -344,7 +343,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "diabetic retinopathy": "Diabetic Retinopathy",
         "lazy eye": "Amblyopia / Lazy Eye",
         "amblyopia": "Amblyopia / Lazy Eye",
-        # ── ENT ───────────────────────────────────────────────────────────
+        # ENT
         "otitis": "Otitis / Ear Infection",
         "ear infection": "Otitis / Ear Infection",
         "tinnitus": "Tinnitus / Ringing in Ears",
@@ -354,7 +353,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "eardrum": "Tympanic Membrane Disorder",
         "epistaxis": "Epistaxis / Nosebleed",
         "nosebleed": "Epistaxis / Nosebleed",
-        # ── Women's Health / Gynaecology ──────────────────────────────────
+        # Women's Health / Gynaecology
         "endometriosis": "Endometriosis",
         "fibroid": "Uterine Fibroids",
         "uterine fibroid": "Uterine Fibroids",
@@ -372,7 +371,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "menopause": "Menopause / Hormonal Change",
         "pelvic inflammatory": "Pelvic Inflammatory Disease",
         "pid": "Pelvic Inflammatory Disease",
-        # ── Haematology ──────────────────────────────────────────────────
+        # Haematology
         "leukemia": "Leukaemia / Blood Cancer",
         "leukaemia": "Leukaemia / Blood Cancer",
         "lymphoma": "Lymphoma / Lymph Gland Cancer",
@@ -388,7 +387,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "anemia": "Anaemia / Blood Deficiency",
         "anaemia": "Anaemia / Blood Deficiency",
         "iron deficiency": "Iron Deficiency Anaemia",
-        # ── Oncology ─────────────────────────────────────────────────────
+        # Oncology
         "cancer": "Oncological Condition (Cancer)",
         "tumour": "Oncological Condition (Tumour)",
         "tumor": "Oncological Condition (Tumour)",
@@ -410,7 +409,7 @@ def engine_predict_disease(symptoms, full_history=""):
         "lymph node": "Possible Lymphoma / Oncological Concern",
         "metastasis": "Metastatic Cancer",
         "carcinoma": "Carcinoma / Malignancy",
-        # ── Infections / Tropical ────────────────────────────────────────
+        # Infections / Tropical
         "malaria": "Malaria / Vector-Borne Fever",
         "dengue": "Dengue Fever",
         "typhoid": "Typhoid Fever",
@@ -452,7 +451,6 @@ def engine_predict_disease(symptoms, full_history=""):
     if len(s) < 3 or not any(kw in combined for kw in medical_keywords):
         return "Unclear Symptoms (Need more detail)"
 
-    # Prioritize specific complex symptom combinations
     if "chest pain" in s or ("chest" in s and "pain" in s):
         return "Possible Cardiac Condition"
     if "severe headache" in s and ("blurred vision" in s or "vision" in s):
@@ -464,13 +462,11 @@ def engine_predict_disease(symptoms, full_history=""):
     if "wheezing" in s or "breath" in s:
         return "Asthma / Respiratory Distress"
 
-    # Abdominal
     if "stomach" in s or "abdomen" in s or "belly" in s:
         if "right" in s and "lower" in s:
             return "Potential Appendicitis"
         return "Gastrointestinal Issue / Gastritis"
 
-    # Standalone symptoms
     if "lung" in s or ("chest" in s and "pain" in s):
         return "Respiratory / Pulmonary Condition"
     if "fever" in s:
@@ -503,14 +499,12 @@ def engine_predict_disease(symptoms, full_history=""):
 # Helper for Specialization Mapping
 def get_specialization_for_condition(condition):
     spec_map = {
-        # Cardiology
         "Cardiac": "Cardiology", "Heart": "Cardiology", "Hypertension": "Cardiology",
         "Hypotension": "Cardiology", "Cholesterol": "Cardiology", "Arrhythmia": "Cardiology",
         "Angina": "Cardiology", "Pericarditis": "Cardiology", "Cardiomyopathy": "Cardiology",
         "Atrial Fibrillation": "Cardiology", "DVT": "Cardiology", "Deep Vein": "Cardiology",
         "Varicose": "Cardiology", "Aortic": "Cardiology", "Mitral": "Cardiology",
         "Peripheral Artery": "Cardiology",
-        # Neurology
         "Neurological": "Neurology", "Migraine": "Neurology", "Epilepsy": "Neurology",
         "Seizure": "Neurology", "Stroke": "Neurology", "Paralysis": "Neurology",
         "Parkinson": "Neurology", "Alzheimer": "Neurology", "Dementia": "Neurology",
@@ -519,25 +513,21 @@ def get_specialization_for_condition(condition):
         "Neuropathy": "Neurology", "Trigeminal": "Neurology", "Cerebral Palsy": "Neurology",
         "Guillain": "Neurology", "ALS": "Neurology", "Motor Neuron": "Neurology",
         "Hydrocephalus": "Neurology", "TIA": "Neurology", "Mini Stroke": "Neurology",
-        "Ménière": "Neurology", "Meniere": "Neurology", "Acoustic Neuroma": "Neurology",
-        # Endocrinology
+        "Meniere": "Neurology", "Acoustic Neuroma": "Neurology",
         "Diabetes": "Endocrinology", "Thyroid": "Endocrinology", "Obesity": "Endocrinology",
         "Metabolic": "Endocrinology", "PCOS": "Endocrinology", "Hormonal": "Endocrinology",
         "Goitre": "Endocrinology", "Adrenal": "Endocrinology", "Cushing": "Endocrinology",
         "Addison": "Endocrinology", "Hyperuricemia": "Endocrinology",
-        # Pulmonology
         "Respiratory": "Pulmonology", "Pulmonary": "Pulmonology", "Asthma": "Pulmonology",
         "Bronchitis": "Pulmonology", "Tuberculosis": "Pulmonology", "TB": "Pulmonology",
         "Pneumonia": "Pulmonology", "COPD": "Pulmonology", "Emphysema": "Pulmonology",
         "Pleuritis": "Pulmonology", "Pleurisy": "Pulmonology", "Sleep Apnoea": "Pulmonology",
         "Cystic Fibrosis": "Pulmonology", "Pertussis": "Pulmonology",
         "Pulmonary Embolism": "Pulmonology", "Pulmonary Fibrosis": "Pulmonology",
-        # ENT
         "Sinusitis": "ENT", "Tonsillitis": "ENT", "Rhinitis": "ENT",
         "Laryngitis": "ENT", "Nasal Polyp": "ENT", "Deviated": "ENT",
         "Adenoid": "ENT", "Otitis": "ENT", "Tinnitus": "ENT",
         "Hearing Loss": "ENT", "Epistaxis": "ENT", "Hay Fever": "ENT",
-        # Gastroenterology
         "Gastrointestinal": "Gastroenterology", "Gastritis": "Gastroenterology",
         "Gastro": "Gastroenterology", "Ulcer": "Gastroenterology", "Colitis": "Gastroenterology",
         "Bowel": "Gastroenterology", "Constipation": "Gastroenterology",
@@ -547,17 +537,14 @@ def get_specialization_for_condition(condition):
         "Achalasia": "Gastroenterology", "Celiac": "Gastroenterology",
         "Coeliac": "Gastroenterology", "Lactose": "Gastroenterology",
         "Food Poisoning": "Gastroenterology",
-        # Hepatology / Liver
         "Jaundice": "Hepatology", "Hepatitis": "Hepatology", "Liver": "Hepatology",
         "Cirrhosis": "Hepatology", "Fatty Liver": "Hepatology", "NAFLD": "Hepatology",
         "Hepatocellular": "Hepatology",
-        # General Surgery
         "Hernia": "General Surgery", "Appendicitis": "General Surgery",
         "Piles": "General Surgery", "Haemorrhoids": "General Surgery",
         "Anal Fissure": "General Surgery", "Fistula": "General Surgery",
         "Gallstone": "General Surgery", "Cholecystitis": "General Surgery",
         "Gallbladder": "General Surgery",
-        # Orthopedics
         "Musculoskeletal": "Orthopedics", "Orthopedic": "Orthopedics",
         "Arthritis": "Orthopedics", "Fracture": "Orthopedics", "Gout": "Orthopedics",
         "Sciatica": "Orthopedics", "Spinal": "Orthopedics", "Disc": "Orthopedics",
@@ -569,7 +556,6 @@ def get_specialization_for_condition(condition):
         "Frozen Shoulder": "Orthopedics", "Tennis Elbow": "Orthopedics",
         "ACL": "Orthopedics", "Meniscus": "Orthopedics", "Ligament": "Orthopedics",
         "Osteoarthritis": "Orthopedics",
-        # Dermatology
         "Dermatological": "Dermatology", "Psoriasis": "Dermatology", "Eczema": "Dermatology",
         "Fungal": "Dermatology", "Allergic": "Dermatology", "Urticaria": "Dermatology",
         "Skin": "Dermatology", "Acne": "Dermatology", "Vitiligo": "Dermatology",
@@ -577,7 +563,6 @@ def get_specialization_for_condition(condition):
         "Alopecia": "Dermatology", "Cellulitis": "Dermatology", "Impetigo": "Dermatology",
         "Rosacea": "Dermatology", "Scabies": "Dermatology", "Wart": "Dermatology",
         "Tinea": "Dermatology", "Ringworm": "Dermatology", "Contact Dermatitis": "Dermatology",
-        # Nephrology / Urology
         "Kidney": "Nephrology", "Renal": "Nephrology", "Nephrotic": "Nephrology",
         "Nephritis": "Nephrology", "Glomerulo": "Nephrology", "Hydronephrosis": "Nephrology",
         "Chronic Kidney": "Nephrology",
@@ -585,7 +570,6 @@ def get_specialization_for_condition(condition):
         "Prostatitis": "Urology", "Prostate": "Urology", "BPH": "Urology",
         "Benign Prostatic": "Urology", "Incontinence": "Urology",
         "Overactive Bladder": "Urology",
-        # Ophthalmology
         "Cataract": "Ophthalmology", "Glaucoma": "Ophthalmology",
         "Conjunctivitis": "Ophthalmology", "Eye": "Ophthalmology",
         "Retinal": "Ophthalmology", "Macular": "Ophthalmology",
@@ -593,25 +577,21 @@ def get_specialization_for_condition(condition):
         "Strabismus": "Ophthalmology", "Keratoconus": "Ophthalmology",
         "Blepharitis": "Ophthalmology", "Amblyopia": "Ophthalmology",
         "Diabetic Retinopathy": "Ophthalmology",
-        # Psychiatry
         "Depression": "Psychiatry", "Anxiety": "Psychiatry", "Insomnia": "Psychiatry",
         "Mood": "Psychiatry", "OCD": "Psychiatry", "Obsessive": "Psychiatry",
         "PTSD": "Psychiatry", "Trauma": "Psychiatry", "Bipolar": "Psychiatry",
         "Schizophrenia": "Psychiatry", "Psychosis": "Psychiatry", "ADHD": "Psychiatry",
         "Panic": "Psychiatry", "Autism": "Psychiatry", "Phobia": "Psychiatry",
         "Anorexia": "Psychiatry", "Bulimia": "Psychiatry", "Burnout": "Psychiatry",
-        # Oncology
         "Oncological": "Oncology", "Cancer": "Oncology", "Tumour": "Oncology",
         "Melanoma": "Oncology", "Carcinoma": "Oncology", "Metastasis": "Oncology",
         "Leukaemia": "Oncology", "Lymphoma": "Haematology", "Myeloma": "Haematology",
-        # Haematology
         "Anaemia": "Haematology", "Anemia": "Haematology", "Blood Deficiency": "Haematology",
         "Sickle Cell": "Haematology", "Thalassaemia": "Haematology",
         "Thalassemia": "Haematology", "Thrombocytopenia": "Haematology",
         "Haemophilia": "Haematology", "Hemophilia": "Haematology",
         "Polycythaemia": "Haematology", "Aplastic": "Haematology",
         "Iron Deficiency": "Haematology",
-        # Gynaecology
         "Endometriosis": "Gynaecology", "Fibroid": "Gynaecology",
         "Menstrual": "Gynaecology", "Dysmenorrhoea": "Gynaecology",
         "Amenorrhoea": "Gynaecology", "Ovarian Cyst": "Gynaecology",
@@ -619,7 +599,6 @@ def get_specialization_for_condition(condition):
         "Vulvodynia": "Gynaecology", "Preeclampsia": "Gynaecology",
         "Ectopic": "Gynaecology", "Menopause": "Gynaecology",
         "Pelvic Inflammatory": "Gynaecology",
-        # General
         "Viral": "General Medicine", "Influenza": "General Medicine", "Fever": "General Medicine",
         "Pharyngitis": "General Medicine", "Wellness": "General Medicine",
         "Malaria": "General Medicine", "Dengue": "General Medicine", "Typhoid": "General Medicine",
@@ -650,31 +629,26 @@ def predict():
     history = data.get("history", "")
     symptoms = data.get("symptoms", "")
     vitals = data.get("vitals", {})
-    
-    # 1. Disease Prediction (Rule Engine)
+
     primary_condition = engine_predict_disease(symptoms)
-    
-    # 2. Urgency Prediction (ML)
+
     text_input = f"{history} {symptoms}"
     text_vec = vectorizer.transform([text_input])
     predicted_urgency = model.predict(text_vec)[0]
-    
-    # 3. Probabilities for UI
+
     probs = model.predict_proba(text_vec)[0]
     classes = model.classes_
     top_3 = [{"label": c, "probability": round(p * 100, 1)} for c, p in zip(classes, probs)]
 
-    # 4. Vitals Check (Override)
     hr = float(vitals.get('heart_rate', 0) if vitals else 0)
     bp_sys = float(vitals.get('bp_systolic', 0) if vitals else 0)
-    
+
     final_urgency = predicted_urgency
     if bp_sys > 170 or (hr > 120 and "Cardiac" in primary_condition):
         final_urgency = "Critical"
     elif bp_sys > 145 or hr > 110:
         if final_urgency == "Low": final_urgency = "Medium"
 
-    # 5. Specialization
     recommended_spec = get_specialization_for_condition(primary_condition)
 
     return jsonify({
@@ -685,63 +659,55 @@ def predict():
         "specialization": recommended_spec
     })
 
-# --- 5. Continuous Learning Endpoint ---
+# --- 6. Continuous Learning Endpoint ---
 @app.route('/learn', methods=['POST'])
 def learn():
     data = request.json
-    # Expects: history, symptoms, diagnosed_condition, urgency
-    
     required = ["history", "symptoms", "diagnosis"]
     if not all(k in data for k in required):
         return jsonify({"error": "Missing data"}), 400
-        
+
     new_record = {
         "Medical_History": data['history'],
         "Symptoms": data['symptoms'],
-        "Keyword_Symptoms": data.get('keywords', data['symptoms']), # simple fallback
+        "Keyword_Symptoms": data.get('keywords', data['symptoms']),
         "AI_Urgency": data.get('urgency', 'Medium'),
         "Disease_Label": data['diagnosis']
     }
-    
-    # Append to CSV
+
     try:
         new_df = pd.DataFrame([new_record])
         if not os.path.exists(FEEDBACK_PATH):
             new_df.to_csv(FEEDBACK_PATH, index=False)
         else:
             new_df.to_csv(FEEDBACK_PATH, mode='a', header=False, index=False)
-            
-        # Trigger Retrain
+
         train_model()
-        
         return jsonify({"status": "success", "message": "Knowledge updated."})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# --- 6. Medicine Alternative Suggestion ---
+# --- 7. Medicine Alternative Suggestion ---
 @app.route('/suggest_alternative', methods=['POST'])
 def suggest_alternative():
     if not med_db:
         load_med_db()
-        
+
     data = request.json
     if not data or 'medicine' not in data:
         return jsonify({"error": "No medicine provided"}), 400
-        
+
     med_input = data['medicine'].lower().strip()
-    
-    # 1. Find entry for the input medicine
+
     target_med = None
     for m in med_db:
-        # Check generic name
         if m['name'].lower() == med_input:
             target_med = m
             break
-        # Check all brand names (case insensitive)
         if any(b.lower() == med_input for b in m.get('brand_names', [])):
             target_med = m
             break
-            
+
     if not target_med:
         return jsonify({
             "suggested_alternative": f"Generic {med_input.capitalize()}",
@@ -749,18 +715,14 @@ def suggest_alternative():
             "dosage": "As per medical advice"
         })
 
-    # 2. Find alternatives based on same active ingredients (Substitutes)
     substitutes = []
     target_ingredients = set([i.lower() for i in target_med['active_ingredients']])
     target_category = target_med.get('category', '').lower()
-    
+
     for m in med_db:
         if m['name'].lower() == target_med['name'].lower():
             continue
-            
         m_ingredients = set([i.lower() for i in m['active_ingredients']])
-        
-        # Best Match: Overlapping active ingredients
         if target_ingredients & m_ingredients:
             substitutes.append({
                 "name": m['name'],
@@ -768,13 +730,12 @@ def suggest_alternative():
                 "reason": f"Same composition: {', '.join(m['active_ingredients'])}",
                 "dosage": m['strength']
             })
-            
+
     if not substitutes and target_category:
-        # Fallback: Same category (Analgesic, Antibiotic, etc.)
         for m in med_db:
-             if m['name'].lower() == target_med['name'].lower(): continue
-             if m.get('category', '').lower() == target_category:
-                 substitutes.append({
+            if m['name'].lower() == target_med['name'].lower(): continue
+            if m.get('category', '').lower() == target_category:
+                substitutes.append({
                     "name": m['name'],
                     "brand": m['brand_names'][0] if m['brand_names'] else m['name'],
                     "reason": f"Same therapeutic class: {m['category']}",
@@ -782,7 +743,6 @@ def suggest_alternative():
                 })
 
     if substitutes:
-        # Provide the best available substitute
         top = substitutes[0]
         return jsonify({
             "original": target_med['name'],
@@ -790,29 +750,24 @@ def suggest_alternative():
             "reason": top['reason'],
             "dosage": top['dosage']
         })
-    
+
     return jsonify({
         "suggested_alternative": f"Generic {target_med['name']}",
         "reason": f"No direct substitute found in local records for {target_med.get('category', 'this class')}.",
         "dosage": target_med['strength']
     })
 
-# --- 7. Interactive Symptom Checker (Gemini LLM / Pretrained Integration) ---
-import os
-import requests
-import json
+# --- 8. Interactive Symptom Checker ---
+import requests as req_lib
 
 @app.route('/symptom_chat', methods=['POST'])
 def symptom_chat():
     data = request.json
     if not data or 'messages' not in data:
         return jsonify({"error": "No message history provided"}), 400
-        
+
     messages = data['messages']
-    
-    # 1. GEMINI AI / PRETRAINED LLM API INTEGRATION
-    # ------------------------------------------------------------------
-    # Now uses the medically usable Google Gemini API if the key is present.
+
     gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
     if gemini_api_key:
         try:
@@ -822,30 +777,22 @@ def symptom_chat():
             system_prompt = """You are an advanced medical clinical extraction engine for a hospital strictly operating in a clinical context.
 Your ONLY purpose is to assess medical symptoms, triage patients, and recommend the appropriate hospital department.
 You MUST ONLY speak in professional, medical, or clinical hospital language.
-If the user asks about ANYTHING non-medical (e.g., coding, general chat, jokes), you MUST refuse to answer and state: "I am a clinical AI assistant. I can only assist with medical symptom triage."
-Carefully review the user's symptoms. If unclear, ask a rapid follow-up question to clear all doubts using professional clinical terminology.
-If the symptoms are clear (e.g., 'lungs pain'), perform an immediate triage.
+If the user asks about ANYTHING non-medical, you MUST refuse and state: "I am a clinical AI assistant. I can only assist with medical symptom triage."
 Reply strictly in JSON format: {"reply": "...", "diagnosis": "...", "specialization": "...", "urgency": "High/Medium/Low", "finished": true/false}"""
 
             prompt_msgs = system_prompt + "\n\nChat History:\n" + "\n".join([m['role'] + ": " + m['content'] for m in messages])
-            
             response = gemini_model.generate_content(prompt_msgs, generation_config={"response_mime_type": "application/json"})
             ai_result = json.loads(response.text)
             return jsonify(ai_result)
         except Exception as e:
             print(f"Gemini API Connection Failed: {e}. Falling back to internal engine.")
 
-    # ------------------------------------------------------------------
-    # 2. INTERNAL LOCAL PRETRAINED ML FALLBACK
-    # ------------------------------------------------------------------
     turn_count = len([m for m in messages if m['role'] == 'user'])
     all_symptoms = " ".join([m['content'] for m in messages if m['role'] == 'user']).lower()
     user_msgs = [m['content'] for m in messages if m['role'] == 'user']
     latest_user_msg = user_msgs[-1].lower() if user_msgs else ""
-    
-    # 2.A: Strict Non-Medical Filter for Local Engine
+
     medical_keywords = [
-        # Symptoms
         "pain", "ache", "fever", "cough", "head", "stomach", "breath", "blood", "skin",
         "hurt", "eye", "ear", "leg", "heart", "sick", "ill", "doctor", "hospital",
         "medicine", "pill", "symptom", "disease", "vomit", "nausea", "dizzy", "fatigue",
@@ -853,70 +800,27 @@ Reply strictly in JSON format: {"reply": "...", "diagnosis": "...", "specializat
         "throat", "nose", "back", "arm", "joint", "bone", "muscle", "kidney", "liver",
         "urine", "stool", "bleed", "infection", "injury", "wound", "allerg", "cramp",
         "discharge", "numbness", "tremor", "palpitation", "breathless", "wheez",
-        # Disease names (cardiac/vascular)
-        "angina", "arrhythmia", "hypertension", "hypotension", "cholesterol", "dvt",
-        "varicose", "pericarditis", "cardiomyopathy", "atrial fibrillation",
-        # Endocrine
-        "diabetes", "diabetic", "thyroid", "hypothyroid", "hyperthyroid", "goiter",
-        "adrenal", "cushing", "addison", "obesity", "pcos", "pcod", "gout",
-        # Respiratory
-        "asthma", "tuberculosis", "pneumonia", "bronchitis", "copd", "emphysema",
-        "pleurisy", "pleuritis", "sinusitis", "rhinitis", "tonsil", "laryngitis",
-        "pertussis", "whooping", "fibrosis", "apnea",
-        # GI
-        "gastritis", "gastroenteritis", "appendicitis", "ulcer", "ibs", "colitis",
-        "crohn", "diverticulitis", "pancreatitis", "gallstone", "cholecystitis",
-        "jaundice", "hepatitis", "cirrhosis", "hernia", "piles", "haemorrhoid",
-        "hemorrhoid", "fistula", "celiac", "constipation", "diarrhea", "gerd",
-        "reflux", "achalasia", "nafld",
-        # Neurological
-        "migraine", "epilepsy", "seizure", "stroke", "paralysis", "parkinson",
-        "alzheimer", "dementia", "vertigo", "meningitis", "encephalitis", "palsy",
-        "multiple sclerosis", "neuropathy", "trigeminal", "hydrocephalus", "meniere",
-        "guillain", "als", "motor neuron",
-        # Musculoskeletal
-        "arthritis", "rheumatoid", "osteoporosis", "sciatica", "slip disc",
-        "spondylitis", "fracture", "bursitis", "tendinitis", "carpal tunnel",
-        "fibromyalgia", "myositis", "rotator cuff", "plantar fasciitis", "acl",
-        "meniscus", "osteoarthritis",
-        # Dermatology
-        "psoriasis", "eczema", "fungal", "urticaria", "hives", "acne", "vitiligo",
-        "shingles", "alopecia", "cellulitis", "impetigo", "rosacea", "scabies",
-        # Mental health
-        "depression", "anxiety", "insomnia", "ocd", "ptsd", "bipolar", "schizophrenia",
-        "adhd", "panic", "autism", "phobia", "anorexia", "bulimia", "burnout",
-        # Urological/Renal
-        "kidney stone", "uti", "renal", "cystitis", "prostatitis", "prostate",
-        "bph", "incontinence", "nephrotic", "nephritis", "glomerulo", "hydronephrosis",
-        # Ophthalmology
-        "cataract", "glaucoma", "conjunctivitis", "retinal", "macular", "uveitis",
-        "strabismus", "keratoconus", "blepharitis", "amblyopia",
-        # ENT
-        "otitis", "tinnitus", "hearing loss", "deafness", "epistaxis", "nosebleed",
-        # Gynaecology
-        "endometriosis", "fibroid", "menstrual", "dysmenorrhea", "amenorrhea",
-        "ovarian cyst", "cervical", "vaginitis", "preeclampsia", "ectopic", "menopause",
-        # Haematology
-        "leukemia", "lymphoma", "sickle cell", "thalassemia", "hemophilia",
-        "haemophilia", "thrombocytopenia", "myeloma", "anemia", "anaemia",
-        # Oncology
-        "cancer", "tumour", "tumor", "melanoma", "carcinoma", "metastasis",
-        # Infectious
-        "malaria", "dengue", "typhoid", "covid", "influenza", "chickenpox",
-        "measles", "mumps", "rubella", "chikungunya", "leptospirosis", "typhus",
-        "rabies", "tetanus", "hiv", "aids", "hepatitis", "herpes", "sepsis",
-        "food poisoning", "hpv",
+        "angina", "arrhythmia", "hypertension", "hypotension", "cholesterol",
+        "diabetes", "diabetic", "thyroid", "obesity", "pcos",
+        "asthma", "tuberculosis", "pneumonia", "bronchitis", "copd",
+        "gastritis", "appendicitis", "ulcer", "ibs", "colitis", "hepatitis", "jaundice",
+        "migraine", "epilepsy", "seizure", "stroke", "paralysis", "vertigo", "dementia",
+        "arthritis", "fracture", "sciatica", "osteoporosis",
+        "psoriasis", "eczema", "fungal", "urticaria", "acne",
+        "depression", "anxiety", "insomnia", "ocd", "ptsd", "bipolar", "adhd",
+        "kidney stone", "uti", "renal", "cystitis", "prostate",
+        "cataract", "glaucoma", "conjunctivitis",
+        "cancer", "tumour", "tumor", "melanoma",
+        "malaria", "dengue", "typhoid", "covid", "influenza", "sepsis",
     ]
-    
+
     if not any(kw in all_symptoms for kw in medical_keywords) and len(all_symptoms.split()) > 0:
         return jsonify({
             "reply": "I am a clinical AI assistant. I can only assist with medical symptom triage and hospital department routing. Please describe your medical symptoms.",
             "finished": False
         })
-    
-    # 2.B: Dynamic Questionnaire State Machine
-    questions = []
 
+    questions = []
     body_parts = [
         "chest", "stomach", "abdomen", "head", "back", "neck", "shoulder", "arm", "elbow",
         "wrist", "hand", "finger", "hip", "leg", "knee", "ankle", "foot", "toe",
@@ -929,46 +833,39 @@ Reply strictly in JSON format: {"reply": "...", "diagnosis": "...", "specializat
         "worst", "tolerable", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
     ]
 
-    # Q1: Where does it hurt / which part is affected?
     if any(w in all_symptoms for w in ["pain", "ache", "hurt", "swelling", "numb", "burn", "cramp", "discomfort"]):
         if not any(part in all_symptoms for part in body_parts):
             questions.append("Which part of your body is affected or hurting? (e.g., Chest, Stomach, Head, Back, Leg, Joints)")
 
-    # Q2: How long have you had this?
     if not any(word in all_symptoms for word in ["day", "days", "week", "weeks", "month", "months", "hour", "hours", "since", "yesterday", "today", "ago", "morning", "night"]):
         questions.append("How long have you been experiencing these symptoms? (e.g. 2 days, 1 week, since yesterday)")
 
-    # Q3: How severe is it?
     if not any(word in all_symptoms for word in severity_words):
-        questions.append("How severe are your symptoms on a scale of 1–10, or would you describe them as mild, moderate, or severe?")
+        questions.append("How severe are your symptoms on a scale of 1-10, or would you describe them as mild, moderate, or severe?")
 
-    # Q4: Fever temperature (if fever mentioned without reading)
     if "fever" in all_symptoms and not any(word in all_symptoms for word in ["degree", "high", "low", "100", "101", "102", "103", "104"]):
         questions.append("Do you know your approximate body temperature? Is it a high-grade fever (above 101°F)?")
 
-    # If there are unanswered clinical questions, ask the first one
     if questions:
         return jsonify({
             "reply": f"I see. {questions[0]}",
             "finished": False
         })
-        
+
     try:
         disease = engine_predict_disease(latest_user_msg, all_symptoms)
-        
+
         if "lung" in all_symptoms:
             disease = "Pulmonary / Respiratory Condition"
         elif "leg" in all_symptoms or "arm" in all_symptoms or "joint" in all_symptoms:
             disease = "Musculoskeletal / Orthopedic Issue"
         elif "stomach" in all_symptoms or "abdom" in all_symptoms:
             disease = "Gastrointestinal Condition"
-            
+
         spec = get_specialization_for_condition(disease)
-        
-        # Explicit type cast to string for JSON serialization
         text_vec = vectorizer.transform([all_symptoms])
         urgency = str(model.predict(text_vec)[0])
-        
+
         return jsonify({
             "reply": f"Thank you for the detailed information. Based on your symptoms, our AI concludes a **{disease}**. The recommended department for this condition is **{spec}**. Would you like to proceed with booking an appointment?",
             "diagnosis": disease,
@@ -995,14 +892,8 @@ def train_blood_model():
     try:
         from sklearn.tree import DecisionTreeRegressor
         import numpy as np
-        # Simple data for blood component shelf life
-        # 1: Whole Blood (42 days)
-        # 2: PRBC (42 days)
-        # 3: Platelets (5 days)
-        # 4: Plasma (365 days)
         X = np.array([[1], [2], [3], [4]])
         y = np.array([42, 42, 5, 365])
-        
         blood_model_ml = DecisionTreeRegressor()
         blood_model_ml.fit(X, y)
         print("Blood expiration model trained.")
@@ -1014,7 +905,7 @@ def predict_blood_expiry():
     data = request.json or {}
     collection_date_str = data.get('collection_date', '')
     component = data.get('component', 'Whole Blood')
-    
+
     import datetime
     try:
         if collection_date_str:
@@ -1023,17 +914,17 @@ def predict_blood_expiry():
             col_date = datetime.datetime.now()
     except:
         col_date = datetime.datetime.now()
-        
+
     comp_map = {"Whole Blood": 1, "PRBC": 2, "Platelets": 3, "Plasma": 4}
     enc = comp_map.get(component, 1)
-    
+
     if blood_model_ml:
         days = int(blood_model_ml.predict([[enc]])[0])
     else:
         days = 42
-        
+
     exp_date = col_date + datetime.timedelta(days=days)
-    
+
     return jsonify({
         "calculated_days": days,
         "expiry_date": exp_date.strftime("%Y-%m-%d")
@@ -1044,4 +935,3 @@ if __name__ == '__main__':
     train_model()
     train_blood_model()
     app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
-

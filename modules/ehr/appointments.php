@@ -335,7 +335,10 @@ if (empty($labels) && $role === 'doctor') {
             <p>No appointments found.</p>
         </div>
     <?php else: ?>
-        <table class="premium-table">
+        <div style="margin-bottom: 14px;">
+            <input type="text" id="filter-appointments" onkeyup="filterTable('filter-appointments','tbl-appointments')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+        </div>
+        <table id="tbl-appointments" class="premium-table">
             <thead>
                 <tr>
                     <th>Date & Time</th>
