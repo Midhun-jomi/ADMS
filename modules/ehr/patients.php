@@ -11,18 +11,25 @@ $role = get_user_role();
 $user_id = get_user_id();
 
 $search = $_GET['search'] ?? '';
+$admitted_only = isset($_GET['admitted_only']) && $_GET['admitted_only'] == '1';
 
 // Base query
-$sql = "SELECT * FROM patients WHERE 1=1";
+$sql = "SELECT p.* FROM patients p";
 $params = [];
+$where = ["1=1"];
+
+if ($admitted_only) {
+    $sql .= " JOIN admissions a ON p.id = a.patient_id AND a.status = 'admitted'";
+}
 
 // Search filter
 if ($search) {
-    $sql .= " AND (first_name ILIKE $1 OR last_name ILIKE $1 OR phone ILIKE $1)";
+    $where[] = "(p.first_name ILIKE $" . (count($params) + 1) . " OR p.last_name ILIKE $" . (count($params) + 1) . " OR p.phone ILIKE $" . (count($params) + 1) . ")";
     $params[] = "%$search%";
 }
 
-$sql .= " ORDER BY last_name ASC LIMIT 50";
+$sql .= " WHERE " . implode(" AND ", $where);
+$sql .= " ORDER BY p.last_name ASC LIMIT 100";
 
 $patients = db_select($sql, $params);
 ?>
@@ -32,8 +39,25 @@ $patients = db_select($sql, $params);
         Patient List
     </div>
     
-    <div style="margin-bottom: 14px;">
-        <input type="text" id="filter-patients" onkeyup="filterTable('filter-patients','tbl-patients')" placeholder="Search..." style="padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; width: 260px; outline: none;">
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <form method="GET" style="display: flex; gap: 15px; align-items: center; width: 100%;">
+            <div style="position: relative; flex: 1;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Search name, phone or UHID..." style="padding: 10px 10px 10px 35px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; outline: none;">
+            </div>
+            
+            <label style="display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; user-select: none; font-weight: 500; color: #475569;">
+                <input type="checkbox" name="admitted_only" value="1" <?php echo $admitted_only ? 'checked' : ''; ?> onchange="this.form.submit()" style="width: 18px; height: 18px;">
+                Currently Admitted
+            </label>
+
+            <button type="submit" class="btn btn-primary" style="background: #4f46e5; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600;">
+                Apply Filters
+            </button>
+            <?php if ($search || $admitted_only): ?>
+                <a href="patients.php" class="btn btn-light" style="border: 1px solid #cbd5e1; padding: 10px 15px; border-radius: 8px; color: #64748b; text-decoration: none;">Clear</a>
+            <?php endif; ?>
+        </form>
     </div>
     <table id="tbl-patients" style="width: 100%; border-collapse: collapse;">
         <thead>

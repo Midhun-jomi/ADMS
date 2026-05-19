@@ -13,11 +13,9 @@ $success = '';
 // Fetch doctors
 $doctors = db_select("SELECT id, first_name, last_name, specialization FROM staff WHERE role = 'doctor'");
 
-// Extract unique specializations, filtered to valid medical specializations only
+// Extract all valid specializations from the master list
 require_once '../../includes/specializations.php';
-$valid_specializations = get_specializations();
-$raw_specializations = array_unique(array_column($doctors, 'specialization'));
-$specializations = array_values(array_filter($raw_specializations, fn($s) => in_array($s, $valid_specializations)));
+$specializations = get_specializations();
 sort($specializations);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -256,7 +254,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div id="ai-recommendation-result" style="display: none; background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #90caf9; color: #0d47a1;">
                 <strong><i class="fas fa-stethoscope"></i> AI Suggestion:</strong> <span id="ai-msg">Loading...</span>
             </div>
-            <textarea name="reason" id="reason" class="form-control" rows="4" required style="border-radius: 8px; border: 1px solid #ddd; padding: 10px;"></textarea>
+            <textarea name="reason" id="reason" class="form-control" rows="4" required style="border-radius: 8px; border: 1px solid #ddd; padding: 10px;" oninput="handleReasonInput()"></textarea>
             
             <!-- Quick Keywords (dynamic per specialization) -->
             <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
@@ -266,6 +264,76 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <script>
+        function handleReasonInput() {
+            const textarea = document.getElementById('reason');
+            const text = textarea.value.toLowerCase();
+            
+            // Keyword to Specialization Map for Dynamic Quick Add
+            const keywordMap = {
+                'chest pain': 'Cardiology',
+                'heart': 'Cardiology',
+                'fever': 'General Medicine',
+                'cough': 'General Medicine',
+                'skin': 'Dermatology',
+                'rash': 'Dermatology',
+                'child': 'Pediatrics',
+                'baby': 'Pediatrics',
+                'headache': 'Neurology',
+                'brain': 'Neurology',
+                'seizure': 'Neurology',
+                'joint': 'Orthopedics',
+                'bone': 'Orthopedics',
+                'fracture': 'Orthopedics',
+                'anxiety': 'Psychiatry',
+                'depression': 'Psychiatry',
+                'stomach': 'Gastroenterology',
+                'digestion': 'Gastroenterology',
+                'eye': 'Ophthalmology',
+                'vision': 'Ophthalmology',
+                'urine': 'Urology',
+                'kidney': 'Nephrology',
+                'pregnancy': 'Obstetrics and Gynecology',
+                'period': 'Obstetrics and Gynecology',
+                'breathing': 'Pulmonology',
+                'lung': 'Pulmonology',
+                'throat': 'Otolaryngology (ENT)',
+                'ear': 'Otolaryngology (ENT)',
+                'nose': 'Otolaryngology (ENT)',
+                'diabetes': 'Endocrinology',
+                'sugar': 'Endocrinology'
+            };
+
+            let matchedSpec = null;
+            const sortedKeys = Object.keys(keywordMap).sort((a, b) => b.length - a.length);
+            
+            for (const keyword of sortedKeys) {
+                if (text.includes(keyword)) {
+                    matchedSpec = keywordMap[keyword];
+                    break;
+                }
+            }
+
+            // Update Quick Add chips
+            if (typeof updateQuickAdd === 'function') {
+                updateQuickAdd(matchedSpec);
+            }
+
+            // Proactively auto-select specialization based on reason
+            const specSelect = document.getElementById('specialization');
+            if (matchedSpec && specSelect) {
+                for (let i = 0; i < specSelect.options.length; i++) {
+                    if (specSelect.options[i].value === matchedSpec) {
+                        specSelect.selectedIndex = i;
+                        document.getElementById('spec-search').value = matchedSpec;
+                        updateQuickAdd(matchedSpec);
+                        // Do NOT call filterDoctors here as it resets the doctor_id
+                        // We only filter if the user manually changes specialization
+                        break;
+                    }
+                }
+            }
+        }
+
         function addKeyword(keyword) {
             const textarea = document.getElementById('reason');
             if (textarea.value.trim() !== "") {
@@ -273,10 +341,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 textarea.value = keyword;
             }
+            // Trigger dynamic updates
+            handleReasonInput();
         }
         
         function getAIRecommendation() {
             const reason = document.getElementById('reason').value;
+            const selectedDate = document.getElementById('appointment_date').value || new Date().toISOString().split('T')[0];
             const resultDiv = document.getElementById('ai-recommendation-result');
             const msgSpan = document.getElementById('ai-msg');
             const btn = document.querySelector('.btn-ai-recommend');
@@ -288,7 +359,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             // UI Loading State
             resultDiv.style.display = 'block';
-            msgSpan.textContent = "Analyzing symptoms...";
+            msgSpan.textContent = "Analyzing symptoms and checking doctor availability...";
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
             
@@ -297,7 +368,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ reason: reason })
+                body: JSON.stringify({ reason: reason, date: selectedDate })
             })
             .then(response => response.json())
             .then(data => {
@@ -311,26 +382,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 
                 const disease = data.disease || "Unknown";
                 const specialization = data.specialization || "General Medicine";
-                const urgency = data.urgency || "Low";
+                const recDoctor = data.recommended_doctor;
+                const recReason = data.recommendation_reason;
                 
-                msgSpan.innerHTML = `Likely condition: <strong>${disease}</strong>. Recommended Specialist: <strong>${specialization}</strong>`;
+                let html = `Likely condition: <strong>${disease}</strong>. Recommended Specialist: <strong>${specialization}</strong>`;
                 
-                // Auto-select specialization
+                if (recDoctor) {
+                    html += `<div style="margin-top: 8px; padding: 8px; background: #fff; border-radius: 6px; border-left: 4px solid #4caf50;">
+                                <i class="fas fa-user-md" style="color:#4caf50;"></i> <strong>Doctor Suggestion:</strong> Dr. ${recDoctor.last_name}<br>
+                                <small style="color:#666;">${recReason}</small>
+                             </div>`;
+                }
+                
+                msgSpan.innerHTML = html;
+                
+                // 1. Auto-select specialization
                 const specSelect = document.getElementById('specialization');
-                let found = false;
+                let foundSpec = false;
                 for (let i = 0; i < specSelect.options.length; i++) {
                     if (specSelect.options[i].value === specialization) {
                         specSelect.selectedIndex = i;
-                        found = true;
+                        document.getElementById('spec-search').value = specialization;
+                        foundSpec = true;
                         break;
                     }
                 }
                 
-                if (found) {
-                    filterDoctors(); // Trigger doctor filter
-                    updateQuickAdd();
+                if (foundSpec) {
+                    // 2. Filter doctors to populate the select
+                    const currentSpec = document.getElementById('specialization').value;
+                    
+                    // 3. Auto-select the recommended doctor if provided
+                    if (recDoctor) {
+                        const docSelect = document.getElementById('doctor_id');
+                        const docSearch = document.getElementById('doc-search');
+                        
+                        // Wait a bit for any UI filtering to catch up
+                        setTimeout(() => {
+                            let foundDoc = false;
+                            for (let i = 0; i < docSelect.options.length; i++) {
+                                if (docSelect.options[i].value == recDoctor.id) {
+                                    docSelect.selectedIndex = i;
+                                    docSearch.value = `Dr. ${recDoctor.first_name} ${recDoctor.last_name}`;
+                                    foundDoc = true;
+                                    break;
+                                }
+                            }
+                            if (foundDoc) {
+                                fetchSlots(); // Refresh time slots for the suggested doctor
+                            }
+                        }, 100);
+                    } else {
+                        filterDoctors();
+                        updateQuickAdd();
+                    }
                 } else {
-                    msgSpan.innerHTML += " (Specialist not found, showing all)";
+                    msgSpan.innerHTML += " (Specialist not found in our records)";
                 }
             })
             .catch(error => {
@@ -643,7 +750,7 @@ function showSpecSuggestions(query) {
 // ── Quick Add keywords per specialization ────────────────────────────────────
 const quickAddMap = {
     '': ['Fever', 'Cough', 'Headache', 'Stomach Pain', 'General Checkup', 'Follow-up', 'Cold/Flu', 'Body Pain', 'Nausea', 'Dizziness', 'Fatigue', 'Skin Rash', 'Sore Throat', 'Chest Pain', 'Breathing Issue'],
-    'General Practice':            ['General Checkup', 'Follow-up', 'Fever', 'Cough', 'Fatigue', 'Body Pain', 'Cold/Flu', 'Headache', 'Nausea', 'Dizziness'],
+    'General Medicine':            ['General Checkup', 'Follow-up', 'Fever', 'Cough', 'Fatigue', 'Body Pain', 'Cold/Flu', 'Headache', 'Nausea', 'Dizziness'],
     'Cardiology':                  ['Chest Pain', 'Palpitations', 'Shortness of Breath', 'High Blood Pressure', 'Irregular Heartbeat', 'Swollen Legs', 'Dizziness', 'Heart Follow-up'],
     'Dermatology':                 ['Skin Rash', 'Acne', 'Eczema', 'Psoriasis', 'Hair Loss', 'Itching', 'Skin Lesion', 'Allergic Reaction', 'Nail Disorder'],
     'Pediatrics':                  ['Child Fever', 'Vaccination', 'Growth Check', 'Child Cough', 'Ear Infection', 'Child Rash', 'Feeding Issues', 'Developmental Assessment'],
@@ -681,10 +788,16 @@ const quickAddMap = {
     'Otolaryngology (ENT)':        ['Ear Pain', 'Hearing Loss', 'Sore Throat', 'Nasal Congestion', 'Sinusitis', 'Tonsil Issue', 'Voice Problem', 'Dizziness'],
     'Maxillofacial Surgery':       ['Jaw Pain', 'Facial Injury', 'Dental Surgery Consult', 'Mouth Lesion', 'Post-Op Follow-up', 'TMJ Disorder'],
     'Reproductive Medicine':       ['Fertility Consultation', 'IVF Follow-up', 'Hormonal Testing', 'Sperm Analysis', 'PCOS', 'Egg Freezing Consult'],
+    'Family Medicine':             ['Routine Checkup', 'Childhood Illness', 'Vaccination', 'Chronic Condition Management', 'General Health Advice'],
+    'Sleep Medicine':              ['Insomnia', 'Sleep Apnea', 'Snoring', 'Restless Legs', 'Narcolepsy', 'CPAP Review'],
+    'Occupational Medicine':       ['Workplace Injury', 'Pre-Employment Check', 'Disability Assessment', 'Ergonomic Consult', 'Toxic Exposure'],
+    'Forensic Medicine':           ['Legal Medical Exam', 'Injury Certification', 'Expert Opinion', 'Post-Mortem Review'],
+    'Addiction Medicine':          ['Substance Abuse', 'Alcohol Detox', 'Nicotine Cessation', 'Recovery Support', 'Relapse Prevention'],
+    'Physical Medicine and Rehabilitation': ['Stroke Rehab', 'Spinal Cord Injury', 'Amputee Care', 'Brain Injury Rehab', 'Mobility Improvement'],
 };
 
-function updateQuickAdd() {
-    const spec = document.getElementById('specialization').value;
+function updateQuickAdd(overrideSpec = null) {
+    const spec = overrideSpec !== null ? overrideSpec : document.getElementById('specialization').value;
     const keywords = quickAddMap[spec] || quickAddMap[''];
     const container = document.getElementById('quick-add-chips');
     container.innerHTML = keywords.map(k =>
@@ -694,6 +807,7 @@ function updateQuickAdd() {
         </button>`
     ).join('');
 }
+
 
 function selectSpec(value, label) {
     document.getElementById('spec-search').value = label;
@@ -740,6 +854,19 @@ function selectDoc(id, label) {
     document.getElementById('doc-search').value = label;
     document.getElementById('doctor_id').value = id;
     document.getElementById('doc-suggestions').style.display = 'none';
+
+    // Sync Specialization with selected Doctor
+    const doc = doctors.find(d => d.id == id);
+    if (doc) {
+        const specSelect = document.getElementById('specialization');
+        const specSearch = document.getElementById('spec-search');
+        if (specSelect && specSearch) {
+            specSelect.value = doc.specialization;
+            specSearch.value = doc.specialization;
+            updateQuickAdd(doc.specialization);
+        }
+    }
+
     fetchSlots();
 }
 

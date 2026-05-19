@@ -3,6 +3,7 @@
 require_once '../../includes/db.php';
 require_once '../../includes/auth_session.php';
 check_auth();
+echo "<!-- Layout Version: 1.0.2 - PDF Bottom -->";
 
 // Robust Sanitizer for JSON content
 function sanitize_for_json($input) {
@@ -981,26 +982,9 @@ function get_range_status($value, $range) {
                 </div>
 
             <?php elseif ($is_scan): ?>
-                <div class="results-section" style="text-align: center;">
-                    <h3 style="margin-bottom: 20px; color: #2d3748;">Diagnostic Scan Report</h3>
-                    <?php if (!empty($result_data['scan_file'])): ?>
-                        <?php 
-                        $ext = strtolower(pathinfo($result_data['scan_file'], PATHINFO_EXTENSION));
-                        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): ?>
-                            <img src="<?php echo htmlspecialchars($result_data['scan_file']); ?>" style="max-width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                        <?php elseif ($ext === 'pdf'): ?>
-                            <object data="<?php echo htmlspecialchars($result_data['scan_file']); ?>" type="application/pdf" width="100%" height="800px" style="border: 1px solid #e2e8f0; border-radius: 8px;">
-                                <p>Your browser does not support PDFs. <a href="<?php echo htmlspecialchars($result_data['scan_file']); ?>">Download the PDF</a>.</p>
-                            </object>
-                        <?php else: ?>
-                            <a href="<?php echo htmlspecialchars($result_data['scan_file']); ?>" class="btn btn-primary" target="_blank"><i class="fas fa-download"></i> View Document</a>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <div style="padding: 40px; background: #f7fafc; border: 1px dashed #cbd5e0; color: #718096;">
-                            <i class="fas fa-file-image" style="font-size: 3rem; margin-bottom: 10px; color: #a0aec0;"></i>
-                            <p>No scan image or document uploaded yet.</p>
-                        </div>
-                    <?php endif; ?>
+                <div class="results-section">
+                    <h3 style="margin-bottom: 20px; color: #2d3748; text-align: center;">Diagnostic Scan Report</h3>
+                    
                     <?php if (!empty($result_data['comments'])): ?>
                     <div style="margin-top: 20px; text-align: left;">
                         <strong style="color: #4a5568;">Radiologist/Pathologist Comments:</strong>
@@ -1064,6 +1048,28 @@ function get_range_status($value, $range) {
                 </div>
                 <?php endif; ?>
             <?php endif; // End is_cbc switch ?>
+
+            <!-- Scan File Display (Moved Down) -->
+            <?php if (!empty($result_data['scan_file'])): ?>
+                <div class="results-section" style="margin-top: 40px; border-top: 1px dashed #cbd5e0; padding-top: 30px; text-align: center;">
+                    <h4 style="margin-bottom: 20px; color: #4a5568; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px;">Attached Diagnostic Document</h4>
+                    <?php 
+                    $ext = strtolower(pathinfo($result_data['scan_file'], PATHINFO_EXTENSION));
+                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                        <img src="<?php echo htmlspecialchars($result_data['scan_file']); ?>" style="max-width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <?php elseif ($ext === 'pdf'): ?>
+                        <object data="<?php echo htmlspecialchars($result_data['scan_file']); ?>" type="application/pdf" width="100%" height="850px" style="border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <div style="padding: 30px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <i class="fas fa-file-pdf fa-3x mb-3 text-danger"></i>
+                                <p>Your browser does not support inline PDFs.</p>
+                                <a href="<?php echo htmlspecialchars($result_data['scan_file']); ?>" class="btn btn-primary" target="_blank">Open PDF in New Tab</a>
+                            </div>
+                        </object>
+                    <?php else: ?>
+                        <a href="<?php echo htmlspecialchars($result_data['scan_file']); ?>" class="btn btn-primary" target="_blank"><i class="fas fa-external-link-alt"></i> View Diagnostic Document</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
 
         <?php elseif (!$show_results): ?>
             <div style="text-align: center; padding: 50px; background: #fff5f5; border: 1px dashed red;">

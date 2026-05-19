@@ -15,10 +15,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // --- Security Headers ---
-header('X-Frame-Options: DENY');
+header('X-Frame-Options: SAMEORIGIN'); // Changed from DENY to allow clinical notes iframe
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://www.gstatic.com https://meet.jit.si; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://ui-avatars.com; frame-src 'self' https://meet.jit.si; connect-src 'self' http://localhost:5001");
 
 // --- Session Timeout (30 minutes of inactivity) ---
 const SESSION_TIMEOUT = 1800;

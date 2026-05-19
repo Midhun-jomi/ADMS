@@ -45,7 +45,11 @@ $procedures = [
     'Colonoscopy'                => ['dept' => 'Gastroenterology',   'base' => 5000,  'lab' => 1000, 'meds' => 500,  'room' => 2000, 'duration' => '2–3 hrs', 'icon' => 'fas fa-procedures',           'cat' => 'Procedure'],
     'Endoscopy'                  => ['dept' => 'Gastroenterology',   'base' => 4000,  'lab' => 800,  'meds' => 400,  'room' => 1500, 'duration' => '1–2 hrs', 'icon' => 'fas fa-procedures',           'cat' => 'Procedure'],
     'LASIK Eye Surgery'          => ['dept' => 'Ophthalmology',      'base' => 45000, 'lab' => 2000, 'meds' => 2000, 'room' => 0,    'duration' => 'Day care','icon' => 'fas fa-eye',                  'cat' => 'Surgery'],
-    'Hair Transplant'            => ['dept' => 'Dermatology',        'base' => 35000, 'lab' => 500,  'meds' => 1000, 'room' => 0,    'duration' => 'Day care','icon' => 'fas fa-user-injured',         'cat' => 'Cosmetic'],
+    'Angioplasty'                => ['dept' => 'Cardiology',         'base' => 85000, 'lab' => 5000, 'meds' => 10000,'room' => 15000,'duration' => '2–3 days','icon' => 'fas fa-heartbeat',            'cat' => 'Surgery'],
+    'Hip Replacement'            => ['dept' => 'Orthopedics',        'base' => 110000,'lab' => 7000, 'meds' => 11000,'room' => 25000,'duration' => '7–10 days','icon' => 'fas fa-bone',                'cat' => 'Surgery'],
+    'Kidney Stone Removal'       => ['dept' => 'Urology',            'base' => 45000, 'lab' => 3000, 'meds' => 4000, 'room' => 8000, 'duration' => '2–3 days','icon' => 'fas fa-procedures',           'cat' => 'Surgery'],
+    'EEG (Brain Map)'            => ['dept' => 'Neurology',          'base' => 1200,  'lab' => 1200, 'meds' => 0,    'room' => 0,    'duration' => '1 hr',    'icon' => 'fas fa-brain',                'cat' => 'Lab Test'],
+    'Newborn Checkup'            => ['dept' => 'Pediatrics',         'base' => 500,   'lab' => 0,    'meds' => 100,  'room' => 0,    'duration' => '30 min',  'icon' => 'fas fa-baby',                 'cat' => 'Consultation'],
     'ICU Stay (per day)'         => ['dept' => 'Critical Care',      'base' => 8000,  'lab' => 2000, 'meds' => 3000, 'room' => 8000, 'duration' => 'Per day', 'icon' => 'fas fa-heartbeat',            'cat' => 'ICU'],
 ];
 
@@ -214,13 +218,7 @@ if ($role === 'patient') {
                             This is an <strong>estimate only</strong>. Actual charges may vary based on clinical complexity, stay duration, and consumables.
                         </div>
 
-                        <?php if (in_array($role, ['patient'])): ?>
-                        <a href="../ehr/book_appointment.php" id="bookBtn">
-                            <button class="book-btn" id="bookBtnEl">
-                                <i class="fas fa-calendar-plus" style="margin-right: 6px;"></i>Book Appointment
-                            </button>
-                        </a>
-                        <?php endif; ?>
+
 
                         <!-- Print estimate -->
                         <button onclick="printEstimate()" style="width: 100%; padding: 10px; background: white; color: #6366f1; border: 1px solid #c7d2fe; border-radius: 10px; font-size: 0.88em; font-weight: 600; cursor: pointer; margin-top: 8px;">

@@ -3,7 +3,7 @@
 
 function get_specializations() {
     return [
-        'General Practice',
+        'General Medicine',
         'Cardiology',
         'Dermatology',
         'Pediatrics',
@@ -11,13 +11,10 @@ function get_specializations() {
         'Orthopedics',
         'Psychiatry',
         'Oncology',
-        'Radiology',
-        'Anesthesiology',
         'Gastroenterology',
         'Ophthalmology',
         'Urology',
         'Obstetrics and Gynecology',
-        'Emergency Medicine',
         'Endocrinology',
         'Pulmonology',
         'Nephrology',
@@ -35,12 +32,14 @@ function get_specializations() {
         'Colorectal Surgery',
         'Transplant Surgery',
         'Allergy and Immunology',
-        'Nuclear Medicine',
-        'Pathology',
-        'Clinical Pharmacology',
         'Otolaryngology (ENT)',
         'Maxillofacial Surgery',
-        'Reproductive Medicine'
+        'Reproductive Medicine',
+        'Family Medicine',
+        'Sleep Medicine',
+        'Occupational Medicine',
+        'Physical Medicine and Rehabilitation',
+        'General Surgery'
     ];
 }
 ?>

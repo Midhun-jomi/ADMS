@@ -82,78 +82,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <img src="../assets/images/doctor_3d.png" alt="Doctor" class="doctor-img">
         </div>
 
-        <div class="login-right">
+        <div class="login-right" style="overflow-y: auto;">
             <div class="login-logo">
                 <span>ADMS</span> Hospital
             </div>
 
-            <h3 style="text-align: center; margin-bottom: 20px; color: #333;">Patient Registration</h3>
+            <h3>Create Patient Account</h3>
 
             <?php if ($error): ?>
-                <div class="error-text" style="text-align: center; margin-bottom: 15px;"><?php echo htmlspecialchars($error); ?></div>
+                <div class="error-text"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
             <?php if ($success): ?>
-                <div class="alert alert-success" style="color: green; text-align: center; margin-bottom: 15px;"><?php echo htmlspecialchars($success); ?></div>
-                <p style="text-align: center;"><a href="../index.php" class="login-btn" style="display: inline-block; width: auto; padding: 10px 30px; text-decoration: none;">Go to Login</a></p>
+                <div class="alert alert-success" style="margin-bottom: 20px;"><?php echo htmlspecialchars($success); ?></div>
+                <p style="text-align: center;"><a href="../index.php" class="login-btn" style="display: block; text-decoration: none;">Proceed to Login</a></p>
             <?php else: ?>
 
             <form method="POST" action="">
                 <?php echo csrf_input(); ?>
-                <div style="display: flex; gap: 15px;">
-                    <div class="login-form-group" style="flex: 1;">
+                <div class="form-grid" style="margin-bottom: 20px;">
+                    <div class="login-form-group">
                         <label for="first_name" class="login-label">First Name</label>
-                        <input type="text" id="first_name" name="first_name" class="login-input" required maxlength="100">
+                        <input type="text" id="first_name" name="first_name" class="login-input" required placeholder="John">
                     </div>
-                    <div class="login-form-group" style="flex: 1;">
+                    <div class="login-form-group">
                         <label for="last_name" class="login-label">Last Name</label>
-                        <input type="text" id="last_name" name="last_name" class="login-input" required maxlength="100">
+                        <input type="text" id="last_name" name="last_name" class="login-input" required placeholder="Doe">
                     </div>
                 </div>
 
-                <div class="login-form-group">
-                    <label for="email" class="login-label">Email Address</label>
-                    <input type="email" id="email" name="email" class="login-input" required maxlength="255">
+                <div class="form-grid" style="margin-bottom: 20px;">
+                    <div class="login-form-group">
+                        <label for="email" class="login-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="login-input" required placeholder="john@example.com">
+                    </div>
+                    <div class="login-form-group">
+                        <label for="phone" class="login-label">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="login-input" placeholder="+91 00000 00000">
+                    </div>
                 </div>
 
-                <div class="login-form-group">
-                    <label for="phone" class="login-label">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" class="login-input" placeholder="+91 00000 00000" maxlength="20">
-                </div>
-
-                <div style="display: flex; gap: 15px; align-items: flex-start;">
-                    <div class="login-form-group" style="flex: 1; margin-bottom: 25px;">
+                <div class="form-grid" style="margin-bottom: 20px;">
+                    <div class="login-form-group">
                         <label for="dob" class="login-label">Date of Birth</label>
-                        <input type="date" id="dob" name="dob" class="login-input" required style="height: 48px; box-sizing: border-box;">
+                        <input type="date" id="dob" name="dob" class="login-input" required>
                     </div>
-                    <div class="login-form-group" style="flex: 1; margin-bottom: 25px;">
+                    <div class="login-form-group">
                         <label for="gender" class="login-label">Gender</label>
-                        <div style="position: relative;">
-                            <select name="gender" id="gender" required
-                                onfocus="this.style.borderColor='#009688';this.style.backgroundColor='white';"
-                                onblur="this.style.borderColor='#ddd';this.style.backgroundColor='#f9f9f9';"
-                                style="width:100%; height:48px; padding:12px 38px 12px 15px; border:1px solid #ddd; border-radius:8px; background-color:#f9f9f9; font-size:0.95em; color:#333; appearance:none; -webkit-appearance:none; cursor:pointer; box-sizing:border-box; outline:none;">
-                                <option value="" disabled selected>Select gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                                <option value="Prefer not to say">Prefer not to say</option>
-                            </select>
-                            <span style="position:absolute; right:13px; top:50%; transform:translateY(-50%); pointer-events:none; color:#888; font-size:0.8em;">&#9660;</span>
-                        </div>
+                        <select name="gender" id="gender" class="login-input" required>
+                            <option value="" disabled selected>Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="login-form-group">
-                    <label for="password" class="login-label">Password (min 8 characters)</label>
-                    <input type="password" id="password" name="password" class="login-input" required minlength="8">
+                <div class="form-grid" style="margin-bottom: 20px;">
+                    <div class="login-form-group">
+                        <label for="password" class="login-label">Password</label>
+                        <input type="password" id="password" name="password" class="login-input" required minlength="8" placeholder="********">
+                    </div>
+                    <div class="login-form-group">
+                        <label for="confirm_password" class="login-label">Confirm Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="login-input" required minlength="8" placeholder="********">
+                    </div>
                 </div>
 
-                <div class="login-form-group">
-                    <label for="confirm_password" class="login-label">Confirm Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="login-input" required minlength="8">
-                </div>
-
-                <button type="submit" class="login-btn">Register</button>
+                <button type="submit" class="login-btn">Create Account</button>
             </form>
 
             <div class="login-links">

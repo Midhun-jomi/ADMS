@@ -42,61 +42,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vitals'])) {
         'bp_diastolic' => ['value' => $_POST['bp_diastolic'], 'unit' => 'mmHg']
     ];
 
-    foreach ($metrics as $type => $data) {
-        if (!empty($data['value'])) {
-             db_insert('patient_health_metrics', [
-                'patient_id' => $v_patient_id,
-                'appointment_id' => $v_appt_id,
-                'metric_type' => $type,
-                'metric_value' => json_encode($data),
-                'recorded_by' => $user_id
-            ]);
+    try {
+        db_query("BEGIN");
 
-            // Auto-detect critical and update Priority
-            $val = floatval($data['value']);
-            $is_crit = false;
-            if ($type == 'bp_systolic' && ($val > 160 || $val < 90)) $is_crit = true;
-            if ($type == 'glucose' && ($val > 250 || $val < 60)) $is_crit = true;
-            if ($type == 'heart_rate' && ($val > 120 || $val < 50)) $is_crit = true;
-            if ($type == 'temperature' && $val > 102) $is_crit = true;
+        foreach ($metrics as $type => $data) {
+            if (!empty($data['value'])) {
+                $sql_ins = "INSERT INTO patient_health_metrics (patient_id, appointment_id, metric_type, metric_value, recorded_by) VALUES ($1, $2, $3, $4, $5)";
+                db_query($sql_ins, [$v_patient_id, $v_appt_id, $type, json_encode($data), $user_id]);
 
-            if ($is_crit && $v_appt_id) {
-                db_query("UPDATE appointments SET priority = 'high-risk' WHERE id = $1", [$v_appt_id]);
-            }
-        }
-    }
-    
-    // Save Nurse Note / History
-    if (!empty($_POST['nurse_notes']) && $v_appt_id) {
-        $note = trim($_POST['nurse_notes']);
-        if ($note) {
-            $timestamp = date('h:i A');
-            $auth_user = db_select_one("SELECT first_name, last_name FROM staff WHERE user_id = $1", [$user_id]);
-            $nurse_name = $auth_user ? ($auth_user['first_name'].' '.$auth_user['last_name']) : 'Nurse';
-            
-            // Append to reason
-            $appt = db_select_one("SELECT reason, doctor_id FROM appointments WHERE id = $1", [$v_appt_id]);
-            if ($appt) {
-                $new_reason = ($appt['reason'] ?? '') . "\n\n[Nurse Entry $timestamp]: " . $note;
-                db_query("UPDATE appointments SET reason = $1 WHERE id = $2", [$new_reason, $v_appt_id]);
+                // Auto-detect critical
+                $val = floatval($data['value']);
+                $is_crit = false;
+                if ($type == 'bp_systolic' && ($val > 160 || $val < 90)) $is_crit = true;
+                if ($type == 'glucose' && ($val > 250 || $val < 60)) $is_crit = true;
+                if ($type == 'heart_rate' && ($val > 120 || $val < 50)) $is_crit = true;
+                if ($type == 'temperature' && $val > 102) $is_crit = true;
 
-                // Notify Doctor that Vitals/History is ready
-                if ($appt['doctor_id']) {
-                    $doc_user = db_select_one("SELECT user_id FROM staff WHERE id = $1", [$appt['doctor_id']]);
-                    if ($doc_user) {
-                        db_insert('notifications', [
-                            'user_id' => $doc_user['user_id'],
-                            'title' => 'Triage Completed',
-                            'message' => "Nurse has updated vitals and clinical findings for a patient. Ready for consultation.",
-                            'is_read' => 0
-                        ]);
-                    }
+                if ($is_crit && $v_appt_id) {
+                    db_query("UPDATE appointments SET priority = 'high-risk' WHERE id = $1", [$v_appt_id]);
                 }
             }
         }
+        
+        // Save Nurse Note / History
+        if (!empty($_POST['nurse_notes'])) {
+            $note = trim($_POST['nurse_notes']);
+            if ($note) {
+                $timestamp = date('h:i A');
+                $auth_user = db_select_one("SELECT first_name, last_name FROM staff WHERE user_id = $1", [$user_id]);
+                $nurse_name = $auth_user ? ($auth_user['first_name'].' '.$auth_user['last_name']) : 'Nurse';
+                
+                if ($v_appt_id) {
+                    $appt = db_select_one("SELECT reason, doctor_id FROM appointments WHERE id = $1", [$v_appt_id]);
+                    if ($appt) {
+                        $new_reason = ($appt['reason'] ?? '') . "\n\n[Nurse Entry $timestamp]: " . $note;
+                        db_query("UPDATE appointments SET reason = $1 WHERE id = $2", [$new_reason, $v_appt_id]);
+
+                        if ($appt['doctor_id']) {
+                            $doc_user = db_select_one("SELECT user_id FROM staff WHERE id = $1", [$appt['doctor_id']]);
+                            if ($doc_user) {
+                                db_insert('notifications', [
+                                    'user_id' => $doc_user['user_id'],
+                                    'title' => 'Triage Completed',
+                                    'message' => "Nurse has updated vitals and clinical findings for a patient. Ready for consultation.",
+                                    'is_read' => 0
+                                ]);
+                            }
+                        }
+                    }
+                }
+                
+                $sql_note = "INSERT INTO patient_health_metrics (patient_id, appointment_id, metric_type, metric_value, recorded_by) VALUES ($1, $2, $3, $4, $5)";
+                db_query($sql_note, [$v_patient_id, $v_appt_id, 'nurse_note', json_encode(['value' => $note, 'recorded_by' => $nurse_name]), $user_id]);
+            }
+        }
+
+        db_query("COMMIT");
+        $_SESSION['success_msg'] = "Vitals recorded successfully for " . ($_POST['v_patient_name'] ?? 'Patient');
+        $_SESSION['last_p_id'] = $v_patient_id;
+    } catch (Exception $e) {
+        db_query("ROLLBACK");
+        $_SESSION['error_msg'] = "Database Error: " . $e->getMessage();
     }
     
     echo "<meta http-equiv='refresh' content='0'>";
+    exit;
 }
 
 // Fetch Real-time Critical Alerts (Last 6 hours)
@@ -135,7 +145,8 @@ foreach ($critical_alerts as $alert) {
 $sql = "SELECT a.id as admission_id, a.patient_id, a.admission_date, a.diagnosis, 
                p.id as patient_id_real, p.first_name, p.last_name, p.date_of_birth,
                r.room_number, r.room_type,
-               (SELECT profile_image FROM users u WHERE u.id = p.user_id) as p_image
+               (SELECT profile_image FROM users u WHERE u.id = p.user_id) as p_image,
+               (SELECT MAX(recorded_at) FROM patient_health_metrics m WHERE m.patient_id = p.id) as last_vitals
         FROM admissions a
         JOIN patients p ON a.patient_id = p.id
         JOIN rooms r ON a.room_id = r.id
@@ -150,7 +161,8 @@ if (!empty($allocation['doctor_id'])) {
     $doc_id = $allocation['doctor_id'];
     // Postgres specific date check
     $sql_op = "SELECT a.*, p.first_name, p.last_name, p.date_of_birth, p.id as patient_id,
-                      (SELECT profile_image FROM users u WHERE u.id = p.user_id) as p_image
+                      (SELECT profile_image FROM users u WHERE u.id = p.user_id) as p_image,
+                      (SELECT MAX(recorded_at) FROM patient_health_metrics m WHERE m.appointment_id = a.id) as last_vitals
                FROM appointments a
                JOIN patients p ON a.patient_id = p.id
                WHERE a.doctor_id = $1 
@@ -159,7 +171,37 @@ if (!empty($allocation['doctor_id'])) {
                ORDER BY a.appointment_time ASC";
     $outpatients = db_select($sql_op, [$doc_id]);
 }
+
+// Fetch Recent Vitals by this Nurse (Last 5)
+$recent_vitals = db_select("SELECT DISTINCT ON (m.patient_id) m.patient_id, p.first_name, p.last_name, m.recorded_at, p.uhid
+                            FROM patient_health_metrics m
+                            JOIN patients p ON m.patient_id = p.id
+                            WHERE m.recorded_by = $1
+                            ORDER BY m.patient_id, m.recorded_at DESC
+                            LIMIT 5", [$user_id]);
 ?>
+
+<?php if (isset($_SESSION['error_msg'])): ?>
+    <div style="background: #fef2f2; color: #991b1b; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #fecaca; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span><?php echo $_SESSION['error_msg']; unset($_SESSION['error_msg']); ?></span>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success_msg'])): ?>
+    <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #bbf7d0; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo $_SESSION['success_msg']; ?></span>
+        </div>
+        <?php if (isset($_SESSION['last_p_id'])): ?>
+            <a href="../ehr/history.php?patient_id=<?php echo $_SESSION['last_p_id']; ?>" class="btn btn-sm btn-success" style="border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-external-link-alt"></i> View Full EHR
+            </a>
+        <?php endif; ?>
+        <?php unset($_SESSION['success_msg']); unset($_SESSION['last_p_id']); ?>
+    </div>
+<?php endif; ?>
 
 <style>
     /* Premium Dashboard Styles specific to Nursing Station */
@@ -298,14 +340,29 @@ async function searchAndRecordVitals() {
         } else {
             let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">';
             data.forEach(p => {
+                let badge = '';
+                let canSelect = false;
+                if (p.appointment_id) {
+                    badge = '<span class="badge badge-warning">Appointment Today</span>';
+                    canSelect = true;
+                } else if (p.room_number) {
+                    badge = '<span class="badge badge-success">Admitted: ' + p.room_number + '</span>';
+                    canSelect = true;
+                }
+                
                 html += `
-                    <div style="padding: 10px; border: 1px solid #eee; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; background: ${canSelect ? '#fff' : '#f8fafc'}; margin-bottom: 5px; opacity: ${canSelect ? 1 : 0.7};">
                         <div>
-                            <strong style="display: block;">${p.first_name} ${p.last_name}</strong>
-                            <small class="text-muted">UHID: P-${String(p.uhid || 0).padStart(4, '0')}</small>
+                            <strong style="display: block; color: #1e293b;">${p.first_name} ${p.last_name}</strong>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                                <small class="text-muted">UHID: P-${String(p.uhid || 0).padStart(4, '0')}</small>
+                                ${badge || '<span class="text-danger" style="font-size: 0.75em; font-weight: 600;"><i class="fas fa-times-circle"></i> No Appointment/Admission</span>'}
+                            </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-primary" onclick="openVitalsModal('${p.id}', '${p.first_name} ${p.last_name}', '')">
-                            Select
+                        <button class="btn btn-sm ${canSelect ? 'btn-primary' : 'btn-secondary'}" 
+                                ${canSelect ? '' : 'disabled'}
+                                onclick="openVitalsModal('${p.id}', '${p.first_name} ${p.last_name}', '${p.appointment_id || ''}')">
+                            ${canSelect ? 'Select' : 'Locked'}
                         </button>
                     </div>
                 `;
@@ -376,6 +433,11 @@ async function searchAndRecordVitals() {
                                 onclick="openVitalsModalFromElement(this)">
                                 <?php echo $btn_text; ?>
                             </button>
+                            <?php if ($opt['last_vitals']): ?>
+                                <div style="font-size: 0.7em; color: #10b981; margin-top: 4px; text-align: center;">
+                                    <i class="fas fa-clock"></i> Recorded <?php echo date('h:i A', strtotime($opt['last_vitals'])); ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -429,8 +491,20 @@ async function searchAndRecordVitals() {
                             data-patient-name="<?php echo htmlspecialchars($adm['first_name'] . ' ' . $adm['last_name']); ?>"
                             data-appt-id=""
                             onclick="openVitalsModalFromElement(this)">
-                            <i class="fas fa-plus-circle"></i> RECORD VITALS
+                            <?php 
+                                $is_recent = (isset($adm['last_vitals']) && strtotime($adm['last_vitals']) > strtotime('-4 hours'));
+                                if ($is_recent) {
+                                    echo '<i class="fas fa-check"></i> UPDATED';
+                                } else {
+                                    echo '<i class="fas fa-plus-circle"></i> RECORD VITALS';
+                                }
+                            ?>
                         </button>
+                        <?php if (isset($adm['last_vitals'])): ?>
+                            <div style="font-size: 0.7em; color: <?php echo $is_recent ? '#10b981' : '#666'; ?>; margin-top: 4px; text-align: center;">
+                                <i class="fas fa-clock"></i> Last: <?php echo date('h:i A', strtotime($adm['last_vitals'])); ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -453,6 +527,25 @@ async function searchAndRecordVitals() {
                     <div style="font-size: 0.85em; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px;">
                         <strong style="color: #c53030;"><?php echo htmlspecialchars($alert['room']); ?></strong>: <?php echo htmlspecialchars($alert['msg']); ?> 
                         <div style="font-size: 0.8em; color: #888;"><?php echo htmlspecialchars($alert['patient']); ?> &bull; <?php echo $alert['time']; ?></div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+        <div class="glass-panel">
+            <h4 style="margin: 0 0 15px 0;"><i class="fas fa-history" style="color: #21a9af;"></i> Your Recent Activity</h4>
+            <?php if (empty($recent_vitals)): ?>
+                <p style="font-size: 0.85em; color: #888;">No vitals recorded by you yet.</p>
+            <?php else: ?>
+                <?php foreach($recent_vitals as $rv): ?>
+                    <div style="font-size: 0.85em; margin-bottom: 12px; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px;">
+                        <a href="../ehr/history.php?patient_id=<?php echo $rv['patient_id']; ?>" style="font-weight: 700; color: #333; text-decoration: none;">
+                            <?php echo htmlspecialchars($rv['first_name'].' '.$rv['last_name']); ?>
+                        </a>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                            <span class="text-muted" style="font-size: 0.8em;">UHID: P-<?php echo str_pad($rv['uhid'], 4, '0', STR_PAD_LEFT); ?></span>
+                            <span style="font-size: 0.8em; color: #10b981;"><?php echo date('h:i A', strtotime($rv['recorded_at'])); ?></span>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -489,6 +582,7 @@ async function searchAndRecordVitals() {
             <form method="POST">
                 <input type="hidden" name="add_vitals" value="1">
                 <input type="hidden" name="v_patient_id" id="vitalsPatientId">
+                <input type="hidden" name="v_patient_name" id="vitalsPatientNameInput">
                 <input type="hidden" name="v_appointment_id" id="vitalsAppointmentId">
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -550,6 +644,7 @@ async function searchAndRecordVitals() {
         var apptId = btn.getAttribute('data-appt-id');
         
         document.getElementById('vitalsPatientId').value = pid;
+        document.getElementById('vitalsPatientNameInput').value = pname;
         document.getElementById('vitalsAppointmentId').value = apptId || '';
         document.getElementById('vitalsPatientName').textContent = pname;
         document.getElementById('nurseVitalsModal').style.display = 'block';
@@ -558,6 +653,7 @@ async function searchAndRecordVitals() {
     // Fallback for legacy calls if any
     function openVitalsModal(pid, pname, apptId) {
         document.getElementById('vitalsPatientId').value = pid;
+        document.getElementById('vitalsPatientNameInput').value = pname;
         document.getElementById('vitalsAppointmentId').value = apptId || '';
         document.getElementById('vitalsPatientName').textContent = pname;
         document.getElementById('nurseVitalsModal').style.display = 'block';

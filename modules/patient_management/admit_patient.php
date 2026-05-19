@@ -18,7 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($patient_id && $room_id) {
         try {
-            // Start Transaction
+            // Check if already admitted
+            $active = db_select_one("SELECT id FROM admissions WHERE patient_id = $1 AND status = 'admitted'", [$patient_id]);
+            if ($active) {
+                $error = "This patient is already admitted to another room. Please discharge them first.";
+            } else {
+                // Start Transaction
             db_query("BEGIN");
 
             // Create Admission Record
@@ -30,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             db_query("COMMIT");
             $success = "Patient admitted successfully.";
+            }
         } catch (Exception $e) {
             db_query("ROLLBACK");
             $error = "Error admitting patient: " . $e->getMessage();

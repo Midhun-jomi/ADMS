@@ -54,10 +54,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_item'])) {
         $allowed = ['pending', 'completed', 'not_applicable'];
         if (!in_array($status, $allowed)) $status = 'pending';
         try {
-            db_update('compliance_items',
-                ['status' => $status, 'notes' => $notes, 'updated_by' => $user_id, 'updated_at' => 'NOW()'],
-                ['id' => $item_id]
-            );
+            if (!empty($item_id)) {
+                db_update('compliance_items',
+                    ['status' => $status, 'notes' => $notes, 'updated_by' => $user_id, 'updated_at' => 'NOW()'],
+                    ['id' => $item_id]
+                );
+            } else {
+                $item_name = $_POST['item_name'] ?? '';
+                if ($item_name) {
+                    db_insert('compliance_items', [
+                        'item_name' => $item_name,
+                        'status' => $status,
+                        'notes' => $notes,
+                        'updated_by' => $user_id
+                    ]);
+                }
+            }
             $success = "Compliance item updated.";
         } catch (Exception $e) {
             $error = "Update failed: " . $e->getMessage();
@@ -424,7 +436,7 @@ include '../../includes/header.php';
 
             <div class="form-group" style="margin-bottom:14px;">
                 <label style="font-weight:600; color:#374151; font-size:0.88rem;">Item</label>
-                <input type="text" id="modal_item_name" class="form-control" readonly
+                <input type="text" name="item_name" id="modal_item_name" class="form-control" readonly
                        style="background:#f8fafc; font-size:0.88rem;">
             </div>
 

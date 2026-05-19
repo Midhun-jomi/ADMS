@@ -97,3 +97,39 @@ Array
     [med_timing] => After Food
     [med_note] => huh
 )
+Array
+(
+    [add_medication] => 1
+    [med_name] => Dolo
+    [med_frequency] => 1-0-1
+    [med_days] => 5
+    [med_timing] => After Food
+    [med_note] => 
+)
+Array
+(
+    [add_medication] => 1
+    [med_name] => Dolo
+    [med_frequency] => 1-0-1
+    [med_days] => 5
+    [med_timing] => After Food
+    [med_note] => 
+)
+Array
+(
+    [add_medication] => 1
+    [med_name] => Paracetamol
+    [med_frequency] => 1-0-1
+    [med_days] => 5
+    [med_timing] => Before Food
+    [med_note] => 
+)
+Array
+(
+    [add_medication] => 1
+    [med_name] => Dolo
+    [med_frequency] => 1-1-1
+    [med_days] => 2
+    [med_timing] => After Food
+    [med_note] => 
+)

@@ -7,21 +7,10 @@ check_role(['radiologist']);
 $page_title = "Radiologist Dashboard";
 include '../includes/header.php';
 
-// Stats
-$pending_scans = db_select_one("SELECT COUNT(*) as c FROM radiology_reports WHERE status = 'ordered'")['c'];
-$completed_scans = db_select_one("SELECT COUNT(*) as c FROM radiology_reports WHERE status = 'completed'")['c'];
+
 ?>
 
-<div class="dashboard-stats">
-    <div class="stat-card">
-        <h3><?php echo $pending_scans; ?></h3>
-        <p>Pending Scans</p>
-    </div>
-    <div class="stat-card">
-        <h3><?php echo $completed_scans; ?></h3>
-        <p>Completed Scans</p>
-    </div>
-</div>
+<?php include '../includes/stats_widgets.php'; ?>
 
 <div class="card">
     <div class="card-header">Quick Actions</div>

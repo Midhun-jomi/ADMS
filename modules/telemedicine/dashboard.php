@@ -45,7 +45,7 @@ if ($role === 'doctor') {
         JOIN patients p ON a.patient_id = p.id
         LEFT JOIN telemedicine_sessions t ON a.id = t.appointment_id
         WHERE a.doctor_id = $1 AND a.status = 'scheduled'
-        ORDER BY a.appointment_time ASC
+        ORDER BY (t.meeting_link IS NOT NULL) DESC, a.appointment_time ASC
     ", [$doctor_id]) : [];
 } elseif ($role === 'patient') {
     $pat = db_select_one("SELECT id FROM patients WHERE user_id = $1", [$user_id]);
@@ -56,7 +56,7 @@ if ($role === 'doctor') {
         JOIN staff s ON a.doctor_id = s.id
         LEFT JOIN telemedicine_sessions t ON a.id = t.appointment_id
         WHERE a.patient_id = $1 AND a.status = 'scheduled'
-        ORDER BY a.appointment_time ASC
+        ORDER BY (t.meeting_link IS NOT NULL) DESC, a.appointment_time ASC
     ", [$patient_id]) : [];
 } else {
     // Admin sees all
@@ -67,7 +67,7 @@ if ($role === 'doctor') {
         JOIN staff s ON a.doctor_id = s.id
         LEFT JOIN telemedicine_sessions t ON a.id = t.appointment_id
         WHERE a.status = 'scheduled'
-        ORDER BY a.appointment_time ASC
+        ORDER BY (t.meeting_link IS NOT NULL) DESC, a.appointment_time ASC
     ");
 }
 ?>

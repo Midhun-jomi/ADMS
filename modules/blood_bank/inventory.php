@@ -409,7 +409,7 @@ $stock_items = db_select("
 .bb-alert-danger { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
 
 /* Modal */
-.bb-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:2000; overflow-y:auto; padding:20px; display:none; align-items:flex-start; justify-content:center; }
+.bb-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:2000; overflow-y:auto; padding:20px; display:none; align-items:flex-start; justify-content:center; }
 .bb-modal-overlay.open { display:flex; }
 .bb-modal { background:#fff; border-radius:16px; width:100%; max-width:560px; margin:auto; box-shadow:0 20px 60px rgba(0,0,0,0.2); overflow:hidden; }
 .bb-modal-header { padding:22px 24px 16px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:flex-start; }
@@ -445,14 +445,16 @@ function openTab(evt, tabName) {
 
 function showModal(id) {
     const m = document.getElementById(id);
-    m.style.display = 'flex';
-    setTimeout(() => m.classList.add('open'), 10);
+    if (m) {
+        m.classList.add('open');
+    }
 }
 
 function closeModal(id) {
     const m = document.getElementById(id);
-    m.classList.remove('open');
-    m.style.display = 'none';
+    if (m) {
+        m.classList.remove('open');
+    }
 }
 
 function overlayClose(event, id) {

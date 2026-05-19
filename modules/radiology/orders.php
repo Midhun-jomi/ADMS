@@ -157,3 +157,5 @@ $pre_patient_id = $_GET['patient_id'] ?? '';
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+
+

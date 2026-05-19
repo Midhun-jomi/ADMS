@@ -9,8 +9,48 @@ include '../../includes/header.php';
 
 $report_id = $_GET['id'] ?? null;
 
+// If no ID is provided, show list of radiology orders for the radiologist/admin
 if (!$report_id) {
-    echo "<div class='alert alert-danger'>Report ID required.</div>";
+    echo '<div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">';
+    echo '    <div class="card-header bg-white pt-4 pb-3" style="border-bottom: 2px solid #f1f5f9;">';
+    echo '        <h4 class="mb-0" style="color: #1e293b; font-weight: 700;">';
+    echo '            <i class="fas fa-list text-primary mr-2"></i> Select Radiology Order to Process';
+    echo '        </h4>';
+    echo '    </div>';
+    
+    // Fetch all orders for list view
+    $orders = db_select("SELECT r.*, p.first_name, p.last_name, s.first_name as doc_first, s.last_name as doc_last 
+                         FROM radiology_reports r 
+                         JOIN patients p ON r.patient_id = p.id 
+                         JOIN staff s ON r.doctor_id = s.id 
+                         ORDER BY r.created_at DESC");
+
+    if (empty($orders)) {
+        echo '<div class="card-body p-4"><div class="alert alert-info">No radiology orders found.</div></div>';
+    } else {
+        echo '<div class="card-body p-4">';
+        echo '    <div class="mb-4 d-flex justify-content-between align-items-center">';
+        echo '        <input type="text" id="filter-rad-list" onkeyup="filterTable(\'filter-rad-list\',\'tbl-rad-list\')" placeholder="Search patient or scan type..." class="form-control" style="max-width: 300px; border-radius: 8px;">';
+        echo '    </div>';
+        echo '    <div class="table-responsive">';
+        echo '        <table id="tbl-rad-list" class="table table-hover">';
+        echo '            <thead class="bg-light"><tr><th>Date</th><th>Patient</th><th>Scan Type</th><th>Doctor</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+        foreach ($orders as $o) {
+            $status_class = ($o['status'] === 'completed') ? 'success' : 'warning';
+            echo '<tr>';
+            echo '    <td class="align-middle">' . date('M d, Y', strtotime($o['created_at'])) . '</td>';
+            echo '    <td class="align-middle font-weight-bold">' . htmlspecialchars($o['first_name'] . ' ' . $o['last_name']) . '</td>';
+            echo '    <td class="align-middle">' . htmlspecialchars($o['report_type']) . '</td>';
+            echo '    <td class="align-middle small text-muted">Dr. ' . htmlspecialchars($o['doc_first'] . ' ' . $o['doc_last']) . '</td>';
+            echo '    <td class="align-middle"><span class="badge badge-' . $status_class . ' px-2 py-1" style="border-radius: 10px;">' . ucfirst($o['status']) . '</span></td>';
+            echo '    <td class="align-middle"><a href="?id=' . $o['id'] . '" class="btn btn-sm btn-primary" style="border-radius: 5px;">' . ($o['status'] === 'completed' ? 'Edit/View' : 'Process') . '</a></td>';
+            echo '</tr>';
+        }
+        echo '            </tbody></table>';
+        echo '    </div>';
+        echo '</div>';
+    }
+    echo '</div>';
     include '../../includes/footer.php';
     exit();
 }
@@ -139,7 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $saved_urls = [$existing_json];
                         }
                     ?>
-                    <input type="hidden" name="existing_image_url" value="<?php echo htmlspecialchars($existing_json); ?>">
+                    <input type="hidden" id="existing_image_url" name="existing_image_url" value="<?php echo htmlspecialchars($existing_json); ?>">
                     
                     <div class="form-group mb-5">
                         <label for="scan_file" class="font-weight-bold text-dark" style="font-size: 1.1rem;">Upload Scan Images/PDFs</label>
@@ -149,30 +189,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <span class="text-success font-weight-bold" style="font-size: 1.05rem;"><i class="fas fa-check-circle mr-1"></i> <?php echo count($saved_urls); ?> File(s) officially attached</span>
                                 </div>
-                                <div class="d-flex flex-wrap" style="gap: 10px;">
+                                <div class="d-flex flex-wrap" style="gap: 12px;" id="existing-files-container">
                                     <?php foreach($saved_urls as $idx => $s_url): ?>
-                                        <a href="<?php echo htmlspecialchars($s_url); ?>" target="_blank" class="btn btn-outline-primary" style="border-radius: 25px; font-weight: 500; transition: all 0.2s;">
-                                            <i class="fas fa-file-image mr-1"></i> View Scan <?php echo $idx+1; ?>
-                                        </a>
+                                        <div class="existing-file-badge d-flex align-items-center" data-url="<?php echo htmlspecialchars($s_url); ?>" 
+                                             style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 25px; padding: 5px 15px; transition: all 0.2s;">
+                                            <a href="<?php echo htmlspecialchars($s_url); ?>" target="_blank" class="mr-2 text-primary font-weight-medium">
+                                                <i class="fas fa-file-image mr-1"></i> Scan <?php echo $idx+1; ?>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-link text-danger p-0 delete-file-btn" title="Remove this file" 
+                                                    onclick="removeExistingFile(this, '<?php echo addslashes($s_url); ?>')">
+                                                <i class="fas fa-times-circle"></i>
+                                            </button>
+                                        </div>
                                     <?php endforeach; ?>
                                 </div>
-                                <small class="text-muted mt-3 d-block"><i class="fas fa-info-circle mr-1"></i> Note: Uploading new files below will safely append them to this existing report.</small>
+                                <small class="text-muted mt-3 d-block"><i class="fas fa-info-circle mr-1"></i> Note: Clicking the red 'X' will remove the file upon saving.</small>
                             </div>
                         <?php endif; ?>
                         
                         <!-- Custom File Upload stylings -->
-                        <div class="custom-file-upload mt-2" style="position: relative; overflow: hidden; display: block; width: 100%;">
-                            <label for="scan_file" class="w-100 p-5 text-center rounded d-flex flex-column align-items-center justify-content-center" 
-                                   style="border: 2px dashed #94a3b8; background: #f1f5f9; cursor: pointer; transition: all 0.2s; min-height: 200px;">
-                                <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
-                                <h5 class="mb-2 text-dark font-weight-bold">Click to select files or drag and drop</h5>
-                                <p class="text-muted small mb-0">Supported formats: JPG, PNG, GIF, PDF (Multiple files allowed)</p>
-                            </label>
-                            <input type="file" id="scan_file" name="scan_file[]" accept="image/*,.pdf" multiple <?php echo empty($saved_urls) ? 'required' : ''; ?> 
-                                   style="position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer;"
-                                   onchange="document.getElementById('file-count-display').innerText = this.files.length > 0 ? this.files.length + ' file(s) selected for upload.' : '';">
-                            <div id="file-count-display" class="mt-2 text-primary font-weight-bold" style="min-height: 24px;"></div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="custom-file-upload mt-2" style="position: relative; overflow: hidden; display: block; width: 100%;">
+                                    <label for="scan_file" class="w-100 p-5 text-center rounded d-flex flex-column align-items-center justify-content-center" 
+                                           style="border: 2px dashed #94a3b8; background: #f1f5f9; cursor: pointer; transition: all 0.2s; min-height: 200px;">
+                                        <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
+                                        <h5 class="mb-2 text-dark font-weight-bold">Select files or drag and drop</h5>
+                                        <p class="text-muted small mb-0">Supported formats: JPG, PNG, GIF, PDF</p>
+                                    </label>
+                                    <input type="file" id="scan_file" name="scan_file[]" accept="image/*,.pdf" multiple <?php echo empty($saved_urls) ? 'required' : ''; ?> 
+                                           style="position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer;"
+                                           onchange="updateFileCountDisplay(this)">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="camera-upload mt-2 h-100">
+                                    <label for="camera_capture" class="w-100 p-5 text-center rounded d-flex flex-column align-items-center justify-content-center h-100" 
+                                           style="border: 2px solid #3b82f6; background: #eff6ff; cursor: pointer; transition: all 0.2s; min-height: 200px;">
+                                        <i class="fas fa-camera fa-3x mb-3 text-primary"></i>
+                                        <h5 class="mb-2 text-primary font-weight-bold">Use Camera</h5>
+                                        <p class="text-muted small mb-0">Capture photo directly</p>
+                                    </label>
+                                    <input type="file" id="camera_capture" name="scan_file[]" accept="image/*" capture="environment" 
+                                           style="display: none;" onchange="updateFileCountDisplay(this)">
+                                </div>
+                            </div>
                         </div>
+                        <div id="file-count-display" class="mt-2 text-primary font-weight-bold" style="min-height: 24px;"></div>
                     </div>
 
                     <div class="form-group mb-5">
@@ -194,5 +257,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </div>
+
+<script>
+function removeExistingFile(btn, url) {
+    if (!confirm('Are you sure you want to remove this file?')) return;
+    
+    // Remove from UI
+    btn.parentElement.remove();
+    
+    // Update hidden field
+    const hiddenInput = document.getElementById('existing_image_url');
+    let urls = [];
+    try {
+        const val = hiddenInput.value;
+        if (val.startsWith('[')) {
+            urls = JSON.parse(val);
+        } else if (val) {
+            urls = [val];
+        }
+    } catch(e) { console.error(e); }
+    
+    const newUrls = urls.filter(u => u !== url);
+    hiddenInput.value = newUrls.length > 1 ? JSON.stringify(newUrls) : (newUrls[0] || '');
+    
+    // Update count display if needed
+    const container = document.getElementById('existing-files-container');
+    if (container && container.children.length === 0) {
+        container.closest('.p-4').innerHTML = '<div class="alert alert-info">All files marked for removal. Save to confirm.</div>';
+        // Also make file upload required if no files left
+        document.getElementById('scan_file').required = true;
+    }
+}
+
+function updateFileCountDisplay(input) {
+    const display = document.getElementById('file-count-display');
+    const totalFiles = (document.getElementById('scan_file').files.length || 0) + (document.getElementById('camera_capture').files.length || 0);
+    display.innerText = totalFiles > 0 ? totalFiles + ' file(s) ready for upload.' : '';
+}
+</script>
 
 <?php include '../../includes/footer.php'; ?>

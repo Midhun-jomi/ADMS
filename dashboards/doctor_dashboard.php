@@ -528,7 +528,8 @@ if ($active_patient) {
                   <!-- 1. Heart Rate Card -->
             <div class="glass-card visitor-card" style="padding: 25px; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <h3 style="margin: 0 0 4px 0; font-size: 1.05em; font-weight: 700; color: var(--text-primary);">HELLO</h3>
+                    <h3 style="margin: 0 0 4px 0; font-size: 1.05em; font-weight: 700; color: var(--text-primary);">Quote Of The Day
+                    </h3>
                     <p style="margin: 0 0 16px 0; font-size: 0.8em; color: var(--text-secondary);">
                     </p>
                 </div>
@@ -638,7 +639,7 @@ if ($active_patient) {
             100% { stroke-dashoffset: 0; opacity: 0; }
         }
         </style>
-
+        
         <!-- Recent Activity Module -->
         <div style="margin-top: 10px; background: var(--surface-color); padding: 25px; border-radius: var(--border-radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(20px);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">

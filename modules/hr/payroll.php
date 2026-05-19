@@ -3,7 +3,150 @@ error_reporting(0);
 ini_set('display_errors', 0);
 require_once '../../includes/db.php';
 require_once '../../includes/auth_session.php';
-check_role(['admin']);
+check_auth(); // Allow all staff to see their own payroll
+$role    = $_SESSION['role'];
+$is_admin = ($role === 'admin');
+
+// ─── PAYSLIP PRINT VIEW (Extracted from payslip.php) ────────────────────────
+if (isset($_GET['payroll_id'])) {
+    $payroll_id = trim($_GET['payroll_id']);
+
+    $record = db_select_one(
+        "SELECT p.*,
+                s.first_name, s.last_name, s.role, s.department_id,
+                d.name AS dept_name
+         FROM payroll p
+         JOIN staff s ON p.staff_id = s.id
+         LEFT JOIN departments d ON s.department_id = d.id
+         WHERE p.id = $1",
+        [$payroll_id]
+    );
+
+    if (!$record) {
+        die('<div style="font-family:sans-serif;padding:2rem;color:red;">Payslip not found or access denied.</div>');
+    }
+
+    // Access control: admin sees all; staff sees only own
+    if (!$is_admin) {
+        $my_staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$user_id]);
+        if (!$my_staff || $my_staff['id'] !== $record['staff_id']) {
+            die('<div style="font-family:sans-serif;padding:2rem;color:red;">Access denied.</div>');
+        }
+    }
+
+    // Compute values safely
+    $basic       = (float)($record['basic_salary'] ?? 0);
+    $allowances  = (float)($record['allowances'] ?? 0);
+    $deductions  = (float)($record['deductions'] ?? 0);
+
+    $hra         = round($basic * 0.20, 2);
+    $other_allow = max(0, $allowances - $hra);
+    $pf          = round($basic * 0.12, 2);
+    $tax         = round($basic * 0.05, 2);
+    $other_deduct= max(0, $deductions - $pf - $tax);
+
+    $gross       = $basic + $allowances;
+    $net         = $gross - $deductions;
+
+    $month_label = $record['salary_month'] ? date('F Y', strtotime($record['salary_month'])) : '—';
+    $emp_id = 'EMP-' . strtoupper(substr($record['staff_id'], 0, 6));
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payslip &mdash; <?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?> &mdash; <?php echo $month_label; ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f5f5f5; font-family: 'Segoe UI', Arial, sans-serif; }
+        .payslip-wrapper { max-width: 780px; margin: 30px auto; background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .payslip-header { background: linear-gradient(135deg, #1e3a5f 0%, #2e6da4 100%); color: #fff; padding: 28px 36px; }
+        .payslip-header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 2px; margin: 0; }
+        .payslip-header .hospital-sub { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
+        .payslip-header .slip-label { font-size: 1rem; font-weight: 600; letter-spacing: 3px; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 8px; }
+        .payslip-body { padding: 28px 36px; }
+        .emp-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 32px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e5e5e5; }
+        .emp-detail-item label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #777; display: block; margin-bottom: 2px; }
+        .emp-detail-item span { font-size: 0.92rem; color: #222; }
+        .pay-section { margin-bottom: 20px; }
+        .pay-section h6 { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; padding: 6px 10px; border-radius: 4px; margin-bottom: 0; }
+        .pay-section.earnings h6 { background: #e8f5e9; color: #2e7d32; }
+        .pay-section.deductions h6 { background: #fce4ec; color: #c62828; }
+        .pay-table { width: 100%; border-collapse: collapse; }
+        .pay-table td { padding: 7px 10px; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
+        .pay-table td:last-child { text-align: right; font-weight: 500; }
+        .net-salary-box { background: linear-gradient(135deg, #1e3a5f 0%, #2e6da4 100%); color: #fff; border-radius: 8px; padding: 18px 24px; text-align: center; margin-top: 20px; }
+        .net-salary-box .amount { font-size: 2rem; font-weight: 800; margin-top: 4px; }
+        .payslip-footer { text-align: center; padding: 16px 36px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 0.78rem; color: #999; }
+        .logo-placeholder { width: 54px; height: 54px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+        @media print {
+            body { background: #fff; }
+            .no-print-actions { display: none !important; }
+            .payslip-wrapper { border: none; border-radius: 0; max-width: 100%; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="payslip-wrapper">
+    <div class="no-print-actions" style="padding: 10px 36px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display:flex; gap:10px;">
+        <button class="btn btn-sm btn-primary" onclick="window.print()"><i class="fas fa-print me-1"></i> Print / Save PDF</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.close()">Close</button>
+    </div>
+    <div class="payslip-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="logo-placeholder"><i class="fas fa-hospital"></i></div>
+            <div>
+                <h1>ADMS Hospital</h1>
+                <div class="hospital-sub">Advanced Digital Management System &bull; Healthcare Excellence</div>
+                <div class="slip-label">SALARY SLIP &mdash; <?php echo strtoupper($month_label); ?></div>
+            </div>
+        </div>
+    </div>
+    <div class="payslip-body">
+        <div class="emp-details-grid">
+            <div class="emp-detail-item"><label>Employee Name</label><span><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></span></div>
+            <div class="emp-detail-item"><label>Employee ID</label><span><?php echo $emp_id; ?></span></div>
+            <div class="emp-detail-item"><label>Designation</label><span><?php echo htmlspecialchars($record['role'] ?? '—'); ?></span></div>
+            <div class="emp-detail-item"><label>Department</label><span><?php echo htmlspecialchars($record['dept_name'] ?? '—'); ?></span></div>
+            <div class="emp-detail-item"><label>Pay Period</label><span><?php echo $month_label; ?></span></div>
+            <div class="emp-detail-item"><label>Status</label><span><strong style="color:<?php echo $record['status']==='paid'?'#15803d':'#b45309'; ?>;"><?php echo ucfirst($record['status']); ?></strong></span></div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="pay-section earnings">
+                    <h6>Earnings</h6>
+                    <table class="pay-table">
+                        <tr><td>Basic Salary</td><td>₹<?php echo number_format($basic, 2); ?></td></tr>
+                        <tr><td>HRA (20%)</td><td>₹<?php echo number_format($hra, 2); ?></td></tr>
+                        <tr><td>Other Allowances</td><td>₹<?php echo number_format($other_allow, 2); ?></td></tr>
+                        <tr style="font-weight:700;"><td>Gross Earnings</td><td>₹<?php echo number_format($gross, 2); ?></td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="pay-section deductions">
+                    <h6>Deductions</h6>
+                    <table class="pay-table">
+                        <tr><td>PF (12%)</td><td>₹<?php echo number_format($pf, 2); ?></td></tr>
+                        <tr><td>Tax (5%)</td><td>₹<?php echo number_format($tax, 2); ?></td></tr>
+                        <tr><td>Leave Deductions</td><td>₹<?php echo number_format($other_deduct, 2); ?></td></tr>
+                        <tr style="font-weight:700;"><td>Total Deductions</td><td>₹<?php echo number_format($deductions, 2); ?></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="net-salary-box">
+            <div style="font-size:0.75rem; text-transform:uppercase; opacity:0.85;">Net Salary Payable</div>
+            <div class="amount">₹<?php echo number_format($net, 2); ?></div>
+        </div>
+    </div>
+    <div class="payslip-footer">Computer generated document. No signature required.</div>
+</div>
+</body>
+</html>
+<?php exit; }
 
 $user_id = get_user_id();
 
@@ -230,6 +373,14 @@ $active_tab = $_GET['tab'] ?? 'records';
 $p_sql = "SELECT p.*, s.first_name, s.last_name, s.role AS staff_role
           FROM payroll p JOIN staff s ON p.staff_id = s.id";
 $p_where = []; $p_params = []; $p_i = 1;
+
+if (!$is_admin) {
+    $my_staff = db_select_one("SELECT id FROM staff WHERE user_id = $1", [$_SESSION['user_id']]);
+    $p_where[] = "p.staff_id = \$$p_i"; 
+    $p_params[] = $my_staff['id'] ?? '00000000-0000-0000-0000-000000000000'; 
+    $p_i++;
+}
+
 if ($filter_month)  { $p_where[] = "TO_CHAR(p.salary_month,'YYYY-MM') = \$$p_i"; $p_params[] = $filter_month;  $p_i++; }
 if ($filter_status) { $p_where[] = "p.status = \$$p_i";                           $p_params[] = $filter_status; $p_i++; }
 if ($p_where) $p_sql .= " WHERE " . implode(" AND ", $p_where);
@@ -253,7 +404,7 @@ foreach ($_stat_rows as $_r) {
 }
 $stats['avg_net'] = $_nets ? round(array_sum($_nets) / count($_nets)) : 0;
 
-$page_title = "Payroll Management";
+$page_title = "Payroll";
 include '../../includes/header.php';
 ?>
 
@@ -357,6 +508,7 @@ include '../../includes/header.php';
             <h2 style="margin:0;font-size:1.4em;font-weight:800;color:#111827;">Payroll Management</h2>
             <p style="margin:0;color:#6b7280;font-size:0.88em;">Dynamic payroll with leave-based deductions</p>
         </div>
+        <?php if ($is_admin): ?>
         <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
             <button class="btn-bulk" onclick="document.getElementById('bulkModal').classList.add('open')">
                 <i class="fas fa-bolt"></i> Bulk Generate
@@ -365,6 +517,7 @@ include '../../includes/header.php';
                 <i class="fas fa-plus"></i> Generate Payroll
             </button>
         </div>
+        <?php endif; ?>
     </div>
 
     <!-- Stats -->
@@ -398,7 +551,9 @@ include '../../includes/header.php';
     <!-- Tabs -->
     <div class="pr-tabs">
         <a href="?tab=records" class="pr-tab <?= $active_tab === 'records' ? 'active' : '' ?>"><i class="fas fa-list"></i> Payroll Records</a>
+        <?php if ($is_admin): ?>
         <a href="?tab=settings" class="pr-tab <?= $active_tab === 'settings' ? 'active' : '' ?>"><i class="fas fa-sliders-h"></i> Salary Settings</a>
+        <?php endif; ?>
     </div>
 
     <?php if ($active_tab === 'records'): ?>
@@ -471,12 +626,13 @@ include '../../includes/header.php';
                 <td><strong style="color:#111827;font-size:0.95em;">₹<?= number_format($net, 0) ?></strong></td>
                 <td><span class="st-pill st-<?= $pay['status'] ?>"><?= ucfirst($pay['status']) ?></span></td>
                 <td>
-                    <?php if ($pay['status'] === 'unpaid'): ?>
+                    <a href="?payroll_id=<?= $pay['id'] ?>" target="_blank" class="btn-sm" style="background:#e0e7ff; color:#3730a3; text-decoration:none;">
+                        <i class="fas fa-print"></i> View
+                    </a>
+                    <?php if ($is_admin && $pay['status'] === 'unpaid'): ?>
                     <a href="?mark_paid=<?= $pay['id'] ?>&tab=records" class="btn-sm btn-pay" onclick="return confirm('Mark as paid?')">
                         <i class="fas fa-check"></i> Pay
                     </a>
-                    <?php else: ?>
-                    <span style="font-size:0.8em;color:#9ca3af;font-weight:500;"><i class="fas fa-check-circle" style="color:#10b981;"></i> Paid</span>
                     <?php endif; ?>
                 </td>
             </tr>

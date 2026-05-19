@@ -267,63 +267,44 @@ body {
     margin-left: 10px;
 }
 
-/* Specific Card Colors - Refined */
-.card-purple {
-    background: #E0D5FC;
-    color: #333;
-}
+/* Specific Card Colors - Refined Premium Palette */
+.card-purple { background: #E0D5FC; color: #1e1b4b; }
+.card-blue { background: #D6E6FD; color: #1e3a8a; }
+.card-yellow { background: #FCF696; color: #713f12; }
+.card-light { background: #F2F6FE; color: #1e293b; }
 
-.card-blue {
-    background: #D6E6FD;
-    color: #333;
-}
+/* New Departmental Colors */
+.card-emerald { background: #D1FAE5; color: #064e3b; }
+.card-amber { background: #FEF3C7; color: #78350f; }
+.card-rose { background: #FFE4E6; color: #881337; }
+.card-cyan { background: #CFFAFE; color: #164e63; }
+.card-teal { background: #CCFBF1; color: #134e4a; }
+.card-indigo { background: #E0E7FF; color: #312e81; }
 
-.card-yellow {
-    background: #FCF696;
-    color: #333;
-}
-
-.card-light {
-    background: #F2F6FE;
-    color: #333;
+.stat-card {
+    border-radius: 24px !important;
+    border: 1px solid rgba(0,0,0,0.03) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .stat-subtext {
     font-size: 0.75rem;
-    color: #666;
+    color: inherit;
+    opacity: 0.7;
     margin-top: 5px;
-}
-
-.icon-btn-sm {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    padding: 5px;
 }
 
 .stat-trend {
     font-size: 0.7rem;
-    padding: 2px 6px;
+    padding: 2px 8px;
     border-radius: 12px;
     margin-left: 8px;
-    font-weight: 600;
+    font-weight: 700;
+    background: rgba(255,255,255,0.4);
 }
 
-.trend-up {
-    background: rgba(255, 255, 255, 0.4);
-    color: #333;
-}
-
-.trend-down {
-    background: rgba(0, 0, 0, 0.1);
-    color: #333;
-}
-
-.trend-dark {
-    background: #222;
-    color: #fff;
-}
+.trend-up { color: inherit; }
+.trend-down { background: rgba(0,0,0,0.05); color: inherit; }
 
 .stats-widget-container {
     margin-bottom: 30px;

@@ -7,10 +7,6 @@ check_role(['lab_tech']);
 $page_title = "Lab Technician Dashboard";
 include '../includes/header.php';
 
-// Stats
-$pending_tests = db_select_one("SELECT COUNT(*) as c FROM laboratory_tests WHERE status = 'ordered'")['c'];
-$completed_tests = db_select_one("SELECT COUNT(*) as c FROM laboratory_tests WHERE status = 'completed'")['c'];
-$tests_today = db_select_one("SELECT COUNT(*) as c FROM laboratory_tests WHERE created_at >= CURRENT_DATE")['c'];
 
 // Latest Request logic (Absolute latest)
 $latest_req = db_select_one("SELECT l.*, p.first_name, p.last_name 
@@ -39,20 +35,7 @@ $latest_req = db_select_one("SELECT l.*, p.first_name, p.last_name
 </div>
 <?php endif; ?>
 
-<div class="smart-stat-grid">
-    <div class="smart-stat-card">
-        <h3><?php echo $pending_tests; ?></h3>
-        <p>Pending Orders</p>
-    </div>
-    <div class="smart-stat-card">
-        <h3><?php echo $completed_tests; ?></h3>
-        <p>Completed Reports</p>
-    </div>
-    <div class="smart-stat-card">
-        <h3><?php echo $tests_today; ?></h3>
-        <p>New Requests Today</p>
-    </div>
-</div>
+<?php include '../includes/stats_widgets.php'; ?>
 
 <div class="card">
     <div class="card-header">Quick Actions</div>

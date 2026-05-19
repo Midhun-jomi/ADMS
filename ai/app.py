@@ -524,10 +524,10 @@ def get_specialization_for_condition(condition):
         "Pleuritis": "Pulmonology", "Pleurisy": "Pulmonology", "Sleep Apnoea": "Pulmonology",
         "Cystic Fibrosis": "Pulmonology", "Pertussis": "Pulmonology",
         "Pulmonary Embolism": "Pulmonology", "Pulmonary Fibrosis": "Pulmonology",
-        "Sinusitis": "ENT", "Tonsillitis": "ENT", "Rhinitis": "ENT",
-        "Laryngitis": "ENT", "Nasal Polyp": "ENT", "Deviated": "ENT",
-        "Adenoid": "ENT", "Otitis": "ENT", "Tinnitus": "ENT",
-        "Hearing Loss": "ENT", "Epistaxis": "ENT", "Hay Fever": "ENT",
+        "Sinusitis": "Otolaryngology (ENT)", "Tonsillitis": "Otolaryngology (ENT)", "Rhinitis": "Otolaryngology (ENT)",
+        "Laryngitis": "Otolaryngology (ENT)", "Nasal Polyp": "Otolaryngology (ENT)", "Deviated": "Otolaryngology (ENT)",
+        "Adenoid": "Otolaryngology (ENT)", "Otitis": "Otolaryngology (ENT)", "Tinnitus": "Otolaryngology (ENT)",
+        "Hearing Loss": "Otolaryngology (ENT)", "Epistaxis": "Otolaryngology (ENT)", "Hay Fever": "Otolaryngology (ENT)",
         "Gastrointestinal": "Gastroenterology", "Gastritis": "Gastroenterology",
         "Gastro": "Gastroenterology", "Ulcer": "Gastroenterology", "Colitis": "Gastroenterology",
         "Bowel": "Gastroenterology", "Constipation": "Gastroenterology",
@@ -585,20 +585,20 @@ def get_specialization_for_condition(condition):
         "Anorexia": "Psychiatry", "Bulimia": "Psychiatry", "Burnout": "Psychiatry",
         "Oncological": "Oncology", "Cancer": "Oncology", "Tumour": "Oncology",
         "Melanoma": "Oncology", "Carcinoma": "Oncology", "Metastasis": "Oncology",
-        "Leukaemia": "Oncology", "Lymphoma": "Haematology", "Myeloma": "Haematology",
-        "Anaemia": "Haematology", "Anemia": "Haematology", "Blood Deficiency": "Haematology",
-        "Sickle Cell": "Haematology", "Thalassaemia": "Haematology",
-        "Thalassemia": "Haematology", "Thrombocytopenia": "Haematology",
-        "Haemophilia": "Haematology", "Hemophilia": "Haematology",
-        "Polycythaemia": "Haematology", "Aplastic": "Haematology",
-        "Iron Deficiency": "Haematology",
-        "Endometriosis": "Gynaecology", "Fibroid": "Gynaecology",
-        "Menstrual": "Gynaecology", "Dysmenorrhoea": "Gynaecology",
-        "Amenorrhoea": "Gynaecology", "Ovarian Cyst": "Gynaecology",
-        "Cervical": "Gynaecology", "Vaginitis": "Gynaecology",
-        "Vulvodynia": "Gynaecology", "Preeclampsia": "Gynaecology",
-        "Ectopic": "Gynaecology", "Menopause": "Gynaecology",
-        "Pelvic Inflammatory": "Gynaecology",
+        "Leukaemia": "Oncology", "Lymphoma": "Hematology", "Myeloma": "Hematology",
+        "Anaemia": "Hematology", "Anemia": "Hematology", "Blood Deficiency": "Hematology",
+        "Sickle Cell": "Hematology", "Thalassaemia": "Hematology",
+        "Thalassemia": "Hematology", "Thrombocytopenia": "Hematology",
+        "Haemophilia": "Hematology", "Hemophilia": "Hematology",
+        "Polycythaemia": "Hematology", "Aplastic": "Hematology",
+        "Iron Deficiency": "Hematology",
+        "Endometriosis": "Obstetrics and Gynecology", "Fibroid": "Obstetrics and Gynecology",
+        "Menstrual": "Obstetrics and Gynecology", "Dysmenorrhoea": "Obstetrics and Gynecology",
+        "Amenorrhoea": "Obstetrics and Gynecology", "Ovarian Cyst": "Obstetrics and Gynecology",
+        "Cervical": "Obstetrics and Gynecology", "Vaginitis": "Obstetrics and Gynecology",
+        "Vulvodynia": "Obstetrics and Gynecology", "Preeclampsia": "Obstetrics and Gynecology",
+        "Ectopic": "Obstetrics and Gynecology", "Menopause": "Obstetrics and Gynecology",
+        "Pelvic Inflammatory": "Obstetrics and Gynecology",
         "Viral": "General Medicine", "Influenza": "General Medicine", "Fever": "General Medicine",
         "Pharyngitis": "General Medicine", "Wellness": "General Medicine",
         "Malaria": "General Medicine", "Dengue": "General Medicine", "Typhoid": "General Medicine",
@@ -929,6 +929,141 @@ def predict_blood_expiry():
         "calculated_days": days,
         "expiry_date": exp_date.strftime("%Y-%m-%d")
     })
+
+# --- 9. Lab & Radiology Analysis Engine ---
+LAB_REFERENCE_RANGES = {
+    "hemoglobin": {"min": 13.5, "max": 17.5, "unit": "g/dL", "low_info": "Possible Anemia", "high_info": "Polycythemia"},
+    "wbc": {"min": 4500, "max": 11000, "unit": "cells/mcL", "low_info": "Leukopenia (Low Immunity)", "high_info": "Infection / Leukocytosis"},
+    "platelets": {"min": 150000, "max": 450000, "unit": "cells/mcL", "low_info": "Thrombocytopenia (Bleeding Risk)", "high_info": "Thrombocytosis"},
+    "glucose": {"min": 70, "max": 100, "unit": "mg/dL", "low_info": "Hypoglycemia", "high_info": "Hyperglycemia / Possible Diabetes"},
+    "creatinine": {"min": 0.7, "max": 1.3, "unit": "mg/dL", "low_info": "Low Muscle Mass", "high_info": "Possible Kidney Dysfunction"},
+    "cholesterol": {"min": 0, "max": 200, "unit": "mg/dL", "low_info": "Normal", "high_info": "Hyperlipidemia (High Risk)"},
+    "potassium": {"min": 3.6, "max": 5.2, "unit": "mmol/L", "low_info": "Hypokalemia", "high_info": "Hyperkalemia"},
+}
+
+def analyze_lab_results(lab_data):
+    findings = []
+    summary_parts = []
+    
+    for marker, value in lab_data.items():
+        m_lower = marker.lower()
+        if m_lower in LAB_REFERENCE_RANGES:
+            ref = LAB_REFERENCE_RANGES[m_lower]
+            try:
+                val = float(value)
+            except:
+                continue
+                
+            status = "Normal"
+            note = ""
+            
+            if val < ref["min"]:
+                status = "Low"
+                note = ref["low_info"]
+                summary_parts.append(f"{marker} is low ({note})")
+            elif val > ref["max"]:
+                status = "High"
+                note = ref["high_info"]
+                summary_parts.append(f"{marker} is high ({note})")
+            
+            findings.append({
+                "marker": marker.upper(),
+                "value": val,
+                "range": f"{ref['min']} - {ref['max']} {ref['unit']}",
+                "status": status,
+                "note": note
+            })
+            
+    return findings, " ".join(summary_parts) if summary_parts else "All markers within normal range."
+
+def analyze_radiology_report(text):
+    text = text.lower()
+    findings = []
+    
+    keywords = {
+        "fracture": "Possible Bone Fracture identified.",
+        "opacity": "Lung Opacity / Possible Pneumonia or Infection.",
+        "consolidation": "Lung Consolidation / Likely Pneumonia.",
+        "mass": "Soft Tissue Mass detected. Requires further investigation.",
+        "lesion": "Lesion identified in imaging.",
+        "effusion": "Pleural Effusion (Fluid in lungs) detected.",
+        "normal": "No obvious abnormalities detected in the report text.",
+        "hemorrhage": "Evidence of internal bleeding/hemorrhage.",
+        "edema": "Evidence of swelling/edema detected.",
+    }
+    
+    for kw, desc in keywords.items():
+        if kw in text:
+            findings.append(desc)
+            
+    if not findings:
+        return "No specific clinical patterns recognized. Manual review recommended."
+    return " ".join(findings)
+
+def correlate_clinical_data(lab_findings, vitals, history):
+    correlations = []
+    h_lower = (history or "").lower()
+    
+    # Extract vitals
+    try:
+        hr = float(vitals.get('heart_rate', 0))
+        bp_sys = float(vitals.get('bp_systolic', 0))
+    except:
+        hr, bp_sys = 0, 0
+
+    # 1. Anemia Correlation
+    hb_finding = next((f for f in lab_findings if f['marker'] == 'HEMOGLOBIN'), None)
+    if hb_finding and hb_finding['status'] == 'Low':
+        if hr > 100:
+            correlations.append("Clinical Alert: Compensatory Tachycardia detected alongside low Hemoglobin. This indicates significant physiological stress.")
+    
+    # 2. Glucose Correlation
+    glu_finding = next((f for f in lab_findings if f['marker'] == 'GLUCOSE'), None)
+    if glu_finding and glu_finding['status'] == 'High':
+        if "diabetes" in h_lower or "diabetic" in h_lower:
+            correlations.append("Observation: Known diabetic patient with persistent hyperglycemia. Review current treatment plan.")
+        else:
+            correlations.append("Warning: New-onset high glucose in patient without documented diabetes history. Recommend HbA1c screening.")
+
+    # 3. Kidney Correlation
+    cre_finding = next((f for f in lab_findings if f['marker'] == 'CREATININE'), None)
+    if cre_finding and cre_finding['status'] == 'High':
+        if "kidney" in h_lower or "renal" in h_lower or "ckd" in h_lower:
+            correlations.append("Critical: Worsening renal function noted in patient with existing kidney history.")
+        else:
+            correlations.append("Concern: Elevated creatinine without known renal history. Rule out acute kidney injury (AKI).")
+
+    # 4. Infection Correlation
+    wbc_finding = next((f for f in lab_findings if f['marker'] == 'WBC'), None)
+    if wbc_finding and wbc_finding['status'] == 'High':
+        if hr > 110 or bp_sys < 90:
+            correlations.append("Emergency Alert: High WBC count combined with abnormal vitals suggests potential Sepsis. Transfer to ER for urgent evaluation.")
+
+    return correlations
+
+
+@app.route('/analyze_results', methods=['POST'])
+def analyze_results():
+    data = request.json or {}
+    lab_data = data.get('lab_results', {})
+    radiology_text = data.get('radiology_report', '')
+    vitals = data.get('vitals', {})
+    history = data.get('history', '')
+    
+    lab_findings, lab_summary = analyze_lab_results(lab_data)
+    rad_summary = analyze_radiology_report(radiology_text) if radiology_text else None
+    
+    # Add Correlations
+    correlations = correlate_clinical_data(lab_findings, vitals, history)
+    
+    return jsonify({
+        "lab_findings": lab_findings,
+        "lab_summary": lab_summary,
+        "radiology_summary": rad_summary,
+        "correlations": correlations,
+        "overall_impression": f"{lab_summary} {rad_summary if rad_summary else ''}".strip()
+    })
+
 
 if __name__ == '__main__':
     load_med_db()

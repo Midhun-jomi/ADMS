@@ -47,10 +47,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <?php endif; ?>
 
         <?php if ($role === 'doctor'): ?>
-        <div class="menu-category">Clinical Workflow</div>
-        <li><a href="<?php echo BASE_URL; ?>/modules/ehr/prescriptions.php" class="<?php echo $current_page == 'prescriptions.php' ? 'active' : ''; ?>">
-            <i class="fas fa-prescription-bottle-alt"></i> Prescriptions
-        </a></li>
         <li><a href="<?php echo BASE_URL; ?>/modules/lab/orders.php" class="<?php echo $current_page == 'orders.php' ? 'active' : ''; ?>">
             <i class="fas fa-flask"></i> Lab Orders
         </a></li>
@@ -74,9 +70,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <?php endif; ?>
 
         <!-- Patient Management Module -->
-        <?php if ($role === 'admin' || $role === 'nurse' || $role === 'head_nurse'): ?>
+        <?php if ($role === 'admin' || $role === 'nurse' || $role === 'head_nurse' || $role === 'doctor'): ?>
         <li><a href="<?php echo BASE_URL; ?>/modules/patient_management/manage_beds.php" class="<?php echo $current_page == 'manage_beds.php' ? 'active' : ''; ?>">
             <i class="fas fa-procedures"></i> Bed Management
+        </a></li>
+        <li><a href="<?php echo BASE_URL; ?>/modules/patient_management/in_patients.php" class="<?php echo $current_page == 'in_patients.php' ? 'active' : ''; ?>">
+            <i class="fas fa-user-check"></i> In Patients
         </a></li>
         
         <?php if ($role === 'admin'): // Nurses see this as Dashboard ?>
@@ -260,13 +259,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         <!-- Equipment & Scheduling -->
         <?php if (in_array($role, ['admin','nurse','head_nurse'])): ?>
-        <div class="menu-category">Resources</div>
-        <li><a href="<?php echo BASE_URL; ?>/modules/scheduling/equipment_schedule.php" class="<?php echo strpos($current_page, 'equipment_schedule') !== false ? 'active' : ''; ?>">
-            <i class="fas fa-calendar-alt"></i> Equipment & Rooms
-        </a></li>
-        <li><a href="<?php echo BASE_URL; ?>/modules/patient_management/bed_analytics.php" class="<?php echo strpos($current_page, 'bed_analytics') !== false ? 'active' : ''; ?>">
-            <i class="fas fa-bed"></i> Bed Analytics
-        </a></li>
         <?php endif; ?>
 
         <!-- Appointment Reminders -->
@@ -283,12 +275,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="fas fa-shopping-cart"></i> Purchase Orders
         </a></li>
 
-        <div class="menu-category">HR Tools</div>
+        <div class="menu-category">HR & Finance</div>
         <li><a href="<?php echo BASE_URL; ?>/modules/hr/roster.php" class="<?php echo strpos($current_page, 'roster') !== false ? 'active' : ''; ?>">
             <i class="fas fa-calendar-week"></i> Duty Roster
         </a></li>
-        <li><a href="<?php echo BASE_URL; ?>/modules/hr/payslip.php" class="<?php echo strpos($current_page, 'payslip') !== false ? 'active' : ''; ?>">
-            <i class="fas fa-file-invoice"></i> Payslips
+        <li><a href="<?php echo BASE_URL; ?>/modules/hr/payroll.php" class="<?php echo strpos($current_page, 'payroll') !== false ? 'active' : ''; ?>">
+            <i class="fas fa-file-invoice-dollar"></i> Payroll
         </a></li>
 
         <div class="menu-category">Compliance</div>

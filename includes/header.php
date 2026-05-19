@@ -220,9 +220,9 @@ $user_role = $_SESSION['role'] ?? 'Guest';
             </header>
 
             <main class="main-content">
-                <!-- Global Stats Widgets (Requested on every page) -->
+                <!-- Global Stats Widgets (Requested on most pages, but hidden on specialized consoles) -->
                 <?php 
-                $hide_global_stats = ['/modules/blood_bank/'];
+                $hide_global_stats = ['/modules/blood_bank/', '/modules/telemedicine/', '/modules/ehr/visit_notes.php'];
                 $current_script = $_SERVER['PHP_SELF'];
                 $should_show_stats = true;
                 foreach($hide_global_stats as $path){
@@ -232,7 +232,7 @@ $user_role = $_SESSION['role'] ?? 'Guest';
                     }
                 }
                 
-                if ($user_role !== 'patient' && $should_show_stats) {
+                if ($user_role !== 'patient' && $should_show_stats && strpos($current_script, '/dashboards/') === false) {
                     include __DIR__ . '/stats_widgets.php'; 
                 }
                 ?>

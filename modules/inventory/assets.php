@@ -32,11 +32,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_asset'])) {
     }
 }
 
-// Handle Status Update
 if (isset($_GET['maintenance'])) {
     try {
         db_update('assets', ['status' => 'maintenance'], ['id' => $_GET['maintenance']]);
         $success_msg = "Asset marked for maintenance.";
+    } catch (Exception $e) {
+        $error_msg = $e->getMessage();
+    }
+}
+
+if (isset($_GET['active'])) {
+    try {
+        db_update('assets', ['status' => 'active'], ['id' => $_GET['active']]);
+        $success_msg = "Asset marked as active.";
+    } catch (Exception $e) {
+        $error_msg = $e->getMessage();
+    }
+}
+
+if (isset($_GET['retire'])) {
+    try {
+        db_delete('assets', ['id' => $_GET['retire']]);
+        $success_msg = "Asset retired and removed from inventory.";
     } catch (Exception $e) {
         $error_msg = $e->getMessage();
     }
@@ -180,6 +197,10 @@ $maintenance_assets = count(array_filter($assets, fn($a) => $a['status'] === 'ma
                                 <?php if ($item['status'] == 'active'): ?>
                                 <a href="?maintenance=<?php echo $item['id']; ?>" class="btn btn-sm btn-icon btn-light text-warning" data-toggle="tooltip" title="Send to Maintenance">
                                     <i class="fas fa-tools"></i>
+                                </a>
+                                <?php elseif ($item['status'] == 'maintenance'): ?>
+                                <a href="?active=<?php echo $item['id']; ?>" class="btn btn-sm btn-icon btn-light text-success" data-toggle="tooltip" title="Mark as Active">
+                                    <i class="fas fa-check-circle"></i>
                                 </a>
                                 <?php endif; ?>
                                 <button class="btn btn-sm btn-icon btn-light text-danger" data-toggle="tooltip" title="Retire Asset" onclick="confirmRetire(<?php echo $item['id']; ?>)">
@@ -550,8 +571,7 @@ function filterAssets() {
 
 function confirmRetire(id) {
     if(confirm('Are you sure you want to retire this asset? This action cannot be undone.')) {
-        // Implement retire logic or redirect
-        alert('Retire functionality to be implemented in backend.');
+        window.location.href = '?retire=' + id;
     }
 }
 

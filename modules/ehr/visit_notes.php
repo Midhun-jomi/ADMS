@@ -805,12 +805,6 @@ function callPatient() {
                 </p>
             </div>
 
-            <div style="background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #eef2f6;">
-                <label class="info-label" style="margin-top:0; color: #4a5568;"><i class="fas fa-history"></i> Patient History</label>
-                <p style="font-size: 0.85em; margin: 5px 0; color: #4a5568;">
-                    <?php echo $ai_patient_history; ?>
-                </p>
-            </div>
 
             <div style="background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #eef2f6;">
                 <label class="info-label" style="margin-top:0; color: #4a5568;"><i class="fas fa-flask"></i> Lab Insight</label>
@@ -1000,13 +994,14 @@ function callPatient() {
                     <div style="margin-bottom: 15px; font-weight: 700; color: #004085;"><i class="fas fa-brain text-primary"></i> Final Clinical Assessment</div>
                     <div class="row">
                         <div class="col-md-8">
-                            <label style="font-size: 0.9em; font-weight: 600; color: #555;">Final Verified Diagnosis <span class="text-danger">*</span></label>
-                            <input type="text" name="final_diagnosis" id="final_diagnosis" class="form-control" placeholder="e.g. Acute Bronchitis" required>
+                            <label style="font-size: 0.9em; font-weight: 600; color: #555;">Final Verified Diagnosis</label>
+                            <input type="text" name="final_diagnosis" id="final_diagnosis" class="form-control" placeholder="e.g. Acute Bronchitis">
                             <small class="form-text text-muted">This confirms the AI prediction or corrects it to improve future accuracy.</small>
                         </div>
                         <div class="col-md-4">
-                            <label style="font-size: 0.9em; font-weight: 600; color: #555;">Urgency Level <span class="text-danger">*</span></label>
-                            <select name="urgency_rating" id="urgency_rating" class="form-control" required>
+                            <label style="font-size: 0.9em; font-weight: 600; color: #555;">Urgency Level</label>
+                            <select name="urgency_rating" id="urgency_rating" class="form-control">
+                                <option value="">-- Select (Optional) --</option>
                                 <option value="Low">Low (Routine)</option>
                                 <option selected value="Medium">Medium (Attention Needed)</option>
                                 <option value="High">High (Urgent)</option>
@@ -1626,11 +1621,45 @@ function callPatient() {
 
     const patientHistory = <?php echo json_encode(strtolower($appt['medical_history'] ?? '')); ?>;
     function checkAllergy(medName) {
-        if (!medName) return;
-        if (patientHistory.includes('allergy') || patientHistory.includes('allergic')) {
-            const warning = document.getElementById('aiSuggestionContent');
-            warning.style.color = "red";
-            warning.innerHTML = "<strong>⚠️ CAUTION:</strong> Cross-checking '"+medName+"' with known allergies... please verify manually.";
+        const warning = document.getElementById('aiSuggestionContent');
+        if (!warning) return;
+        
+        // Reset to default suggestion content if input is empty
+        if (!medName || medName.trim() === "") {
+            warning.style.color = "#333";
+            warning.innerHTML = `<?php 
+                $suggestions = [];
+                $hist_lower = strtolower($appt['medical_history'] ?? '');
+                if (strpos($hist_lower, 'fever') !== false || (isset($latest_vitals['temperature']) && $latest_vitals['temperature']['value'] > 100)) 
+                    $suggestions[] = "<strong>Fever/Inflammation:</strong> Consider PCM 500mg or Ibuprofen.";
+                if (strpos($hist_lower, 'hypertension') !== false || (isset($latest_vitals['bp_systolic']) && $latest_vitals['bp_systolic']['value'] > 140))
+                    $suggestions[] = "<strong>Blood Pressure:</strong> Review Telmisartan or Amlodipine status.";
+                if (strpos($hist_lower, 'allergy') !== false)
+                    $suggestions[] = "<strong><span style='color:red;'>⚠️ ALLERGY ALERT:</span></strong> Patient has recorded allergies. Check history before prescribing.";
+                
+                echo !empty($suggestions) ? addslashes(implode('<br>', $suggestions)) : "No specific patterns detected. Proceed with standard protocol.";
+            ?>`;
+            return;
+        }
+
+        const normalizedMed = medName.toLowerCase().trim();
+        // Regex to find the medication name within 50 characters of the word "allergy" or "allergic"
+        const specificMatch = new RegExp(`(allergy|allergic).{0,50}${normalizedMed}|${normalizedMed}.{0,50}(allergy|allergic)`, 'i');
+
+        if (specificMatch.test(patientHistory)) {
+            warning.style.color = "#c53030"; // Dark Red
+            warning.style.background = "#fff5f5";
+            warning.style.padding = "10px";
+            warning.style.borderRadius = "8px";
+            warning.style.border = "1px solid #feb2b2";
+            warning.innerHTML = "<strong>🛑 CRITICAL ALLERGY ALERT:</strong> Patient record indicates a specific allergy related to '"+medName+"'. Please verify medical history immediately.";
+        } else if (patientHistory.includes('allergy') || patientHistory.includes('allergic')) {
+            warning.style.color = "#92400e"; // Amber/Brown
+            warning.style.background = "#fffbeb";
+            warning.style.padding = "10px";
+            warning.style.borderRadius = "8px";
+            warning.style.border = "1px solid #fef3c7";
+            warning.innerHTML = "<strong>ℹ️ General Safety Note:</strong> Patient has documented allergies. No direct match for '"+medName+"' found, but proceed with caution.";
         }
     }
 

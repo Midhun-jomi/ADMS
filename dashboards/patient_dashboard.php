@@ -125,23 +125,35 @@ if ($next_appt) {
             </span>
         </div>
         
-        <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;'>
+        <div style='display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; text-align: center;'>
             <!-- Token -->
-            <div style='background: #f9fafb; padding: 15px; border-radius: 12px;'>
-                <p style='margin: 0 0 5px; font-size: 0.85rem; color: #6b7280; font-weight: 500;'>Your Token</p>
-                <div style='font-size: 1.8rem; font-weight: 700; color: #111827;'>#{$token}</div>
+            <div style='background: #f9fafb; padding: 12px 8px; border-radius: 12px;'>
+                <p style='margin: 0 0 5px; font-size: 0.75rem; color: #6b7280; font-weight: 500;'>Token</p>
+                <div style='font-size: 1.3rem; font-weight: 700; color: #111827;'>#{$token}</div>
             </div>
             
+            <!-- Appt Time -->
+            <div style='background: #f9fafb; padding: 12px 8px; border-radius: 12px;'>
+                <p style='margin: 0 0 5px; font-size: 0.75rem; color: #6b7280; font-weight: 500;'>Appt. Time</p>
+                <div style='font-size: 1.1rem; font-weight: 700; color: #4b5563;'>".date('h:i A', strtotime($next_appt['appointment_time']))."</div>
+            </div>
+
+            <!-- Expected Time -->
+            <div style='background: #eff6ff; padding: 12px 8px; border-radius: 12px; border: 1px solid #dbeafe;'>
+                <p style='margin: 0 0 5px; font-size: 0.75rem; color: #1e40af; font-weight: 600;'>Expected</p>
+                <div style='font-size: 1.1rem; font-weight: 700; color: #1e40af;'>".date('h:i A', max(time(), strtotime($next_appt['appointment_time'])) + ($mins * 60))."</div>
+            </div>
+
             <!-- Patients Ahead -->
-            <div style='background: #f9fafb; padding: 15px; border-radius: 12px;'>
-                <p style='margin: 0 0 5px; font-size: 0.85rem; color: #6b7280; font-weight: 500;'>Patients Ahead</p>
-                <div style='font-size: 1.8rem; font-weight: 700; color: #4b5563;'>{$ahead}</div>
+            <div style='background: #f9fafb; padding: 12px 8px; border-radius: 12px;'>
+                <p style='margin: 0 0 5px; font-size: 0.75rem; color: #6b7280; font-weight: 500;'>Ahead</p>
+                <div style='font-size: 1.3rem; font-weight: 700; color: #4b5563;'>{$ahead}</div>
             </div>
             
-            <!-- Est Time -->
-            <div style='background: $bg_color; padding: 15px; border-radius: 12px;'>
-                <p style='margin: 0 0 5px; font-size: 0.85rem; color: $text_color; font-weight: 500;'>Est. Wait</p>
-                <div style='font-size: 1.8rem; font-weight: 700; color: $text_color;'>{$mins}<span style='font-size: 1rem;'>m</span></div>
+            <!-- Est Wait -->
+            <div style='background: $bg_color; padding: 12px 8px; border-radius: 12px;'>
+                <p style='margin: 0 0 5px; font-size: 0.75rem; color: $text_color; font-weight: 500;'>Est. Wait</p>
+                <div style='font-size: 1.3rem; font-weight: 700; color: $text_color;'>{$mins}<span style='font-size: 0.8rem;'>m</span></div>
             </div>
         </div>
         
@@ -298,20 +310,146 @@ if ($next_appt) {
 <?php
 // Fetch recent AI Triage Result
 $latest_triage = db_select_one("SELECT * FROM triage_analysis WHERE patient_id = $1 ORDER BY created_at DESC LIMIT 1", [$patient_id]);
+
+// Fetch Past Lab Results
+$recent_labs = db_select("SELECT test_type, status, result_data, created_at FROM laboratory_tests WHERE patient_id = $1 ORDER BY created_at DESC LIMIT 3", [$patient_id]);
+
+// Fetch Last Prescribed Medications
+$latest_rx = db_select_one("SELECT medication_details, created_at FROM prescriptions WHERE patient_id = $1 ORDER BY created_at DESC LIMIT 1", [$patient_id]);
+$last_meds = $latest_rx ? json_decode($latest_rx['medication_details'], true) : [];
+
+// Fetch All Future Appointments (excluding today's live one if it's already shown)
+$future_appointments = db_select("SELECT a.*, s.first_name as doc_first, s.last_name as doc_last 
+                                 FROM appointments a 
+                                 JOIN staff s ON a.doctor_id = s.id
+                                 WHERE a.patient_id = $1 AND a.appointment_time > NOW() 
+                                 AND a.status = 'scheduled'
+                                 ORDER BY a.appointment_time ASC LIMIT 3", [$patient_id]);
 ?>
 
-<?php if ($latest_triage): ?>
-    <div class="card" style="margin-bottom: 30px; border-left: 5px solid #8e44ad;">
-        <div class="card-header" style="background: linear-gradient(to right, #f3e5f5, #fff);">
-            <h5 style="margin:0; color: #8e44ad;"><i class="fas fa-robot"></i> Recent AI Health Analysis</h5>
-        </div>
-        <div class="card-body">
-            <p><strong><i class="fas fa-stethoscope"></i> AI Finding:</strong> <?php echo nl2br(htmlspecialchars($latest_triage['ai_findings'] ?? 'No findings available.')); ?></p>
-            <div style="margin-top: 10px;">
-                <span class="badge badge-<?php echo ($latest_triage['severity_score'] >= 7) ? 'danger' : (($latest_triage['severity_score'] >= 4) ? 'warning' : 'success'); ?>">
-                    Severity Score: <?php echo $latest_triage['severity_score']; ?>/10
+<?php
+// Fetch Triage Trends
+$triage_trend = db_select("SELECT severity_score, created_at FROM triage_analysis WHERE patient_id = $1 ORDER BY created_at DESC LIMIT 2", [$patient_id]);
+$health_improvement = null;
+if (count($triage_trend) >= 2) {
+    $curr_score = (int)$triage_trend[0]['severity_score'];
+    $prev_score = (int)$triage_trend[1]['severity_score'];
+    if ($curr_score < $prev_score) {
+        $health_improvement = [
+            'type' => 'score',
+            'diff' => $prev_score - $curr_score,
+            'msg' => "Overall health risk decreased by " . ($prev_score - $curr_score) . " points."
+        ];
+    }
+}
+
+// Lab Result Improvement Check
+$lab_improvements = [];
+$completed_labs = db_select("SELECT test_type, result_data, created_at FROM laboratory_tests WHERE patient_id = $1 AND status = 'completed' ORDER BY created_at DESC LIMIT 10", [$patient_id]);
+$test_groups = [];
+foreach ($completed_labs as $l) {
+    $test_groups[$l['test_type']][] = $l;
+}
+foreach ($test_groups as $type => $tests) {
+    if (count($tests) >= 2) {
+        $curr_res = json_decode($tests[0]['result_data'], true);
+        $prev_res = json_decode($tests[1]['result_data'], true);
+        $curr_findings = strtolower($curr_res['findings'] ?? $curr_res['summary'] ?? '');
+        $prev_findings = strtolower($prev_res['findings'] ?? $prev_res['summary'] ?? '');
+        
+        if ((strpos($curr_findings, 'normal') !== false || strpos($curr_findings, 'stable') !== false) && 
+            (strpos($prev_findings, 'abnormal') !== false || strpos($prev_findings, 'elevated') !== false || strpos($prev_findings, 'high') !== false)) {
+            $lab_improvements[] = [
+                'test' => $type,
+                'msg' => "Your $type results have normalized since " . date('M d', strtotime($tests[1]['created_at'])) . "!"
+            ];
+        }
+    }
+}
+
+// Vitals Improvement Check
+$vital_trends = [];
+$v_metrics = ['bp_systolic' => [90, 120, 'BP'], 'heart_rate' => [60, 100, 'Heart Rate'], 'glucose' => [70, 140, 'Glucose']];
+foreach ($v_metrics as $m_type => $meta) {
+    $data = db_select("SELECT metric_value, recorded_at FROM patient_health_metrics WHERE patient_id = $1 AND metric_type = $2 ORDER BY recorded_at DESC LIMIT 2", [$patient_id, $m_type]);
+    if (count($data) >= 2) {
+        $curr = (float)json_decode($data[0]['metric_value'], true)['value'];
+        $prev = (float)json_decode($data[1]['metric_value'], true)['value'];
+        $low = $meta[0]; $high = $meta[1];
+        
+        // Improvement if previous was out of range and current is closer to or inside range
+        $prev_out = ($prev < $low || $prev > $high);
+        $curr_dist = min(abs($curr - $low), abs($curr - $high));
+        if ($curr >= $low && $curr <= $high) $curr_dist = 0;
+        
+        $prev_dist = min(abs($prev - $low), abs($prev - $high));
+        if ($prev >= $low && $prev <= $high) $prev_dist = 0;
+
+        if ($prev_out && $curr_dist < $prev_dist) {
+            $vital_trends[] = [
+                'type' => $meta[2],
+                'msg' => "Your " . $meta[2] . " is normalizing and moving closer to the target range."
+            ];
+        }
+    }
+}
+?>
+
+<?php if ($latest_triage || $health_improvement || !empty($lab_improvements) || !empty($vital_trends)): ?>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        
+        <!-- AI Health Analysis -->
+        <?php if ($latest_triage): ?>
+        <div class="card" style="border-left: 5px solid #8e44ad; height: 100%;">
+            <div class="card-header" style="background: linear-gradient(to right, #f3e5f5, #fff); display: flex; justify-content: space-between; align-items: center;">
+                <h5 style="margin:0; color: #8e44ad; font-size: 1rem;"><i class="fas fa-robot"></i> AI Health Analysis</h5>
+                <span class="badge" style="background: <?php echo ($latest_triage['severity_score'] >= 7) ? '#fee2e2' : (($latest_triage['severity_score'] >= 4) ? '#fef3c7' : '#dcfce7'); ?>; color: <?php echo ($latest_triage['severity_score'] >= 7) ? '#b91c1c' : (($latest_triage['severity_score'] >= 4) ? '#92400e' : '#166534'); ?>;">
+                    Score: <?php echo $latest_triage['severity_score']; ?>/10
                 </span>
-                <small class="text-muted ml-2">Analyzed on <?php echo date('M d, Y h:i A', strtotime($latest_triage['created_at'])); ?></small>
+            </div>
+            <div class="card-body" style="padding: 15px;">
+                <p style="font-size: 0.9rem; margin-bottom: 10px;"><strong>Finding:</strong> <?php echo nl2br(htmlspecialchars($latest_triage['ai_findings'] ?? 'No findings.')); ?></p>
+                <small class="text-muted">Analyzed: <?php echo date('M d, h:i A', strtotime($latest_triage['created_at'])); ?></small>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Health Trends & Improvements -->
+        <div class="card" style="border-left: 5px solid #10b981; height: 100%;">
+            <div class="card-header" style="background: linear-gradient(to right, #ecfdf5, #fff);">
+                <h5 style="margin:0; color: #059669; font-size: 1rem;"><i class="fas fa-chart-line"></i> Health Progress</h5>
+            </div>
+            <div class="card-body" style="padding: 15px;">
+                <?php if (!$health_improvement && empty($lab_improvements)): ?>
+                    <p style="font-size: 0.9rem; color: #64748b; font-style: italic;">Monitoring your progress. Keep following your treatment plan!</p>
+                <?php else: ?>
+                    <?php if ($health_improvement): ?>
+                        <div style="background: #f0fdf4; border-radius: 8px; padding: 10px; margin-bottom: 10px; border-left: 3px solid #10b981;">
+                            <div style="color: #166534; font-weight: 700; font-size: 0.9rem;">
+                                <i class="fas fa-arrow-up"></i> Health Score Improved!
+                            </div>
+                            <div style="font-size: 0.85rem; color: #15803d;"><?php echo $health_improvement['msg']; ?></div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php foreach ($lab_improvements as $imp): ?>
+                        <div style="background: #eff6ff; border-radius: 8px; padding: 10px; margin-bottom: 10px; border-left: 3px solid #3b82f6;">
+                            <div style="color: #1e40af; font-weight: 700; font-size: 0.9rem;">
+                                <i class="fas fa-check-circle"></i> Lab Improvement
+                            </div>
+                            <div style="font-size: 0.85rem; color: #1e3a8a;"><?php echo $imp['msg']; ?></div>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <?php foreach ($vital_trends as $vt): ?>
+                        <div style="background: #fff7ed; border-radius: 8px; padding: 10px; margin-bottom: 10px; border-left: 3px solid #f97316;">
+                            <div style="color: #9a3412; font-weight: 700; font-size: 0.9rem;">
+                                <i class="fas fa-heartbeat"></i> Vital Sign Trend
+                            </div>
+                            <div style="font-size: 0.85rem; color: #7c2d12;"><?php echo $vt['msg']; ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -321,16 +459,82 @@ $latest_triage = db_select_one("SELECT * FROM triage_analysis WHERE patient_id =
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         My Health Overview
         <div>
-            <a href="/modules/patient_management/symptom_checker.php" class="btn-sm btn-info" style="text-decoration: none; margin-right: 10px; color: white; background-color: #0284c7; border: none;">
+            <a href="/modules/patient_management/symptom_checker.php" class="btn-sm btn-info" style="text-decoration: none; color: white; background-color: #0284c7; border: none;">
                 <i class="fas fa-robot"></i> AI Symptom Checker
-            </a>
-            <a href="/modules/ehr/edit_profile.php" class="btn-sm btn-primary" style="text-decoration: none;">
-                <i class="fas fa-user-edit"></i> Edit Profile
             </a>
         </div>
     </div>
     <div class="card-body">
-        <p>Welcome to your health dashboard. Use the quick actions below to manage your care.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            
+            <!-- 1. Last Prescribed Meds -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px;">
+                <h6 style="margin-top: 0; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-pills" style="color: #3b82f6;"></i> Last Prescribed Meds
+                </h6>
+                <?php if (empty($last_meds)): ?>
+                    <p style="font-size: 0.85rem; color: #64748b;">No recent prescriptions found.</p>
+                <?php else: ?>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <?php foreach (array_slice($last_meds, 0, 3) as $med): ?>
+                            <li style="font-size: 0.85rem; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px;">
+                                <strong style="color: #334155;"><?php echo htmlspecialchars($med['name']); ?></strong><br>
+                                <span style="color: #64748b; font-size: 0.75rem;"><?php echo htmlspecialchars($med['dosage']); ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <a href="/modules/ehr/prescriptions.php" style="font-size: 0.75rem; color: #3b82f6; text-decoration: none; font-weight: 600;">View All Prescriptions &rarr;</a>
+                <?php endif; ?>
+            </div>
+
+            <!-- 2. Past Lab Results -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px;">
+                <h6 style="margin-top: 0; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-flask" style="color: #8b5cf6;"></i> Past Lab Results
+                </h6>
+                <?php if (empty($recent_labs)): ?>
+                    <p style="font-size: 0.85rem; color: #64748b;">No recent lab tests found.</p>
+                <?php else: ?>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <?php foreach ($recent_labs as $lab): ?>
+                            <li style="font-size: 0.85rem; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; display: flex; justify-content: space-between;">
+                                <span>
+                                    <strong style="color: #334155;"><?php echo htmlspecialchars($lab['test_type']); ?></strong><br>
+                                    <span style="color: #64748b; font-size: 0.75rem;"><?php echo date('M d, Y', strtotime($lab['created_at'])); ?></span>
+                                </span>
+                                <span class="badge" style="height: fit-content; background: <?php echo $lab['status'] == 'completed' ? '#dcfce7' : '#fef3c7'; ?>; color: <?php echo $lab['status'] == 'completed' ? '#166534' : '#92400e'; ?>; font-size: 0.7rem;">
+                                    <?php echo ucfirst($lab['status']); ?>
+                                </span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <a href="/modules/lab/results.php" style="font-size: 0.75rem; color: #3b82f6; text-decoration: none; font-weight: 600;">View All Lab Results &rarr;</a>
+                <?php endif; ?>
+            </div>
+
+            <!-- 3. Upcoming Appointments -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px;">
+                <h6 style="margin-top: 0; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-calendar-alt" style="color: #f59e0b;"></i> Next Appointments
+                </h6>
+                <?php if (empty($future_appointments)): ?>
+                    <p style="font-size: 0.85rem; color: #64748b;">No upcoming appointments scheduled.</p>
+                <?php else: ?>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <?php foreach ($future_appointments as $fa): ?>
+                            <li style="font-size: 0.85rem; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px;">
+                                <strong style="color: #334155;">Dr. <?php echo htmlspecialchars($fa['doc_last']); ?></strong><br>
+                                <span style="color: #64748b; font-size: 0.75rem;">
+                                    <?php echo date('M d, Y', strtotime($fa['appointment_time'])); ?> at <?php echo date('h:i A', strtotime($fa['appointment_time'])); ?>
+                                </span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <a href="/modules/ehr/appointments.php" style="font-size: 0.75rem; color: #3b82f6; text-decoration: none; font-weight: 600;">Manage Appointments &rarr;</a>
+                <?php endif; ?>
+            </div>
+
+        </div>
     </div>
 </div>
 

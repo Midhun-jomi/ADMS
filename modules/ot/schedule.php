@@ -72,7 +72,7 @@ $availableOTs = count(array_filter($theatres, fn($t) => $t['status'] === 'availa
             <p style="margin:5px 0 0; color:#6b7280; font-size:0.9em;">Manage surgical bookings and theatre availability</p>
         </div>
         <button class="ot-btn ot-btn-primary" onclick="showModal('bookingModal')">
-            <i class="fas fa-calendar-plus"></i> Book Surgery
+            <i class="fas fa-calendar-plus"></i> Book OT
         </button>
     </div>
 
@@ -122,7 +122,6 @@ $availableOTs = count(array_filter($theatres, fn($t) => $t['status'] === 'availa
                 <div class="ot-empty">
                     <i class="fas fa-calendar-times"></i>
                     <p>No surgeries scheduled yet.</p>
-                    <button class="ot-btn ot-btn-primary" onclick="showModal('bookingModal')">Schedule First Surgery</button>
                 </div>
             <?php else: ?>
             <div class="ot-table-wrap">

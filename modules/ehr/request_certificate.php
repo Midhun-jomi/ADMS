@@ -73,7 +73,7 @@ if ($role === 'patient') {
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
         <!-- Left Column: Request Form -->
         <div class="card" style="border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <div class="card-header" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; border-radius: 8px 8px 0 0; padding: 20px;">
+            <div class="card-header" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; border-radius: 8px 8px 0 0; padding: 20px; display: block;">
                 <h5 style="margin: 0; font-weight: 600; display: flex; align-items: center;">
                     <i class="fas fa-file-signature" style="margin-right: 10px; font-size: 1.2em;"></i> New Request
                 </h5>
@@ -96,7 +96,7 @@ if ($role === 'patient') {
                         <label for="type" style="font-weight: 500; color: #4b5563; margin-bottom: 8px; display: block;">Certificate Type</label>
                         <div style="position: relative;">
                             <i class="fas fa-notes-medical" style="position: absolute; left: 12px; top: 14px; color: #9ca3af;"></i>
-                            <select name="type" id="type" class="form-control" required style="padding-left: 35px; height: 45px; border-radius: 8px;">
+                            <select name="type" id="type" class="form-control" required style="padding-left: 45px; height: 45px; border-radius: 8px;">
                                 <option value="">-- Select Document --</option>
                                 <option value="Medical Certificate">Medical Certificate</option>
                                 <option value="Fitness Certificate">Fitness Certificate</option>
